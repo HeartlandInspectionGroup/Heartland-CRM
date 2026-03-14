@@ -1,0 +1,148 @@
+[build]
+  functions = "functions"
+
+[build.environment]
+  SECRETS_SCAN_ENABLED = "false"
+
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/save-config"
+  to = "/.netlify/functions/save-config"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/property-details"
+  to = "/.netlify/functions/property-details"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/address-autocomplete"
+  to = "/.netlify/functions/address-autocomplete"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/schedule-booking"
+  to = "/.netlify/functions/schedule-booking"
+  status = 200
+  force = true
+
+
+
+
+[[redirects]]
+  from = "/api/sync-inspection"
+  to = "/.netlify/functions/sync-inspection"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/upload-photo"
+  to = "/.netlify/functions/upload-inspection-photo"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/submit-inspection"
+  to = "/.netlify/functions/submit-inspection"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/generate-report"
+  to = "/.netlify/functions/generate-report"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/inspection-webhook"
+  to = "/.netlify/functions/inspection-webhook"
+  status = 200
+  force = true
+
+
+
+
+
+
+[[redirects]]
+  from = "/api/record-payment"
+  to = "/.netlify/functions/record-payment"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/stripe-status"
+  to = "/.netlify/functions/stripe-status"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/sign-waiver"
+  to = "/.netlify/functions/sign-waiver"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/update-booking"
+  to = "/.netlify/functions/update-booking"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/confirm-booking-email"
+  to = "/.netlify/functions/confirm-booking-email"
+  status = 200
+  force = true
+
+# Block crawlers from admin and test pages
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/form-test.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/agent-portal.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/client-portal.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/inspector.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/invoice.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[redirects]]
+  from = "/heartland-site/*"
+  to = "/services/:splat"
+  status = 301
+[[redirects]]
+  from = "/api/delete-record"
+  to = "/.netlify/functions/delete-record"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/get-availability"
+  to = "/.netlify/functions/get-availability"
+  status = 200
+  force = true

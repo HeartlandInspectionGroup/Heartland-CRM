@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay Your Invoice | Heartland Inspection Group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:     #0d1a2e;
+    --navy2:    #0a1525;
+    --panel:    #111f35;
+    --panel2:   #162440;
+    --border:   rgba(255,255,255,0.08);
+    --green:    #27ae60;
+    --green2:   #2ecc71;
+    --amber:    #f59321;
+    --red:      #e74c3c;
+    --text:     rgba(255,255,255,0.92);
+    --muted:    rgba(255,255,255,0.45);
+    --label:    rgba(255,255,255,0.35);
+  }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .inv-header {
+    background: var(--navy2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .inv-header img { height: 36px; }
+  .inv-header-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .inv-main {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px 48px;
+    gap: 20px;
+  }
+
+  /* ── SUMMARY CARD ── */
+  .inv-summary {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 420px;
+    flex-shrink: 0;
+  }
+
+  .inv-summary-header {
+    background: var(--panel2);
+    border-bottom: 1px solid var(--border);
+    padding: 22px 24px 20px;
+  }
+  .inv-summary-header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .inv-summary-header p {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .inv-property {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .inv-property-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--label);
+    margin-bottom: 5px;
+  }
+  .inv-property-address {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.3px;
+  }
+  .inv-property-client {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .inv-line-items { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+  .inv-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+  }
+  .inv-line-name { font-size: 13px; color: var(--text); }
+  .inv-line-price { font-size: 13px; color: var(--text); font-weight: 600; }
+  .inv-line.discount .inv-line-name,
+  .inv-line.discount .inv-line-price { color: var(--green2); }
+  .inv-line.tax .inv-line-name,
+  .inv-line.tax .inv-line-price { color: var(--muted); font-size: 12px; }
+  .inv-divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+
+  .inv-total {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .inv-total-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .inv-total-amount {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: 0.5px;
+  }
+
+  .inv-note {
+    padding: 14px 24px;
+    background: rgba(245,147,33,0.06);
+    border-top: 1px solid rgba(245,147,33,0.15);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .inv-note strong { color: var(--amber); }
+
+  /* ── PAYMENT CARD ── */
+  .inv-payment {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 420px;
+    flex-shrink: 0;
+  }
+
+  .inv-payment-header {
+    background: var(--panel2);
+    border-bottom: 1px solid var(--border);
+    padding: 22px 24px;
+  }
+  .inv-payment-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .inv-payment-header p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+
+  .inv-payment-body { padding: 24px; }
+
+  .inv-field { margin-bottom: 18px; }
+  .inv-field-label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--label);
+    margin-bottom: 8px;
+  }
+  .inv-field-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .inv-field-input:focus { border-color: var(--green); }
+  .inv-field-input::placeholder { color: rgba(255,255,255,0.2); }
+
+  .inv-card-wrap {
+    padding: 12px 14px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    transition: border-color 0.15s;
+  }
+  .inv-card-wrap.focused { border-color: var(--green); }
+
+  /* Override Stripe iframe text color for dark bg */
+  .inv-card-wrap .StripeElement { color: white; }
+
+  .inv-card-error {
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 8px;
+    min-height: 18px;
+  }
+
+  .inv-pay-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .inv-pay-btn:hover:not(:disabled) { background: var(--green2); transform: translateY(-1px); }
+  .inv-pay-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  .inv-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--label);
+    letter-spacing: 0.3px;
+  }
+
+  /* ── SUCCESS STATE ── */
+  .inv-success {
+    display: none;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .inv-success-icon {
+    width: 68px; height: 68px;
+    background: rgba(39,174,96,0.12);
+    border: 2px solid rgba(39,174,96,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 18px;
+  }
+  .inv-success h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+  .inv-success p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .inv-success-tx {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+  }
+
+  /* ── LOADING / ERROR ── */
+  .inv-loading {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .inv-error-state {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--red);
+    font-size: 14px;
+  }
+
+  /* ── SPINNER ── */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── FOOTER ── */
+  .inv-footer {
+    text-align: center;
+    padding: 18px;
+    border-top: 1px solid var(--border);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--label);
+  }
+  .inv-footer a { color: var(--muted); text-decoration: none; }
+  .inv-footer a:hover { color: var(--text); }
+
+  @media (max-width: 880px) {
+    .inv-main { flex-direction: column; align-items: center; }
+    .inv-summary, .inv-payment { max-width: 100%; }
+  }
+</style>
+  <script src="/config.js"></script>
+</head>
+<body>
+
+<header class="inv-header">
+  <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group">
+  <span class="inv-header-text">Secure Invoice Payment</span>
+</header>
+
+<main class="inv-main" id="invMain">
+
+  <!-- LEFT: Invoice Summary -->
+  <div class="inv-summary" id="invSummary">
+    <div class="inv-loading" id="invLoading">Loading your invoice…</div>
+    <div class="inv-error-state" id="invSummaryError">Could not load invoice. Please contact us.</div>
+
+    <div id="invSummaryContent" style="display:none;">
+      <div class="inv-summary-header">
+        <h1>Invoice</h1>
+        <p>Heartland Inspection Group</p>
+      </div>
+
+      <div class="inv-property">
+        <div class="inv-property-label">Property</div>
+        <div class="inv-property-address" id="invAddress">—</div>
+        <div class="inv-property-client" id="invClient">—</div>
+      </div>
+
+      <div class="inv-line-items" id="invLineItems"></div>
+
+      <div class="inv-total">
+        <span class="inv-total-label">Total Due</span>
+        <span class="inv-total-amount" id="invTotal">—</span>
+      </div>
+
+      <div class="inv-note">
+        <strong>Payment is not required before your inspection.</strong> You're welcome to pay now or at the time of service.
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Payment Form -->
+  <div class="inv-payment" id="invPayment">
+
+    <div class="inv-payment-header">
+      <h2>Pay by Card</h2>
+      <p>Secured by Stripe — your card info is never stored on our servers</p>
+    </div>
+
+    <div class="inv-payment-body" id="invPaymentBody">
+
+      <div class="inv-field">
+        <label class="inv-field-label" for="invName">Name on Card</label>
+        <input class="inv-field-input" type="text" id="invName" placeholder="Full name" autocomplete="cc-name">
+      </div>
+
+      <div class="inv-field">
+        <label class="inv-field-label">Card Details</label>
+        <div class="inv-card-wrap" id="invCardWrap">
+          <div id="cardElement"></div>
+        </div>
+        <div class="inv-card-error" id="cardError"></div>
+      </div>
+
+      <button class="inv-pay-btn" id="invPayBtn" onclick="handlePay()">
+        <span id="invPayBtnText">Pay Now</span>
+        <div class="spinner" id="invSpinner"></div>
+      </button>
+
+      <div class="inv-secure">
+        🔒 Encrypted &amp; secured by Stripe
+      </div>
+    </div>
+
+    <div class="inv-success" id="invSuccess">
+      <div class="inv-success-icon">✓</div>
+      <h2>Payment Received</h2>
+      <p>Thank you — your payment has been processed successfully. We'll see you at the inspection.</p>
+      <div class="inv-success-tx" id="invSuccessTx"></div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="inv-footer">
+  <a href="tel:8153298583">(815) 329-8583</a> &nbsp;·&nbsp;
+  <a href="mailto:info@heartlandinspectiongroup.com">info@heartlandinspectiongroup.com</a> &nbsp;·&nbsp;
+  <a href="https://heartlandinspectiongroup.com">heartlandinspectiongroup.com</a>
+</footer>
+
+<script>
+(function() {
+  var SUPABASE_URL  = 'https://fusravedbksupcsjfzda.supabase.co';
+  var SUPABASE_ANON = window.SUPABASE_ANON_KEY;
+
+  var bookingId   = null;
+  var bookingData = null;
+  var stripeInstance = null;
+  var cardElement    = null;
+
+  function qs(id) { return document.getElementById(id); }
+  function fmt(n) { return '$' + Number(n || 0).toFixed(0); }
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // ── LOAD ──────────────────────────────────────────────────
+  async function loadBooking() {
+    var params = new URLSearchParams(window.location.search);
+    bookingId  = params.get('booking');
+
+    if (!bookingId) {
+      showSummaryError('No invoice ID provided.');
+      return;
+    }
+
+    try {
+      // Read from inspection_records via function — no anon key
+      var res = await fetch('/.netlify/functions/get-report?booking_id=' + encodeURIComponent(bookingId));
+      var data = await res.json();
+      var rows = data && data.report ? [data.report] : null;
+      if (!rows || !rows[0]) { showSummaryError('Invoice not found.'); return; }
+      bookingData = rows[0];
+
+      if (bookingData.payment_status === 'paid') {
+        showAlreadyPaid();
+        return;
+      }
+
+      renderSummary(bookingData);
+      await initStripe();
+    } catch(e) {
+      console.error(e);
+      showSummaryError('Could not load invoice.');
+    }
+  }
+
+  // ── RENDER SUMMARY ─────────────────────────────────────────
+  function renderSummary(b) {
+    qs('invLoading').style.display = 'none';
+    qs('invSummaryContent').style.display = '';
+
+    // inspection_records: address/cust_name  |  bookings: property_address/client_name
+    qs('invAddress').textContent = b.address || b.property_address || '—';
+    qs('invClient').textContent  = b.cust_name || b.client_name || '';
+
+    var html = '';
+    var services = b.services || [];
+    if (services.length) {
+      services.forEach(function(s) {
+        html += '<div class="inv-line">'
+          + '<span class="inv-line-name">' + esc(s.name) + '</span>'
+          + '<span class="inv-line-price">' + (s.price ? fmt(s.price) : 'Included') + '</span>'
+          + '</div>';
+      });
+    } else {
+      // inspection_records fallback — show tier/category as single line item
+      var svcLabel = b.tier || b.category || 'Home Inspection';
+      svcLabel = svcLabel.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, function(l){ return l.toUpperCase(); });
+      html += '<div class="inv-line">'
+        + '<span class="inv-line-name">' + esc(svcLabel) + '</span>'
+        + '<span class="inv-line-price">' + fmt(b.final_total) + '</span>'
+        + '</div>';
+    }
+
+    if (b.discount_amount > 0) {
+      html += '<hr class="inv-divider">'
+        + '<div class="inv-line discount">'
+        + '<span class="inv-line-name">Bundle Discount (' + (b.discount_pct || 0) + '%)</span>'
+        + '<span class="inv-line-price">-' + fmt(b.discount_amount) + '</span>'
+        + '</div>';
+    }
+    if (b.coupon_discount > 0) {
+      html += '<div class="inv-line discount">'
+        + '<span class="inv-line-name">Coupon (' + esc(b.coupon_code || '') + ')</span>'
+        + '<span class="inv-line-price">-' + fmt(b.coupon_discount) + '</span>'
+        + '</div>';
+    }
+    if (b.tax_amount > 0) {
+      html += '<div class="inv-line tax">'
+        + '<span class="inv-line-name">State Tax</span>'
+        + '<span class="inv-line-price">' + fmt(b.tax_amount) + '</span>'
+        + '</div>';
+    }
+
+    qs('invLineItems').innerHTML = html;
+    qs('invTotal').textContent = fmt(b.final_total);
+    qs('invPayBtnText').textContent = 'Pay ' + fmt(b.final_total) + ' Now';
+  }
+
+  // ── STRIPE INIT ────────────────────────────────────────────
+  async function initStripe() {
+    try {
+      var keyRes  = await fetch('/.netlify/functions/get-stripe-key');
+      var keyData = await keyRes.json();
+      var pk = keyData.publishableKey || keyData.key;
+      if (!pk) throw new Error('No Stripe key');
+
+      stripeInstance = Stripe(pk);
+      var elements = stripeInstance.elements({
+        fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&display=swap' }]
+      });
+
+      cardElement = elements.create('card', {
+        style: {
+          base: {
+            fontFamily: "'Barlow', sans-serif",
+            fontSize: '15px',
+            color: 'rgba(255,255,255,0.92)',
+            '::placeholder': { color: 'rgba(255,255,255,0.2)' },
+            iconColor: 'rgba(255,255,255,0.4)',
+          },
+          invalid: { color: '#e74c3c' }
+        }
+      });
+      cardElement.mount('#cardElement');
+      cardElement.on('focus', function() { qs('invCardWrap').classList.add('focused'); });
+      cardElement.on('blur',  function() { qs('invCardWrap').classList.remove('focused'); });
+      cardElement.on('change', function(e) {
+        qs('cardError').textContent = e.error ? e.error.message : '';
+      });
+    } catch(e) {
+      console.error('Stripe init error:', e);
+      qs('cardError').textContent = 'Could not load payment form. Please refresh.';
+    }
+  }
+
+  // ── PAY ────────────────────────────────────────────────────
+  window.handlePay = async function() {
+    if (!stripeInstance || !cardElement || !bookingData) return;
+
+    var name = qs('invName').value.trim();
+    if (!name) { qs('cardError').textContent = 'Please enter the name on your card.'; return; }
+
+    setLoading(true);
+    qs('cardError').textContent = '';
+
+    try {
+      var res = await fetch('/.netlify/functions/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          booking_id:   bookingId,
+          amount_cents: Math.round((bookingData.final_total || 0) * 100),
+          clientName:   bookingData.client_name  || '',
+          clientEmail:  bookingData.client_email || '',
+          clientPhone:  bookingData.client_phone || '',
+          address:      bookingData.property_address || '',
+        })
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Payment setup failed');
+
+      var result = await stripeInstance.confirmCardPayment(data.clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: { name: name, email: bookingData.client_email || '' }
+        }
+      });
+
+      if (result.error) {
+        qs('cardError').textContent = result.error.message;
+        setLoading(false);
+        return;
+      }
+
+      if (result.paymentIntent.status === 'succeeded') {
+        // Record payment server-side (service key) — updates booking + record + sets invoice_url
+        var payRes = await fetch('/.netlify/functions/record-online-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            booking_id: bookingId,
+            stripe_payment_intent_id: result.paymentIntent.id,
+          })
+        });
+        var payData = await payRes.json();
+
+        // Redirect back to portal so client sees cleared notification immediately
+        if (payData.portal_url) {
+          window.location.href = payData.portal_url;
+        } else {
+          showSuccess(result.paymentIntent.id);
+        }
+      }
+
+    } catch(e) {
+      qs('cardError').textContent = e.message || 'Payment failed. Please try again.';
+      setLoading(false);
+    }
+  };
+
+  function setLoading(loading) {
+    var btn  = qs('invPayBtn');
+    var txt  = qs('invPayBtnText');
+    var spin = qs('invSpinner');
+    btn.disabled = loading;
+    txt.textContent = loading ? 'Processing…' : 'Pay ' + fmt(bookingData ? bookingData.final_total : 0) + ' Now';
+    spin.style.display = loading ? 'block' : 'none';
+  }
+
+  function showSuccess(txId) {
+    qs('invPaymentBody').style.display = 'none';
+    qs('invSuccess').style.display = 'block';
+    qs('invSuccessTx').textContent = 'Transaction ID: ' + txId;
+  }
+
+  function showAlreadyPaid() {
+    qs('invLoading').style.display = 'none';
+    qs('invSummaryContent').style.display = '';
+    qs('invAddress').textContent = bookingData.property_address || '—';
+    qs('invClient').textContent  = bookingData.client_name || '';
+    qs('invLineItems').innerHTML = '<div style="padding:8px 0;font-size:14px;color:#27ae60;font-weight:600;">✓ Payment already received</div>';
+    qs('invTotal').textContent = fmt(bookingData.final_total);
+    qs('invPaymentBody').style.display = 'none';
+    qs('invSuccess').style.display = 'block';
+    qs('invSuccessTx').textContent = bookingData.stripe_transaction_id
+      ? 'Transaction ID: ' + bookingData.stripe_transaction_id
+      : 'Payment on file';
+  }
+
+  function showSummaryError(msg) {
+    qs('invLoading').style.display = 'none';
+    qs('invSummaryError').style.display = 'block';
+    qs('invSummaryError').textContent = msg;
+  }
+
+  loadBooking();
+})();
+</script>
+
+</body>
+</html>

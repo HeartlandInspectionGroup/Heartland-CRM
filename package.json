@@ -1,0 +1,21 @@
+{
+  "name": "heartland-netlify-functions",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run && playwright test",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
+    "node-ical": "^0.18.0",
+    "stripe": "^20.4.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "playwright": "^1.58.2",
+    "vitest": "^4.0.18"
+  }
+}

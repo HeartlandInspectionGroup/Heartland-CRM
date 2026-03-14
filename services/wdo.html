@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDO Inspection | Heartland Inspection Group | Roscoe, IL</title>
+    <meta name="description" content="Professional wood-destroying organism inspection in Roscoe, IL. Termite, carpenter ant, and wood-boring beetle detection.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <div id="site-header"></div>
+    <script src="../shared/header.js" data-base="../"></script>
+
+    <div class="breadcrumbs">
+        <div class="breadcrumb-container">
+            <a href="../index.html">Home</a>
+            <span>/</span>
+            <a href="../index.html#services">Services</a>
+            <span>/</span>
+            <span>WDO Inspection</span>
+        </div>
+    </div>
+
+    <section class="service-hero" data-section-id="hero" data-section-label="Hero">
+        <div class="service-hero-content">
+            <h1 data-edit-id="hero-title">WDO (Wood-Destroying Organisms) Inspection</h1>
+            <p class="subtitle" data-edit-id="hero-subtitle">Detect Termites, Carpenter Ants &amp; More</p>
+            <p data-edit-id="hero-description">
+                Termites, carpenter ants, wood-boring beetles, and other wood-destroying organisms can silently cause thousands of dollars in structural damage. Our comprehensive WDO inspection identifies current infestations, previous damage, and conditions conducive to future problems — protecting your investment before it's too late.
+            </p>
+        </div>
+    </section>
+
+    <section class="video-section" data-section-id="video" data-section-label="Video">
+        <div class="video-container" style="text-align: center;">
+            <div class="section-header">
+                <div class="section-label" data-edit-id="video-label">Watch &amp; Learn</div>
+                <h2 class="section-title" data-edit-id="video-title">Understanding Wood-Destroying Organisms</h2>
+            </div>
+            <div class="video-wrapper">
+                <iframe
+                    data-edit-id="video-url"
+                    src="https://www.youtube.com/embed/GIlDXKxgha0?si=E00sPpKok3raDREa"
+                    title="Understanding Wood-Destroying Organisms"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section (loaded from Supabase) -->
+    <section class="service-faq" id="faq" data-section-id="faq" data-section-label="FAQ">
+        <div class="faq-container">
+            <div class="section-header">
+                <div class="section-label" data-edit-id="faq-label">Common Questions</div>
+                <h2 class="section-title" data-edit-id="faq-title">WDO Inspection FAQ</h2>
+            </div>
+            <div id="serviceFaqList"></div>
+        </div>
+    </section>
+
+    <section class="service-cta" data-section-id="cta" data-section-label="Call to Action">
+        <h2 data-edit-id="cta-title">Protect Your Home from Hidden Damage</h2>
+        <p data-edit-id="cta-description">Wood-destroying organisms work silently. Don't wait until the damage is visible — schedule your WDO inspection today.</p>
+        <div class="cta-buttons">
+            <a href="../index.html#bundle" class="btn-primary" data-edit-id="cta-button-primary" data-edit-link>Get Instant Quote</a>
+            <a href="../index.html#contact" class="btn-secondary" data-edit-id="cta-button-secondary" data-edit-link>Ask a Question</a>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+    <script src="../shared/footer.js" data-base="../"></script>
+    <!-- Service FAQ loader -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../shared/service-faq.js" data-slug="wdo"></script>
+    <script src="../shared/inline-editor.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wizard Builder — Heartland Inspection Group</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="/config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:        #121e30;
+      --navy-mid:    #1a2a44;
+      --navy-light:  #243554;
+      --red:         #c0392b;
+      --red-dark:    #962d22;
+      --green:       #27ae60;
+      --orange:      #f59321;
+      --white:       #ffffff;
+      --text:        #e8edf5;
+      --text-muted:  rgba(232,237,245,0.5);
+      --border:      rgba(255,255,255,0.08);
+      --card-bg:     rgba(255,255,255,0.04);
+      --card-hover:  rgba(255,255,255,0.07);
+      --input-bg:    rgba(255,255,255,0.06);
+    }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────────── */
+    .wb-header {
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .wb-header-left { display: flex; align-items: center; gap: 16px; }
+    .wb-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--white);
+      text-transform: uppercase;
+    }
+    .wb-logo span { color: var(--red); }
+    .wb-badge {
+      background: var(--red);
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .wb-header-right { display: flex; align-items: center; gap: 10px; }
+    .wb-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      text-transform: uppercase;
+    }
+    .wb-btn:hover { opacity: 0.85; }
+    .wb-btn--primary { background: var(--green); color: #fff; }
+    .wb-btn--red     { background: var(--red);   color: #fff; }
+    .wb-btn--ghost   {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .wb-btn--ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .wb-btn--sm { padding: 5px 12px; font-size: 12px; }
+    .wb-btn--icon {
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── LAYOUT ──────────────────────────────────────────────────────── */
+    .wb-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      height: calc(100vh - 60px);
+    }
+
+    /* ── LEFT PANEL — SECTIONS LIST ─────────────────────────────────── */
+    .wb-left {
+      background: var(--navy-mid);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .wb-panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .wb-panel-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .wb-section-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .wb-section-list::-webkit-scrollbar { width: 4px; }
+    .wb-section-list::-webkit-scrollbar-track { background: transparent; }
+    .wb-section-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+
+    .wb-section-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.12s;
+      border: 1px solid transparent;
+      margin-bottom: 2px;
+      position: relative;
+    }
+    .wb-section-item:hover { background: var(--card-hover); }
+    .wb-section-item.active {
+      background: var(--navy-light);
+      border-color: rgba(255,255,255,0.1);
+    }
+    .wb-section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-muted);
+    }
+    .wb-section-item.active .wb-section-icon { color: var(--white); background: rgba(255,255,255,0.12); }
+    .wb-section-info { flex: 1; min-width: 0; }
+    .wb-section-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wb-section-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .wb-cat-pill {
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .wb-section-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.12s;
+    }
+    .wb-section-item:hover .wb-section-actions { opacity: 1; }
+    .wb-icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      border: none;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s;
+    }
+    .wb-icon-btn:hover { background: rgba(255,255,255,0.14); color: var(--text); }
+    .wb-icon-btn.danger:hover { background: rgba(192,57,43,0.25); color: #e74c3c; }
+    .wb-inactive-badge {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      flex-shrink: 0;
+    }
+    .wb-active-badge {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* ── RIGHT PANEL — SECTION DETAIL ───────────────────────────────── */
+    .wb-right {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--navy);
+    }
+    .wb-detail-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .wb-detail-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--white);
+      text-transform: uppercase;
+    }
+    .wb-detail-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .wb-detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .wb-fields-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 28px;
+    }
+    .wb-fields-area::-webkit-scrollbar { width: 4px; }
+    .wb-fields-area::-webkit-scrollbar-track { background: transparent; }
+    .wb-fields-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    /* ── FIELD CARDS ─────────────────────────────────────────────────── */
+    .wb-field-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: border-color 0.12s;
+    }
+    .wb-field-card:hover { border-color: rgba(255,255,255,0.14); }
+    .wb-field-type-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .ft-condition  { background: rgba(39,174,96,0.15);  color: #4cd47e; }
+    .ft-yes_no     { background: rgba(52,152,219,0.15); color: #5dade2; }
+    .ft-measurement{ background: rgba(245,147,33,0.15); color: #f5b942; }
+    .ft-materials  { background: rgba(155,89,182,0.15); color: #bb8fce; }
+    .ft-text       { background: rgba(255,255,255,0.08);color: var(--text-muted); }
+    .wb-field-info { flex: 1; min-width: 0; }
+    .wb-field-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .wb-field-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .wb-field-unit {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-style: italic;
+    }
+    .wb-field-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+    /* ── EMPTY STATE ─────────────────────────────────────────────────── */
+    .wb-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-muted);
+      padding: 40px;
+      text-align: center;
+    }
+    .wb-empty-icon { opacity: 0.2; }
+    .wb-empty-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+    .wb-empty-sub { font-size: 13px; max-width: 300px; line-height: 1.6; }
+
+    /* ── MODAL ───────────────────────────────────────────────────────── */
+    .wb-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .wb-overlay.open { display: flex; }
+    .wb-modal {
+      background: var(--navy-mid);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px;
+    }
+    .wb-modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+    .wb-form-row { margin-bottom: 16px; }
+    .wb-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .wb-input, .wb-select, .wb-textarea {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .wb-input:focus, .wb-select:focus, .wb-textarea:focus {
+      border-color: rgba(255,255,255,0.25);
+    }
+    .wb-textarea { resize: vertical; min-height: 80px; }
+    .wb-select option { background: #1a2a44; color: #e8edf5; }
+
+    /* Category checkboxes */
+    .wb-cat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .wb-cat-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.12s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .wb-cat-check input[type="checkbox"] { accent-color: var(--green); width: 15px; height: 15px; }
+    .wb-cat-check:has(input:checked) {
+      border-color: rgba(39,174,96,0.4);
+      background: rgba(39,174,96,0.08);
+    }
+
+    .wb-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── LOADING ─────────────────────────────────────────────────────── */
+    .wb-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      color: var(--text-muted);
+      font-size: 14px;
+      gap: 10px;
+    }
+    .wb-spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--text-muted);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ───────────────────────────────────────────────────────── */
+    .wb-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      z-index: 500;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.25s;
+      pointer-events: none;
+    }
+    .wb-toast.show { transform: translateY(0); opacity: 1; }
+    .wb-toast.success { border-color: rgba(39,174,96,0.4); color: #4cd47e; }
+    .wb-toast.error   { border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+
+    /* ── DRAG HANDLE ─────────────────────────────────────────────────── */
+    .wb-drag-handle {
+      cursor: grab;
+      color: var(--text-muted);
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+    .wb-drag-handle:active { cursor: grabbing; }
+    .wb-section-item:hover .wb-drag-handle { opacity: 0.7; }
+    .wb-section-item.drag-over {
+      border-color: rgba(39,174,96,0.5);
+      background: rgba(39,174,96,0.06);
+    }
+
+    /* ── CATEGORY FILTER ─────────────────────────────────────────────── */
+    .wb-filter-bar {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .wb-filter-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .wb-filter-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .wb-filter-btn.active {
+      background: var(--navy-light);
+      border-color: rgba(255,255,255,0.2);
+      color: var(--white);
+    }
+
+    /* ── SECTION COUNT ───────────────────────────────────────────────── */
+    .wb-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 6px 20px 2px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOGIN SCREEN ───────────────────────────────────────────────────────── -->
+  <div id="wbLoginScreen" style="display:none;position:fixed;inset:0;background:var(--navy);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:400px;margin:20px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--white);margin-bottom:6px;">Wizard <span style="color:var(--red);">Builder</span></div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:28px;">Admin access required</div>
+      <div style="margin-bottom:14px;">
+        <label class="wb-label">Email</label>
+        <input class="wb-input" id="wbLoginEmail" type="email" placeholder="admin@example.com"
+          onkeydown="if(event.key==='Enter')document.getElementById('wbLoginPw').focus()">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label class="wb-label">Password</label>
+        <input class="wb-input" id="wbLoginPw" type="password" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')wbDoLogin()">
+      </div>
+      <div id="wbLoginErr" style="font-size:13px;color:#e74c3c;margin-bottom:14px;min-height:18px;"></div>
+      <button class="wb-btn wb-btn--primary" id="wbLoginBtn" onclick="wbDoLogin()" style="width:100%;padding:12px;">Sign In</button>
+    </div>
+  </div>
+
+  <!-- ── APP ─────────────────────────────────────────────────────────────────── -->
+  <div id="wbApp" style="display:none;">
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+  <header class="wb-header">
+    <div class="wb-header-left">
+      <div class="wb-logo">Wizard <span>Builder</span></div>
+      <div class="wb-badge">V2</div>
+    </div>
+    <div class="wb-header-right">
+      <button class="wb-btn wb-btn--ghost wb-btn--sm" onclick="wbSeedTemplate()" id="seedBtn">Load InterNACHI Template</button>
+      <button class="wb-btn wb-btn--ghost wb-btn--sm" onclick="wbSeedFields()" id="seedFieldsBtn">Seed Fields</button>
+      <button class="wb-btn wb-btn--ghost wb-btn--sm" onclick="wbOpenRecommendations()">Recommendations</button>
+      <button class="wb-btn wb-btn--primary wb-btn--sm" onclick="wbOpenSectionModal(null)">+ Add Section</button>
+    </div>
+  </header>
+
+  <!-- ── LAYOUT ──────────────────────────────────────────────────────────── -->
+  <div class="wb-layout">
+
+    <!-- LEFT — Sections -->
+    <div class="wb-left">
+      <div class="wb-panel-header">
+        <span class="wb-panel-title">Sections</span>
+        <span id="sectionCount" class="wb-count" style="padding:0;font-size:11px;color:var(--text-muted);"></span>
+      </div>
+
+      <!-- Category filter -->
+      <div class="wb-filter-bar">
+        <button class="wb-filter-btn active" data-filter="all" onclick="wbSetFilter('all',this)">All</button>
+        <button class="wb-filter-btn" data-filter="home_inspection" onclick="wbSetFilter('home_inspection',this)">Home</button>
+        <button class="wb-filter-btn" data-filter="home_health_check" onclick="wbSetFilter('home_health_check',this)">Health</button>
+        <button class="wb-filter-btn" data-filter="new_construction" onclick="wbSetFilter('new_construction',this)">New Con</button>
+        <button class="wb-filter-btn" data-filter="addon" onclick="wbSetFilter('addon',this)">Add-on</button>
+      </div>
+
+      <div class="wb-section-list" id="sectionList">
+        <div class="wb-loading"><div class="wb-spinner"></div> Loading sections...</div>
+      </div>
+    </div>
+
+    <!-- RIGHT — Fields -->
+    <div class="wb-right" id="rightPanel">
+      <div class="wb-empty">
+        <div class="wb-empty-icon">
+          <i data-lucide="layout-list" style="width:64px;height:64px;"></i>
+        </div>
+        <div class="wb-empty-title">Select a Section</div>
+        <div class="wb-empty-sub">Click any section on the left to view and manage its fields.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── SECTION MODAL ───────────────────────────────────────────────────── -->
+  <div class="wb-overlay" id="sectionModal">
+    <div class="wb-modal">
+      <div class="wb-modal-title" id="sectionModalTitle">Add Section</div>
+      <input type="hidden" id="sectionModalId">
+
+      <div class="wb-form-row">
+        <label class="wb-label">Section Name *</label>
+        <input class="wb-input" id="sectionModalName" placeholder="e.g. Electrical System" maxlength="80">
+      </div>
+      <div class="wb-form-row">
+        <label class="wb-label">Description</label>
+        <input class="wb-input" id="sectionModalDesc" placeholder="e.g. Panel, wiring, outlets, GFCI protection" maxlength="120">
+      </div>
+      <div class="wb-form-row">
+        <label class="wb-label">Icon (Lucide icon name)</label>
+        <input class="wb-input" id="sectionModalIcon" placeholder="e.g. zap, droplets, home, thermometer">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:5px;">
+          Browse icons at <a href="https://lucide.dev/icons/" target="_blank" style="color:#5dade2;">lucide.dev/icons</a>
+        </div>
+      </div>
+      <div class="wb-form-row">
+        <label class="wb-label">Applies To *</label>
+        <div class="wb-cat-grid">
+          <label class="wb-cat-check"><input type="checkbox" name="sectionCat" value="home_inspection"> Home Inspection</label>
+          <label class="wb-cat-check"><input type="checkbox" name="sectionCat" value="home_health_check"> Home Health Check</label>
+          <label class="wb-cat-check"><input type="checkbox" name="sectionCat" value="new_construction"> New Construction</label>
+          <label class="wb-cat-check"><input type="checkbox" name="sectionCat" value="addon"> Add-on</label>
+        </div>
+      </div>
+      <div class="wb-form-row">
+        <label class="wb-cat-check" style="display:inline-flex;">
+          <input type="checkbox" id="sectionModalActive" checked> Active
+        </label>
+      </div>
+
+      <div class="wb-modal-actions">
+        <button class="wb-btn wb-btn--ghost" onclick="wbCloseModal('sectionModal')">Cancel</button>
+        <button class="wb-btn wb-btn--primary" onclick="wbSaveSection()">Save Section</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FIELD MODAL ─────────────────────────────────────────────────────── -->
+  <div class="wb-overlay" id="fieldModal">
+    <div class="wb-modal">
+      <div class="wb-modal-title" id="fieldModalTitle">Add Field</div>
+      <input type="hidden" id="fieldModalId">
+      <input type="hidden" id="fieldModalSectionId">
+
+      <div class="wb-form-row">
+        <label class="wb-label">Field Name *</label>
+        <input class="wb-input" id="fieldModalName" placeholder="e.g. Main Electrical Panel" maxlength="80">
+      </div>
+      <div class="wb-form-row">
+        <label class="wb-label">Description</label>
+        <input class="wb-input" id="fieldModalDesc" placeholder="e.g. Amperage, breakers, labeling" maxlength="120">
+      </div>
+      <div class="wb-form-row">
+        <label class="wb-label">Field Type *</label>
+        <select class="wb-select" id="fieldModalType" onchange="wbFieldTypeChange()">
+          <option value="condition_rating">Condition Rating</option>
+          <option value="yes_no">Yes / No</option>
+          <option value="measurement">Measurement</option>
+          <option value="materials">Materials / Components</option>
+          <option value="text">Text Note</option>
+        </select>
+      </div>
+      <div class="wb-form-row" id="fieldModalUnitRow" style="display:none;">
+        <label class="wb-label">Unit</label>
+        <input class="wb-input" id="fieldModalUnit" placeholder="e.g. years, amps, PSI, °F, inches">
+      </div>
+      <div class="wb-form-row">
+        <label class="wb-cat-check" style="display:inline-flex;">
+          <input type="checkbox" id="fieldModalActive" checked> Active
+        </label>
+      </div>
+
+      <div class="wb-modal-actions">
+        <button class="wb-btn wb-btn--ghost" onclick="wbCloseModal('fieldModal')">Cancel</button>
+        <button class="wb-btn wb-btn--primary" onclick="wbSaveField()">Save Field</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end #wbApp -->
+
+  <!-- ── RECOMMENDATIONS MODAL ──────────────────────────────────────────────── -->
+  <div class="wb-overlay" id="recsModal">
+    <div class="wb-modal" style="max-width:600px;">
+      <div class="wb-modal-title">Recommendations</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
+        These are available to inspectors on every finding. Add your own or edit the defaults.
+      </div>
+      <div id="recsList" style="margin-bottom:20px;"></div>
+      <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:4px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;">Add Recommendation</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label class="wb-label">Label *</label>
+            <input class="wb-input" id="recLabel" placeholder="e.g. Further Evaluation">
+          </div>
+          <div>
+            <label class="wb-label">Specialist</label>
+            <input class="wb-input" id="recSpecialist" placeholder="e.g. Licensed Electrician">
+          </div>
+        </div>
+        <button class="wb-btn wb-btn--primary wb-btn--sm" onclick="wbAddRecommendation()">+ Add</button>
+      </div>
+      <div class="wb-modal-actions">
+        <button class="wb-btn wb-btn--ghost" onclick="wbCloseModal('recsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ───────────────────────────────────────────────────────────── -->
+  <div class="wb-toast" id="wbToast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+  'use strict';
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  var sb         = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  var ADMIN_TOKEN = window.ADMIN_TOKEN;
+  var wbSections  = [];
+  var wbFilter    = 'all';
+  var wbActiveSectionId = null;
+  var wbFields    = [];
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function wbToast(msg, type) {
+    var t = document.getElementById('wbToast');
+    t.textContent = msg;
+    t.className = 'wb-toast show' + (type ? ' ' + type : '');
+    clearTimeout(wbToast._t);
+    wbToast._t = setTimeout(function(){ t.className = 'wb-toast'; }, 3000);
+  }
+
+  function wbCloseModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function wbFieldTypeChange() {
+    var type = document.getElementById('fieldModalType').value;
+    document.getElementById('fieldModalUnitRow').style.display = type === 'measurement' ? '' : 'none';
+  }
+
+  // ── Category helpers ──────────────────────────────────────────────────────
+  var CAT_LABELS = {
+    home_inspection:   'Home',
+    home_health_check: 'Health',
+    new_construction:  'New Con',
+    addon:             'Add-on',
+  };
+
+  function wbCatPills(cats) {
+    if (!cats || !cats.length) return '<span style="font-size:11px;color:var(--text-muted);font-style:italic;">No categories</span>';
+    return cats.map(function(c){
+      return '<span class="wb-cat-pill">' + esc(CAT_LABELS[c] || c) + '</span>';
+    }).join('');
+  }
+
+  var FT_LABELS = {
+    condition_rating: 'Condition',
+    yes_no:           'Yes / No',
+    measurement:      'Measurement',
+    materials:        'Materials',
+    text:             'Text',
+  };
+
+  // ── Filter ────────────────────────────────────────────────────────────────
+  function wbSetFilter(filter, btn) {
+    wbFilter = filter;
+    document.querySelectorAll('.wb-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    wbRenderSections();
+  }
+
+  // ── Load sections ─────────────────────────────────────────────────────────
+  async function wbLoadSections() {
+    if (!_wbAuthed) return;
+    var { data, error } = await sb.from('wizard_sections').select('*').order('order_index');
+    if (error) { wbToast('Error loading sections', 'error'); return; }
+    wbSections = data || [];
+    wbRenderSections();
+  }
+
+  function wbRenderSections() {
+    var list = document.getElementById('sectionList');
+    var filtered = wbFilter === 'all'
+      ? wbSections
+      : wbSections.filter(function(s){ return s.category_ids && s.category_ids.includes(wbFilter); });
+
+    document.getElementById('sectionCount').textContent = filtered.length + ' section' + (filtered.length !== 1 ? 's' : '');
+
+    if (!filtered.length) {
+      list.innerHTML = '<div style="padding:32px 16px;text-align:center;color:var(--text-muted);font-size:13px;">'
+        + (wbFilter === 'all' ? 'No sections yet. Add one above.' : 'No sections for this category.') + '</div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(function(s) {
+      var iconHtml = s.icon
+        ? '<i data-lucide="' + esc(s.icon) + '" style="width:18px;height:18px;"></i>'
+        : '<i data-lucide="layout-list" style="width:18px;height:18px;"></i>';
+      return '<div class="wb-section-item' + (s.id === wbActiveSectionId ? ' active' : '') + '" onclick="wbSelectSection(\'' + s.id + '\')" data-id="' + s.id + '">'
+        + '<div class="wb-drag-handle"><i data-lucide="grip-vertical" style="width:14px;height:14px;"></i></div>'
+        + '<div class="wb-section-icon">' + iconHtml + '</div>'
+        + '<div class="wb-section-info">'
+        +   '<div class="wb-section-name">' + esc(s.name) + '</div>'
+        +   '<div class="wb-section-meta">' + wbCatPills(s.category_ids) + '</div>'
+        + '</div>'
+        + '<div class="wb-section-actions">'
+        +   '<button class="wb-icon-btn" onclick="event.stopPropagation();wbOpenSectionModal(\'' + s.id + '\')" title="Edit"><i data-lucide="pencil" style="width:13px;height:13px;"></i></button>'
+        +   '<button class="wb-icon-btn danger" onclick="event.stopPropagation();wbDeleteSection(\'' + s.id + '\')" title="Delete"><i data-lucide="trash-2" style="width:13px;height:13px;"></i></button>'
+        + '</div>'
+        + '<div class="' + (s.active ? 'wb-active-badge' : 'wb-inactive-badge') + '"></div>'
+        + '</div>';
+    }).join('');
+    lucide.createIcons();
+    wbInitDrag();
+  }
+
+  // ── Select section ────────────────────────────────────────────────────────
+  async function wbSelectSection(id) {
+    wbActiveSectionId = id;
+    wbRenderSections();
+    var section = wbSections.find(function(s){ return s.id === id; });
+    if (!section) return;
+    await wbLoadFields(id, section);
+  }
+
+  // ── Load fields ───────────────────────────────────────────────────────────
+  async function wbLoadFields(sectionId, section) {
+    var right = document.getElementById('rightPanel');
+    right.innerHTML = '<div class="wb-loading"><div class="wb-spinner"></div> Loading fields...</div>';
+
+    var { data, error } = await sb.from('wizard_fields')
+      .select('*')
+      .eq('section_id', sectionId)
+      .order('order_index');
+
+    if (error) { wbToast('Error loading fields', 'error'); return; }
+    wbFields = data || [];
+    wbRenderDetail(section, wbFields);
+  }
+
+  function wbRenderDetail(section, fields) {
+    var right = document.getElementById('rightPanel');
+
+    var headerHtml = '<div class="wb-detail-header">'
+      + '<div>'
+      +   '<div class="wb-detail-title">' + esc(section.name) + '</div>'
+      +   '<div class="wb-detail-sub">' + (section.description ? esc(section.description) : 'No description') + ' &nbsp;·&nbsp; '
+      +     wbCatPills(section.category_ids) + '</div>'
+      + '</div>'
+      + '<div class="wb-detail-actions">'
+      +   '<button class="wb-btn wb-btn--ghost wb-btn--sm" onclick="wbOpenSectionModal(\'' + section.id + '\')">Edit Section</button>'
+      +   '<button class="wb-btn wb-btn--primary wb-btn--sm" onclick="wbOpenFieldModal(null,\'' + section.id + '\')">+ Add Field</button>'
+      + '</div>'
+      + '</div>';
+
+    var fieldsHtml;
+    if (!fields.length) {
+      fieldsHtml = '<div class="wb-fields-area"><div class="wb-empty" style="padding:48px 0;">'
+        + '<div class="wb-empty-icon"><i data-lucide="list-plus" style="width:48px;height:48px;"></i></div>'
+        + '<div class="wb-empty-title">No Fields Yet</div>'
+        + '<div class="wb-empty-sub">Add fields to this section using the button above.</div>'
+        + '</div></div>';
+    } else {
+      fieldsHtml = '<div class="wb-fields-area">'
+        + '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;">'
+        +   fields.length + ' field' + (fields.length !== 1 ? 's' : '') + '</div>'
+        + fields.map(function(f) {
+            var ftClass = 'ft-' + (f.field_type === 'condition_rating' ? 'condition' : f.field_type);
+            return '<div class="wb-field-card">'
+              + '<div class="wb-field-type-badge ' + ftClass + '">' + esc(FT_LABELS[f.field_type] || f.field_type) + '</div>'
+              + '<div class="wb-field-info">'
+              +   '<div class="wb-field-name">' + esc(f.name) + '</div>'
+              +   (f.description ? '<div class="wb-field-desc">' + esc(f.description) + '</div>' : '')
+              +   (f.unit ? '<div class="wb-field-unit">Unit: ' + esc(f.unit) + '</div>' : '')
+              + '</div>'
+              + '<div class="wb-field-actions">'
+              +   '<button class="wb-icon-btn" onclick="wbOpenFieldModal(\'' + f.id + '\',\'' + f.section_id + '\')" title="Edit"><i data-lucide="pencil" style="width:13px;height:13px;"></i></button>'
+              +   '<button class="wb-icon-btn danger" onclick="wbDeleteField(\'' + f.id + '\')" title="Delete"><i data-lucide="trash-2" style="width:13px;height:13px;"></i></button>'
+              + '</div>'
+              + '</div>';
+          }).join('')
+        + '</div>';
+    }
+
+    right.innerHTML = headerHtml + fieldsHtml;
+    lucide.createIcons();
+  }
+
+  // ── Section modal ─────────────────────────────────────────────────────────
+  function wbOpenSectionModal(id) {
+    var section = id ? wbSections.find(function(s){ return s.id === id; }) : null;
+    document.getElementById('sectionModalTitle').textContent = section ? 'Edit Section' : 'Add Section';
+    document.getElementById('sectionModalId').value   = section ? section.id   : '';
+    document.getElementById('sectionModalName').value = section ? section.name : '';
+    document.getElementById('sectionModalDesc').value = section ? (section.description || '') : '';
+    document.getElementById('sectionModalIcon').value = section ? (section.icon || '') : '';
+    document.getElementById('sectionModalActive').checked = section ? section.active : true;
+
+    // Category checkboxes
+    document.querySelectorAll('[name="sectionCat"]').forEach(function(cb){
+      cb.checked = section && section.category_ids ? section.category_ids.includes(cb.value) : false;
+    });
+
+    document.getElementById('sectionModal').classList.add('open');
+    setTimeout(function(){ document.getElementById('sectionModalName').focus(); }, 50);
+  }
+
+  async function wbSaveSection() {
+    var id   = document.getElementById('sectionModalId').value;
+    var name = document.getElementById('sectionModalName').value.trim();
+    if (!name) { wbToast('Section name is required', 'error'); return; }
+
+    var cats = Array.from(document.querySelectorAll('[name="sectionCat"]:checked')).map(function(cb){ return cb.value; });
+    if (!cats.length) { wbToast('Select at least one category', 'error'); return; }
+
+    var payload = {
+      name:         name,
+      description:  document.getElementById('sectionModalDesc').value.trim() || null,
+      icon:         document.getElementById('sectionModalIcon').value.trim() || null,
+      category_ids: cats,
+      active:       document.getElementById('sectionModalActive').checked,
+      updated_at:   new Date().toISOString(),
+    };
+
+    var error;
+    if (id) {
+      var res = await sb.from('wizard_sections').update(payload).eq('id', id);
+      error = res.error;
+    } else {
+      payload.order_index = wbSections.length;
+      var res = await sb.from('wizard_sections').insert(payload);
+      error = res.error;
+    }
+
+    if (error) { wbToast('Error saving section: ' + error.message, 'error'); return; }
+    wbCloseModal('sectionModal');
+    wbToast(id ? 'Section updated' : 'Section added', 'success');
+    await wbLoadSections();
+    if (id && wbActiveSectionId === id) {
+      var updated = wbSections.find(function(s){ return s.id === id; });
+      if (updated) wbRenderDetail(updated, wbFields);
+    }
+  }
+
+  async function wbDeleteSection(id) {
+    var section = wbSections.find(function(s){ return s.id === id; });
+    if (!confirm('Delete section "' + (section ? section.name : '') + '"? This will also delete all its fields.')) return;
+    var { error } = await sb.from('wizard_sections').delete().eq('id', id);
+    if (error) { wbToast('Error deleting section', 'error'); return; }
+    wbToast('Section deleted', 'success');
+    if (wbActiveSectionId === id) {
+      wbActiveSectionId = null;
+      document.getElementById('rightPanel').innerHTML = '<div class="wb-empty"><div class="wb-empty-icon"><i data-lucide="layout-list" style="width:64px;height:64px;"></i></div><div class="wb-empty-title">Select a Section</div><div class="wb-empty-sub">Click any section on the left to view and manage its fields.</div></div>';
+      lucide.createIcons();
+    }
+    await wbLoadSections();
+  }
+
+  // ── Field modal ───────────────────────────────────────────────────────────
+  function wbOpenFieldModal(id, sectionId) {
+    var field = id ? wbFields.find(function(f){ return f.id === id; }) : null;
+    document.getElementById('fieldModalTitle').textContent = field ? 'Edit Field' : 'Add Field';
+    document.getElementById('fieldModalId').value        = field ? field.id           : '';
+    document.getElementById('fieldModalSectionId').value = sectionId;
+    document.getElementById('fieldModalName').value      = field ? field.name         : '';
+    document.getElementById('fieldModalDesc').value      = field ? (field.description || '') : '';
+    document.getElementById('fieldModalType').value      = field ? field.field_type   : 'condition_rating';
+    document.getElementById('fieldModalUnit').value      = field ? (field.unit || '')  : '';
+    document.getElementById('fieldModalActive').checked  = field ? field.active        : true;
+    wbFieldTypeChange();
+    document.getElementById('fieldModal').classList.add('open');
+    setTimeout(function(){ document.getElementById('fieldModalName').focus(); }, 50);
+  }
+
+  async function wbSaveField() {
+    var id        = document.getElementById('fieldModalId').value;
+    var sectionId = document.getElementById('fieldModalSectionId').value;
+    var name      = document.getElementById('fieldModalName').value.trim();
+    if (!name) { wbToast('Field name is required', 'error'); return; }
+
+    var payload = {
+      section_id:  sectionId,
+      name:        name,
+      description: document.getElementById('fieldModalDesc').value.trim() || null,
+      field_type:  document.getElementById('fieldModalType').value,
+      unit:        document.getElementById('fieldModalUnit').value.trim() || null,
+      active:      document.getElementById('fieldModalActive').checked,
+      updated_at:  new Date().toISOString(),
+    };
+
+    var error;
+    if (id) {
+      var res = await sb.from('wizard_fields').update(payload).eq('id', id);
+      error = res.error;
+    } else {
+      payload.order_index = wbFields.length;
+      var res = await sb.from('wizard_fields').insert(payload);
+      error = res.error;
+    }
+
+    if (error) { wbToast('Error saving field: ' + error.message, 'error'); return; }
+    wbCloseModal('fieldModal');
+    wbToast(id ? 'Field updated' : 'Field added', 'success');
+    var section = wbSections.find(function(s){ return s.id === sectionId; });
+    if (section) await wbLoadFields(sectionId, section);
+  }
+
+  async function wbDeleteField(id) {
+    var field = wbFields.find(function(f){ return f.id === id; });
+    if (!confirm('Delete field "' + (field ? field.name : '') + '"?')) return;
+    var { error } = await sb.from('wizard_fields').delete().eq('id', id);
+    if (error) { wbToast('Error deleting field', 'error'); return; }
+    wbToast('Field deleted', 'success');
+    var section = wbSections.find(function(s){ return s.id === wbActiveSectionId; });
+    if (section) await wbLoadFields(wbActiveSectionId, section);
+  }
+
+  // ── Recommendations ───────────────────────────────────────────────────────
+  var wbRecs = [];
+
+  async function wbOpenRecommendations() {
+    var { data, error } = await sb.from('wizard_recommendations')
+      .select('*').order('order_index');
+    if (error) { wbToast('Error loading recommendations', 'error'); return; }
+    wbRecs = data || [];
+    wbRenderRecs();
+    document.getElementById('recsModal').classList.add('open');
+  }
+
+  function wbRenderRecs() {
+    var list = document.getElementById('recsList');
+    if (!wbRecs.length) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No recommendations yet. Add one below.</div>';
+      return;
+    }
+    list.innerHTML = wbRecs.map(function(r) {
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">'
+        + '<div style="flex:1;">'
+        +   '<div style="font-size:14px;font-weight:600;color:var(--text);">' + esc(r.label) + '</div>'
+        +   (r.specialist ? '<div style="font-size:12px;color:var(--text-muted);">Specialist: ' + esc(r.specialist) + '</div>' : '')
+        + '</div>'
+        + '<button class="wb-icon-btn danger" onclick="wbDeleteRec(\'' + r.id + '\')" title="Delete"><i data-lucide="trash-2" style="width:13px;height:13px;"></i></button>'
+        + '</div>';
+    }).join('');
+    lucide.createIcons();
+  }
+
+  async function wbAddRecommendation() {
+    var label      = document.getElementById('recLabel').value.trim();
+    var specialist = document.getElementById('recSpecialist').value.trim();
+    if (!label) { wbToast('Label is required', 'error'); return; }
+    var { error } = await sb.from('wizard_recommendations').insert({
+      label,
+      value:      label.toLowerCase().replace(/\s+/g, '_'),
+      specialist: specialist || null,
+      order_index: wbRecs.length,
+      active:     true,
+    });
+    if (error) { wbToast('Error adding recommendation', 'error'); return; }
+    document.getElementById('recLabel').value      = '';
+    document.getElementById('recSpecialist').value = '';
+    var { data } = await sb.from('wizard_recommendations').select('*').order('order_index');
+    wbRecs = data || [];
+    wbRenderRecs();
+    wbToast('Recommendation added', 'success');
+  }
+
+  async function wbDeleteRec(id) {
+    if (!confirm('Delete this recommendation?')) return;
+    var { error } = await sb.from('wizard_recommendations').delete().eq('id', id);
+    if (error) { wbToast('Error deleting recommendation', 'error'); return; }
+    wbRecs = wbRecs.filter(function(r){ return r.id !== id; });
+    wbRenderRecs();
+    wbToast('Recommendation deleted', 'success');
+  }
+
+  async function wbSeedRecommendations() {
+    var { data: existing } = await sb.from('wizard_recommendations').select('id').limit(1);
+    if (existing && existing.length) return; // Already seeded
+
+    var defaults = [
+      { label: 'Monitor',                    specialist: null },
+      { label: 'Repair',                     specialist: null },
+      { label: 'Replace',                    specialist: null },
+      { label: 'Further Evaluation',         specialist: 'Licensed Electrician' },
+      { label: 'Further Evaluation',         specialist: 'Licensed Plumber' },
+      { label: 'Further Evaluation',         specialist: 'Licensed HVAC Technician' },
+      { label: 'Further Evaluation',         specialist: 'Structural Engineer' },
+      { label: 'Further Evaluation',         specialist: 'Licensed Roofing Contractor' },
+      { label: 'Further Evaluation',         specialist: 'Chimney Specialist (CSIA)' },
+      { label: 'Further Evaluation',         specialist: 'Pest Control Specialist' },
+      { label: 'Routine Maintenance',        specialist: null },
+      { label: 'Improvement Recommended',    specialist: null },
+    ];
+    var rows = defaults.map(function(d, i) {
+      return {
+        label:       d.label,
+        value:       (d.label + (d.specialist ? '_' + d.specialist : '')).toLowerCase().replace(/[\s()]/g, '_'),
+        specialist:  d.specialist,
+        order_index: i,
+        active:      true,
+      };
+    });
+    await sb.from('wizard_recommendations').insert(rows);
+  }
+  var _dragSrcId = null;
+
+  function wbInitDrag() {
+    var items = document.querySelectorAll('.wb-section-item');
+    items.forEach(function(item) {
+      item.setAttribute('draggable', 'true');
+
+      item.addEventListener('dragstart', function(e) {
+        _dragSrcId = item.dataset.id;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(function(){ item.style.opacity = '0.4'; }, 0);
+      });
+
+      item.addEventListener('dragend', function() {
+        item.style.opacity = '';
+        document.querySelectorAll('.wb-section-item').forEach(function(i){
+          i.classList.remove('drag-over');
+        });
+      });
+
+      item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        document.querySelectorAll('.wb-section-item').forEach(function(i){
+          i.classList.remove('drag-over');
+        });
+        item.classList.add('drag-over');
+      });
+
+      item.addEventListener('drop', async function(e) {
+        e.preventDefault();
+        if (_dragSrcId === item.dataset.id) return;
+        await wbReorderSections(_dragSrcId, item.dataset.id);
+      });
+    });
+  }
+
+  async function wbReorderSections(srcId, targetId) {
+    var srcIdx  = wbSections.findIndex(function(s){ return s.id === srcId; });
+    var tgtIdx  = wbSections.findIndex(function(s){ return s.id === targetId; });
+    if (srcIdx === -1 || tgtIdx === -1) return;
+
+    // Reorder local array
+    var reordered = wbSections.slice();
+    var removed = reordered.splice(srcIdx, 1)[0];
+    reordered.splice(tgtIdx, 0, removed);
+
+    // Update order_index for all affected sections
+    var updates = reordered.map(function(s, idx) {
+      return sb.from('wizard_sections').update({ order_index: idx }).eq('id', s.id);
+    });
+    await Promise.all(updates);
+
+    wbSections = reordered;
+    wbRenderSections();
+    wbInitDrag();
+    wbToast('Section order saved', 'success');
+  }
+  async function wbSeedTemplate() {
+    if (!confirm('This will load the standard InterNACHI inspection template. Existing sections will not be affected. Continue?')) return;
+    document.getElementById('seedBtn').textContent = 'Loading...';
+    document.getElementById('seedBtn').disabled = true;
+
+    var HI  = 'home_inspection';
+    var HHC = 'home_health_check';
+    var NC  = 'new_construction';
+
+    var sections = [
+      { name: 'Roofing',                        icon: 'home',          cats: [HI,HHC],     desc: 'Roof covering, flashings, gutters, drainage', order: 0 },
+      { name: 'Exterior',                        icon: 'square',        cats: [HI,HHC],     desc: 'Walls, cladding, trim, windows, doors, grading', order: 1 },
+      { name: 'Attached Garage',                 icon: 'car',           cats: [HI,HHC],     desc: 'Structure, door, opener, fire separation', order: 2 },
+      { name: 'Basement & Foundation',           icon: 'layers',        cats: [HI,HHC],     desc: 'Foundation, structure, moisture, crawlspace', order: 3 },
+      { name: 'Attic, Insulation & Ventilation', icon: 'wind',          cats: [HI,HHC],     desc: 'Insulation depth, ventilation, roof structure', order: 4 },
+      { name: 'Electrical',                      icon: 'zap',           cats: [HI,HHC,NC],  desc: 'Service, panel, wiring, outlets, GFCI/AFCI', order: 5 },
+      { name: 'Heating',                         icon: 'thermometer',   cats: [HI,HHC,NC],  desc: 'Furnace, heat pump, boiler, distribution', order: 6 },
+      { name: 'Cooling',                         icon: 'snowflake',     cats: [HI,HHC,NC],  desc: 'AC system, mini-split, refrigerant lines', order: 7 },
+      { name: 'Plumbing',                        icon: 'droplets',      cats: [HI,HHC,NC],  desc: 'Supply, drain, water heater, fixtures', order: 8 },
+      { name: 'Fireplace & Chimney',             icon: 'flame',         cats: [HI,HHC],     desc: 'Firebox, flue, damper, exterior chimney', order: 9 },
+      { name: 'Doors, Windows & Interior',       icon: 'layout-panel-left', cats: [HI,HHC,NC], desc: 'Walls, ceilings, floors, doors, windows, stairs', order: 10 },
+      { name: 'Kitchen',                         icon: 'utensils',      cats: [HI,HHC],     desc: 'Appliances, cabinets, counters, ventilation', order: 11 },
+      { name: 'Bathrooms',                       icon: 'bath',          cats: [HI,HHC],     desc: 'Fixtures, ventilation, water pressure, sealing', order: 12 },
+      { name: 'Built-in Appliances',             icon: 'plug',          cats: [HI,HHC],     desc: 'Dishwasher, disposal, range, microwave', order: 13 },
+      // New Construction phases
+      { name: 'Pre-Pour',                        icon: 'grid-3x3',      cats: [NC],          desc: 'Footings, rebar, forms, soil preparation', order: 14 },
+      { name: 'Pre-Drywall',                     icon: 'frame',         cats: [NC],          desc: 'Framing, MEP rough-in, sheathing, windows', order: 15 },
+      { name: 'Final Walkthrough',               icon: 'clipboard-check', cats: [NC],        desc: 'Completed construction, punch list items', order: 16 },
+    ];
+
+    for (var i = 0; i < sections.length; i++) {
+      var s = sections[i];
+      await sb.from('wizard_sections').insert({
+        name: s.name, description: s.desc, icon: s.icon,
+        category_ids: s.cats, order_index: s.order, active: true
+      });
+    }
+
+    document.getElementById('seedBtn').textContent = 'Load InterNACHI Template';
+    document.getElementById('seedBtn').disabled = false;
+    wbToast('InterNACHI template loaded — ' + sections.length + ' sections added', 'success');
+    await wbLoadSections();
+  }
+
+  // ── Seed InterNACHI fields ────────────────────────────────────────────────
+  async function wbSeedFields() {
+    if (!confirm('This will seed all standard InterNACHI fields into every section. Only sections with no fields will be populated. Continue?')) return;
+
+    var btn = document.getElementById('seedFieldsBtn');
+    btn.textContent = 'Seeding...';
+    btn.disabled = true;
+
+    // Field type helpers
+    var CR = 'condition_rating';
+    var YN = 'yes_no';
+    var ME = 'measurement';
+    var MA = 'materials';
+    var TX = 'text';
+
+    // Map section name → fields
+    var FIELD_MAP = {
+      'Roofing': [
+        { name:'Roof Covering Type',       type:MA, desc:'Asphalt shingle, Metal, Tile, Flat/membrane, etc.' },
+        { name:'Overall Condition',         type:CR },
+        { name:'Flashings',                 type:CR },
+        { name:'Gutters & Downspouts',      type:CR },
+        { name:'Roof Ventilation',          type:CR },
+        { name:'Penetrations & Boots',      type:CR },
+        { name:'Skylights',                 type:CR, desc:'If present' },
+        { name:'Estimated Age',             type:ME, unit:'years' },
+      ],
+      'Exterior': [
+        { name:'Cladding Material',         type:MA, desc:'Vinyl, Brick, Stone, Stucco, Wood, Fiber cement, etc.' },
+        { name:'Cladding Condition',        type:CR },
+        { name:'Trim & Fascia',             type:CR },
+        { name:'Caulking & Sealants',       type:CR },
+        { name:'Window Exteriors',          type:CR },
+        { name:'Exterior Doors',            type:CR },
+      ],
+      'Attached Garage': [
+        { name:'Garage Door(s)',            type:CR },
+        { name:'Automatic Opener',          type:CR },
+        { name:'Auto-Reverse Safety',       type:YN },
+        { name:'Floor Condition',           type:CR },
+        { name:'Firewall Separation',       type:CR },
+      ],
+      'Basement & Foundation': [
+        { name:'Foundation Type',           type:MA, desc:'Poured concrete, Block, Stone, Slab, Pier, etc.' },
+        { name:'Foundation Cracks',         type:CR },
+        { name:'Moisture Intrusion Signs',  type:CR },
+        { name:'Settlement Indicators',     type:CR },
+        { name:'Wall Condition',            type:CR },
+        { name:'Floor Condition',           type:CR },
+        { name:'Moisture / Water Stains',   type:CR },
+        { name:'Sump Pump',                 type:CR, desc:'If present' },
+        { name:'Insulation',                type:CR },
+        { name:'Vapor Barrier',             type:CR, desc:'Crawlspace only' },
+      ],
+      'Attic, Insulation & Ventilation': [
+        { name:'Access Type',               type:MA, desc:'Hatch, Pull-down stair, Walk-in, No access' },
+        { name:'Insulation Condition',      type:CR },
+        { name:'Insulation Type / R-Value', type:TX, desc:'e.g. R-38 blown cellulose' },
+        { name:'Ventilation',               type:CR },
+        { name:'Framing Condition',         type:CR },
+        { name:'Moisture / Staining',       type:CR },
+      ],
+      'Electrical': [
+        { name:'Panel Type',                type:MA, desc:'Circuit breakers, Fuses, Split bus' },
+        { name:'Panel Capacity',            type:ME, unit:'amps', desc:'e.g. 200A' },
+        { name:'Panel Condition',           type:CR },
+        { name:'Visible Wiring',            type:CR },
+        { name:'GFCI Protection',           type:YN, desc:'All required wet area locations' },
+        { name:'AFCI Protection',           type:YN },
+        { name:'Outlets & Switches',        type:CR },
+        { name:'Smoke Detectors',           type:YN },
+        { name:'CO Detectors',              type:YN },
+      ],
+      'Heating': [
+        { name:'System Type',               type:MA, desc:'Gas forced air, Electric, Heat pump, Boiler, Radiant, etc.' },
+        { name:'Approximate Age',           type:ME, unit:'years' },
+        { name:'Overall Condition',         type:CR },
+        { name:'Flue / Venting',            type:CR },
+        { name:'Filters',                   type:CR },
+        { name:'Distribution (Ducts/Pipes)',type:CR },
+      ],
+      'Cooling': [
+        { name:'System Type',               type:MA, desc:'Central A/C, Heat pump, Mini-split, Window units, None' },
+        { name:'Approximate Age',           type:ME, unit:'years' },
+        { name:'Overall Condition',         type:CR },
+        { name:'Refrigerant Lines',         type:CR },
+        { name:'Condensate Drainage',       type:CR },
+      ],
+      'Plumbing': [
+        { name:'Supply Line Material',      type:MA, desc:'Copper, PEX, CPVC, Galvanized, Mixed, etc.' },
+        { name:'Drain Line Material',       type:MA, desc:'ABS, PVC, Cast iron, Mixed, etc.' },
+        { name:'Supply Line Condition',     type:CR },
+        { name:'Drain Condition',           type:CR },
+        { name:'Water Heater Condition',    type:CR },
+        { name:'Water Heater Age',          type:ME, unit:'years' },
+        { name:'Water Pressure',            type:ME, unit:'PSI' },
+        { name:'Fixtures Condition',        type:CR, desc:'Faucets, toilets, tubs' },
+        { name:'Sump Pump',                 type:CR, desc:'If present' },
+      ],
+      'Fireplace & Chimney': [
+        { name:'Firebox Condition',         type:CR },
+        { name:'Flue / Damper',             type:CR },
+        { name:'Exterior Chimney',          type:CR },
+        { name:'Hearth Extension',          type:CR },
+      ],
+      'Doors, Windows & Interior': [
+        { name:'Walls & Ceilings',          type:CR },
+        { name:'Floors',                    type:CR },
+        { name:'Interior Doors',            type:CR },
+        { name:'Windows (Operation & Seals)',type:CR },
+        { name:'Stairs & Railings',         type:CR },
+      ],
+      'Kitchen': [
+        { name:'Cabinets & Drawers',        type:CR },
+        { name:'Countertops',               type:CR },
+        { name:'Sink & Faucet',             type:CR },
+        { name:'Dishwasher',                type:CR },
+        { name:'Range / Oven / Cooktop',    type:CR },
+        { name:'Built-in Microwave',        type:CR, desc:'If present' },
+        { name:'Exhaust Fan / Range Hood',  type:CR },
+        { name:'GFCI at Counter',           type:YN },
+      ],
+      'Bathrooms': [
+        { name:'Fixtures (Toilet, Tub, Shower)', type:CR },
+        { name:'Faucets & Valves',          type:CR },
+        { name:'Tile & Grout / Caulking',   type:CR },
+        { name:'Exhaust Fan',               type:CR },
+        { name:'GFCI at Wet Areas',         type:YN },
+        { name:'Signs of Moisture / Mold',  type:CR },
+      ],
+      'Built-in Appliances': [
+        { name:'Dishwasher',                type:CR },
+        { name:'Garbage Disposal',          type:CR, desc:'If present' },
+        { name:'Range / Oven',              type:CR },
+        { name:'Built-in Microwave',        type:CR, desc:'If present' },
+        { name:'Exhaust Fan',               type:CR },
+      ],
+      // New Construction — Pre-Pour
+      'Pre-Pour': [
+        { name:'Site Preparation',          type:CR },
+        { name:'Grading Slope & Drainage',  type:CR },
+        { name:'Soil Conditions',           type:CR },
+        { name:'Erosion Control',           type:CR },
+        { name:'Excavation Depth & Dimensions', type:CR },
+        { name:'Bearing Soil Condition',    type:CR },
+        { name:'Footing Size & Dimensions', type:CR },
+        { name:'Frost Depth Compliance',    type:YN },
+        { name:'Rebar Placement & Spacing', type:CR },
+        { name:'Concrete Cover Clearance',  type:ME, unit:'inches' },
+        { name:'Anchor Bolt Layout',        type:CR },
+        { name:'Forms Plumb & Square',      type:YN },
+        { name:'Sub-Slab Vapor Barrier',    type:CR },
+        { name:'Underslab Plumbing Rough-In', type:CR },
+        { name:'Pressure Test Completed',   type:YN },
+        { name:'Underslab Electrical Conduit', type:CR },
+        { name:'Radon Mitigation Rough-In', type:CR, desc:'If required' },
+      ],
+      // New Construction — Pre-Drywall
+      'Pre-Drywall': [
+        { name:'Framing — Walls Plumb & Straight', type:YN },
+        { name:'Framing — Stud Spacing',    type:CR },
+        { name:'Headers Sized Correctly',   type:YN },
+        { name:'Blocking & Bridging',       type:CR },
+        { name:'Lateral Force Transfer',    type:CR, desc:'Straps & ties' },
+        { name:'Rough Opening Sizes',       type:CR },
+        { name:'Roof Sheathing & Nailing',  type:CR },
+        { name:'Underlayment',              type:CR },
+        { name:'Exterior Sheathing',        type:CR },
+        { name:'Housewrap / WRB',           type:CR },
+        { name:'Electrical Rough-In',       type:CR },
+        { name:'Plumbing Rough-In',         type:CR },
+        { name:'DWV Slope & Venting',       type:CR },
+        { name:'HVAC Rough-In',             type:CR },
+        { name:'Gas Piping Rough-In',       type:CR, desc:'If applicable' },
+        { name:'Insulation Type & R-Value', type:MA },
+        { name:'Insulation Coverage',       type:CR },
+        { name:'Fire Blocking',             type:CR },
+        { name:'Garage Firewall',           type:CR },
+      ],
+      // New Construction — Final Walkthrough
+      'Final Walkthrough': [
+        { name:'Exterior Grading & Drainage', type:CR },
+        { name:'Exterior Cladding & Trim',  type:CR },
+        { name:'Roof Covering',             type:CR },
+        { name:'Flashings',                 type:CR },
+        { name:'Gutters & Downspouts',      type:CR },
+        { name:'Electrical Panel',          type:CR },
+        { name:'GFCI Protection',           type:YN },
+        { name:'AFCI Protection',           type:YN },
+        { name:'Smoke Detectors',           type:YN },
+        { name:'CO Detectors',              type:YN },
+        { name:'Plumbing Fixtures',         type:CR },
+        { name:'Water Heater',              type:CR },
+        { name:'Water Heater Age',          type:ME, unit:'years' },
+        { name:'Heating — Operational',     type:YN },
+        { name:'Cooling — Operational',     type:YN },
+        { name:'Attic Insulation',          type:CR },
+        { name:'Attic Ventilation',         type:CR },
+        { name:'Interior Walls & Ceilings', type:CR },
+        { name:'Interior Floors',           type:CR },
+        { name:'Interior Doors',            type:CR },
+        { name:'Windows',                   type:CR },
+        { name:'Stairs & Railings',         type:CR },
+        { name:'Kitchen — Fixtures & Appliances', type:CR },
+        { name:'Bathrooms',                 type:CR },
+        { name:'Garage Door & Opener',      type:CR },
+        { name:'Auto-Reverse Safety',       type:YN },
+        { name:'Site & Final Grading',      type:CR },
+      ],
+    };
+
+    var totalSeeded = 0;
+    var totalSkipped = 0;
+
+    for (var i = 0; i < wbSections.length; i++) {
+      var section = wbSections[i];
+      var fields = FIELD_MAP[section.name];
+      if (!fields) { totalSkipped++; continue; }
+
+      // Check if section already has fields
+      var { data: existing } = await sb.from('wizard_fields')
+        .select('id').eq('section_id', section.id).limit(1);
+      if (existing && existing.length) { totalSkipped++; continue; }
+
+      // Insert all fields for this section
+      var rows = fields.map(function(f, idx) {
+        return {
+          section_id:  section.id,
+          name:        f.name,
+          description: f.desc || null,
+          field_type:  f.type,
+          unit:        f.unit || null,
+          order_index: idx,
+          active:      true,
+        };
+      });
+
+      var { error } = await sb.from('wizard_fields').insert(rows);
+      if (error) { console.error('Error seeding fields for', section.name, error); continue; }
+      totalSeeded++;
+    }
+
+    btn.textContent = 'Seed Fields';
+    btn.disabled = false;
+    wbToast('Fields seeded — ' + totalSeeded + ' sections populated, ' + totalSkipped + ' skipped', 'success');
+
+    // Refresh current section if open
+    if (wbActiveSectionId) {
+      var activeSection = wbSections.find(function(s){ return s.id === wbActiveSectionId; });
+      if (activeSection) await wbLoadFields(wbActiveSectionId, activeSection);
+    }
+  }
+  document.querySelectorAll('.wb-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  // ── Auth gate ─────────────────────────────────────────────────────────────
+  var _wbAuthed = false;
+
+  async function wbCheckAuth() {
+    var session = await sb.auth.getSession();
+    if (!session.data.session) {
+      wbShowLoginScreen();
+      return false;
+    }
+    // Verify user has admin role in agents table
+    var userId = session.data.session.user.id;
+    var { data: agent } = await sb.from('agents').select('role').eq('id', userId).single();
+    if (!agent || agent.role !== 'admin') {
+      wbShowLoginScreen('Your account does not have admin access.');
+      return false;
+    }
+    _wbAuthed = true;
+    document.getElementById('wbLoginScreen').style.display = 'none';
+    document.getElementById('wbApp').style.display = '';
+    return true;
+  }
+
+  function wbShowLoginScreen(msg) {
+    document.getElementById('wbLoginScreen').style.display = 'flex';
+    document.getElementById('wbApp').style.display = 'none';
+    if (msg) document.getElementById('wbLoginErr').textContent = msg;
+  }
+
+  async function wbDoLogin() {
+    var email = document.getElementById('wbLoginEmail').value.trim();
+    var pw    = document.getElementById('wbLoginPw').value;
+    if (!email || !pw) return;
+    var btn = document.getElementById('wbLoginBtn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    var { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    btn.disabled = false; btn.textContent = 'Sign In';
+    if (error) {
+      document.getElementById('wbLoginErr').textContent = error.message || 'Invalid credentials.';
+      return;
+    }
+    wbCheckAuth();
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  lucide.createIcons();
+  wbCheckAuth().then(function(authed) {
+    if (authed) {
+      wbSeedRecommendations();
+      wbLoadSections();
+    }
+  });
+
+  </script>
+</body>
+</html>

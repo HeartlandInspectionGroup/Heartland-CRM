@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Field Capture — Heartland</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.2/browser-image-compression.min.js"></script>
+  <script src="/config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #121e30;
+      --navy-mid:   #1a2a44;
+      --navy-light: #243554;
+      --green:      #27ae60;
+      --green-dark: #1e8449;
+      --orange:     #f59321;
+      --red:        #c0392b;
+      --white:      #ffffff;
+      --text:       #e8edf5;
+      --text-muted: rgba(232,237,245,0.5);
+      --border:     rgba(255,255,255,0.08);
+      --card-bg:    rgba(255,255,255,0.04);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Barlow', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── SCREENS ────────────────────────────────────────────────────── */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      background: var(--navy);
+    }
+    .screen.active { display: flex; }
+
+    /* ── HEADER ─────────────────────────────────────────────────────── */
+    .fc-header {
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .fc-header-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--white);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .fc-back-btn {
+      background: none;
+      border: none;
+      color: var(--green);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+      z-index: 1;
+    }
+    .fc-header-right {
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── SCROLLABLE BODY ─────────────────────────────────────────────── */
+    .fc-body {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fc-body::-webkit-scrollbar { display: none; }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────────── */
+    .fc-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      width: 100%;
+    }
+    .fc-btn:active { opacity: 0.75; }
+    .fc-btn--green  { background: var(--green); color: #fff; }
+    .fc-btn--ghost  { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); }
+    .fc-btn--icon   {
+      width: 40px; height: 40px; padding: 0;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .fc-btn--icon:active { opacity: 0.7; }
+
+    /* ── LOGIN SCREEN ────────────────────────────────────────────────── */
+    #screenLogin {
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+    .fc-login-box {
+      width: 100%;
+      max-width: 360px;
+    }
+    .fc-login-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .fc-login-logo span { color: var(--green); }
+    .fc-login-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .fc-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .fc-input {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 16px;
+      padding: 14px 16px;
+      outline: none;
+      margin-bottom: 14px;
+      -webkit-appearance: none;
+    }
+    .fc-input:focus { border-color: rgba(255,255,255,0.2); }
+    .fc-err {
+      font-size: 13px;
+      color: #e74c3c;
+      margin-bottom: 14px;
+      min-height: 18px;
+    }
+
+    /* ── JOB PICKER ──────────────────────────────────────────────────── */
+    .fc-picker-top {
+      padding: 20px 16px 12px;
+    }
+    .fc-picker-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .fc-picker-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .fc-search {
+      margin: 0 16px 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      padding: 12px 14px;
+      width: calc(100% - 32px);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .fc-job-list { padding: 4px 16px 100px; }
+    .fc-job-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .fc-job-card:active { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
+    .fc-job-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(39,174,96,0.12);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--green);
+    }
+    .fc-job-info { flex: 1; min-width: 0; }
+    .fc-job-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fc-job-addr {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fc-job-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .fc-job-arrow { color: var(--text-muted); flex-shrink: 0; }
+
+    /* ── SECTION LIST ────────────────────────────────────────────────── */
+    .fc-job-banner {
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      flex-shrink: 0;
+    }
+    .fc-job-banner-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fc-job-banner-addr {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fc-section-list { padding: 8px 16px 100px; }
+    .fc-section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.12s;
+    }
+    .fc-section-card:active { background: rgba(255,255,255,0.07); }
+    .fc-section-card.has-photos { border-color: rgba(39,174,96,0.3); }
+    .fc-section-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-muted);
+    }
+    .fc-section-card.has-photos .fc-section-icon {
+      background: rgba(39,174,96,0.12);
+      color: var(--green);
+    }
+    .fc-section-info { flex: 1; min-width: 0; }
+    .fc-section-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .fc-section-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .fc-section-card.has-photos .fc-section-count { color: var(--green); }
+    .fc-section-arrow { color: var(--text-muted); flex-shrink: 0; }
+
+    /* ── CAPTURE SCREEN ──────────────────────────────────────────────── */
+    .fc-capture-section {
+      padding: 12px 16px;
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .fc-capture-section-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--white);
+    }
+    .fc-capture-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fc-capture-body::-webkit-scrollbar { display: none; }
+
+    /* Photo grid */
+    .fc-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .fc-photo-thumb {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+    }
+    .fc-photo-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .fc-photo-delete {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.65);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fc-photo-uploading {
+      position: absolute;
+      inset: 0;
+      background: rgba(18,30,48,0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Camera button */
+    .fc-camera-btn {
+      width: 100%;
+      aspect-ratio: 3/1;
+      border-radius: 14px;
+      border: 2px dashed rgba(39,174,96,0.35);
+      background: rgba(39,174,96,0.04);
+      color: var(--green);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .fc-camera-btn:active { border-color: var(--green); background: rgba(39,174,96,0.08); }
+    .fc-camera-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Voice note */
+    .fc-voice-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .fc-voice-input {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      resize: none;
+      min-height: 80px;
+      margin-bottom: 8px;
+      -webkit-appearance: none;
+    }
+    .fc-voice-input:focus { border-color: rgba(255,255,255,0.2); }
+    .fc-voice-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Done button area */
+    .fc-capture-footer {
+      padding: 12px 16px;
+      background: var(--navy);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── LOADING / EMPTY ─────────────────────────────────────────────── */
+    .fc-loading {
+      padding: 48px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .fc-spinner {
+      width: 24px; height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .fc-empty {
+      padding: 48px 16px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .fc-empty-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    /* ── TOAST ───────────────────────────────────────────────────────── */
+    .fc-toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.25s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .fc-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .fc-toast.success { border-color: rgba(39,174,96,0.4); color: #4cd47e; }
+    .fc-toast.error   { border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+
+    /* ── HIDDEN FILE INPUT ───────────────────────────────────────────── */
+    #fcFileInput { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOGIN ─────────────────────────────────────────────────────────────── -->
+  <div class="screen active" id="screenLogin">
+    <div class="fc-login-box">
+      <div class="fc-login-logo">Field <span>Capture</span></div>
+      <div class="fc-login-sub">Sign in to access your jobs</div>
+      <label class="fc-label">Email</label>
+      <input class="fc-input" id="fcEmail" type="email" autocomplete="email" placeholder="your@email.com"
+        onkeydown="if(event.key==='Enter')document.getElementById('fcPw').focus()">
+      <label class="fc-label">Password</label>
+      <input class="fc-input" id="fcPw" type="password" autocomplete="current-password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')fcDoLogin()">
+      <div class="fc-err" id="fcLoginErr"></div>
+      <button class="fc-btn fc-btn--green" id="fcLoginBtn" onclick="fcDoLogin()">Sign In</button>
+    </div>
+  </div>
+
+  <!-- ── JOB PICKER ────────────────────────────────────────────────────────── -->
+  <div class="screen" id="screenPicker">
+    <div class="fc-header">
+      <div class="fc-header-title">Field Capture</div>
+      <div class="fc-header-right">
+        <button class="fc-btn--icon" onclick="fcSignOut()" title="Sign out">
+          <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+        </button>
+      </div>
+    </div>
+    <div class="fc-body">
+      <div class="fc-picker-top">
+        <div class="fc-picker-title">Scheduled Jobs</div>
+        <div class="fc-picker-sub" id="fcPickerSub">Loading your jobs...</div>
+      </div>
+      <input class="fc-search" id="fcJobSearch" placeholder="Search by name or address..."
+        oninput="fcFilterJobs()">
+      <div class="fc-job-list" id="fcJobList">
+        <div class="fc-loading"><div class="fc-spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION LIST ───────────────────────────────────────────────────────── -->
+  <div class="screen" id="screenSections">
+    <div class="fc-header">
+      <button class="fc-back-btn" onclick="fcShowScreen('screenPicker')">
+        <i data-lucide="chevron-left" style="width:18px;height:18px;"></i> Jobs
+      </button>
+      <div class="fc-header-title">Sections</div>
+      <div class="fc-header-right">
+        <button class="fc-btn--icon" onclick="fcShowComplete()" title="Done with job" style="background:rgba(39,174,96,0.15);border-color:rgba(39,174,96,0.3);color:var(--green);">
+          <i data-lucide="check" style="width:16px;height:16px;"></i>
+        </button>
+      </div>
+    </div>
+    <div class="fc-job-banner">
+      <div class="fc-job-banner-name" id="fcJobName">—</div>
+      <div class="fc-job-banner-addr" id="fcJobAddr">—</div>
+    </div>
+    <div class="fc-body">
+      <div class="fc-section-list" id="fcSectionList">
+        <div class="fc-loading"><div class="fc-spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CAPTURE ────────────────────────────────────────────────────────────── -->
+  <div class="screen" id="screenCapture">
+    <div class="fc-header">
+      <button class="fc-back-btn" onclick="fcShowScreen('screenSections')">
+        <i data-lucide="chevron-left" style="width:18px;height:18px;"></i> Sections
+      </button>
+      <div class="fc-header-title" id="fcCaptureSectionName">Section</div>
+    </div>
+    <div class="fc-capture-body">
+
+      <!-- Photo grid -->
+      <div class="fc-photo-grid" id="fcPhotoGrid"></div>
+
+      <!-- Camera button -->
+      <button class="fc-camera-btn" onclick="fcTriggerCamera()">
+        <i data-lucide="camera" style="width:28px;height:28px;"></i>
+        <span class="fc-camera-label">Take Photo</span>
+      </button>
+
+      <!-- Voice note -->
+      <div class="fc-voice-label">Section Notes</div>
+      <textarea class="fc-voice-input" id="fcVoiceNote"
+        placeholder="Tap and dictate or type observations for this section..."
+        oninput="fcAutoSaveNote()"></textarea>
+      <div class="fc-voice-hint">
+        <i data-lucide="mic" style="width:14px;height:14px;"></i>
+        Use your phone's microphone key to dictate
+      </div>
+
+    </div>
+    <div class="fc-capture-footer">
+      <button class="fc-btn fc-btn--green" onclick="fcShowScreen('screenSections')">
+        Done with Section
+      </button>
+    </div>
+  </div>
+
+  <!-- ── COMPLETE ───────────────────────────────────────────────────────────── -->
+  <div class="screen" id="screenComplete">
+    <div class="fc-header">
+      <div class="fc-header-title">Job Complete</div>
+    </div>
+    <div class="fc-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;">
+      <div style="width:72px;height:72px;border-radius:50%;background:rgba(39,174,96,0.15);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+        <i data-lucide="check-circle" style="width:36px;height:36px;color:var(--green);"></i>
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--white);margin-bottom:8px;">Field Capture Done</div>
+      <div style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;" id="fcCompleteMsg">All photos and notes saved.</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:32px;">Complete the report in the office using the V2 wizard.</div>
+      <button class="fc-btn fc-btn--green" style="max-width:280px;" onclick="fcShowScreen('screenPicker')">Back to Jobs</button>
+    </div>
+  </div>
+
+  <!-- ── HIDDEN FILE INPUT ──────────────────────────────────────────────────── -->
+  <input type="file" id="fcFileInput" accept="image/*" capture="environment" multiple>
+
+  <!-- ── TOAST ──────────────────────────────────────────────────────────────── -->
+  <div class="fc-toast" id="fcToast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+  'use strict';
+
+  var sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  var fcJobs        = [];
+  var fcJobsFiltered= [];
+  var fcCurrentJob  = null;
+  var fcSections    = [];
+  var fcActiveSection = null;
+  var fcPhotoCounts = {}; // sectionId → count
+  var fcNoteTimers  = {}; // sectionId → debounce timer
+  var fcUploading   = false;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function fcToast(msg, type) {
+    var t = document.getElementById('fcToast');
+    t.textContent = msg;
+    t.className = 'fc-toast show' + (type ? ' ' + type : '');
+    clearTimeout(fcToast._t);
+    fcToast._t = setTimeout(function(){ t.className = 'fc-toast'; }, 3000);
+  }
+
+  function fcShowScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+  }
+
+  function fcFmtDate(d) {
+    if (!d) return '';
+    return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  async function fcCheckAuth() {
+    var { data } = await sb.auth.getSession();
+    if (!data.session) return false;
+    var uid = data.session.user.id;
+    var { data: agent } = await sb.from('agents').select('role').eq('id', uid).single();
+    return agent && agent.role === 'admin';
+  }
+
+  async function fcDoLogin() {
+    var email = document.getElementById('fcEmail').value.trim();
+    var pw    = document.getElementById('fcPw').value;
+    if (!email || !pw) return;
+    var btn = document.getElementById('fcLoginBtn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    var { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    btn.disabled = false; btn.textContent = 'Sign In';
+    if (error) {
+      document.getElementById('fcLoginErr').textContent = error.message || 'Invalid credentials.';
+      return;
+    }
+    var authed = await fcCheckAuth();
+    if (!authed) {
+      document.getElementById('fcLoginErr').textContent = 'Admin access required.';
+      await sb.auth.signOut();
+      return;
+    }
+    fcInitApp();
+  }
+
+  async function fcSignOut() {
+    await sb.auth.signOut();
+    fcShowScreen('screenLogin');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function fcInit() {
+    lucide.createIcons();
+    var authed = await fcCheckAuth();
+    if (authed) {
+      fcInitApp();
+    } else {
+      fcShowScreen('screenLogin');
+    }
+  }
+
+  async function fcInitApp() {
+    fcShowScreen('screenPicker');
+    await fcLoadJobs();
+  }
+
+  // ── Job Picker ────────────────────────────────────────────────────────────
+  async function fcLoadJobs() {
+    var list = document.getElementById('fcJobList');
+    var sub  = document.getElementById('fcPickerSub');
+    list.innerHTML = '<div class="fc-loading"><div class="fc-spinner"></div></div>';
+
+    var res = await fetch('/.netlify/functions/get-clients?status=scheduled&limit=100', {
+      headers: { 'x-admin-token': window.ADMIN_TOKEN }
+    });
+    var data = await res.json();
+    fcJobs = (data && data.clients) ? data.clients : [];
+    fcJobsFiltered = fcJobs.slice();
+
+    sub.textContent = fcJobs.length + ' scheduled job' + (fcJobs.length !== 1 ? 's' : '');
+    fcRenderJobs();
+  }
+
+  function fcFilterJobs() {
+    var q = document.getElementById('fcJobSearch').value.toLowerCase().trim();
+    fcJobsFiltered = q
+      ? fcJobs.filter(function(j){
+          return (j.cust_name||'').toLowerCase().includes(q)
+              || (j.address||'').toLowerCase().includes(q);
+        })
+      : fcJobs.slice();
+    fcRenderJobs();
+  }
+
+  function fcRenderJobs() {
+    var list = document.getElementById('fcJobList');
+    if (!fcJobsFiltered.length) {
+      list.innerHTML = '<div class="fc-empty"><div class="fc-empty-title">No Jobs Found</div><div style="font-size:13px;">No scheduled inspections at this time.</div></div>';
+      return;
+    }
+    list.innerHTML = fcJobsFiltered.map(function(j) {
+      var catIcon = { home_inspection:'home', new_construction:'hammer', home_health_check:'heart-pulse', addon:'plus-circle' }[j.category] || 'clipboard';
+      return '<div class="fc-job-card" onclick="fcSelectJob(\'' + j.id + '\')">'
+        + '<div class="fc-job-icon"><i data-lucide="' + catIcon + '" style="width:20px;height:20px;"></i></div>'
+        + '<div class="fc-job-info">'
+        +   '<div class="fc-job-name">' + esc(j.cust_name || 'Unnamed') + '</div>'
+        +   '<div class="fc-job-addr">' + esc(j.address || 'No address') + '</div>'
+        +   '<div class="fc-job-meta">'
+        +     (j.inspection_date ? '<span>' + fcFmtDate(j.inspection_date) + '</span>' : '')
+        +     (j.tier ? '<span>' + esc(j.tier) + '</span>' : '')
+        +   '</div>'
+        + '</div>'
+        + '<div class="fc-job-arrow"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></div>'
+        + '</div>';
+    }).join('');
+    lucide.createIcons();
+  }
+
+  // ── Section List ──────────────────────────────────────────────────────────
+  async function fcSelectJob(id) {
+    fcCurrentJob = fcJobs.find(function(j){ return j.id === id; });
+    if (!fcCurrentJob) return;
+
+    document.getElementById('fcJobName').textContent = fcCurrentJob.cust_name || 'Unnamed';
+    document.getElementById('fcJobAddr').textContent = fcCurrentJob.address   || 'No address';
+    fcShowScreen('screenSections');
+    await fcLoadSections();
+  }
+
+  async function fcLoadSections() {
+    var list = document.getElementById('fcSectionList');
+    list.innerHTML = '<div class="fc-loading"><div class="fc-spinner"></div></div>';
+
+    // Load sections for this job's category
+    var { data: sections } = await sb.from('wizard_sections')
+      .select('id, name, icon, category_ids')
+      .contains('category_ids', [fcCurrentJob.category || 'home_inspection'])
+      .eq('active', true)
+      .order('order_index');
+
+    fcSections = sections || [];
+
+    // Load existing photo counts for this record
+    var { data: photos } = await sb.from('inspection_finding_photos')
+      .select('section_id')
+      .eq('record_id', fcCurrentJob.id);
+
+    fcPhotoCounts = {};
+    if (photos) {
+      photos.forEach(function(p) {
+        if (p.section_id) fcPhotoCounts[p.section_id] = (fcPhotoCounts[p.section_id] || 0) + 1;
+      });
+    }
+
+    fcRenderSections();
+  }
+
+  async function fcRenderSections() {
+    var list = document.getElementById('fcSectionList');
+    if (!fcSections.length) {
+      list.innerHTML = '<div class="fc-empty"><div class="fc-empty-title">No Sections</div><div style="font-size:13px;">No sections configured for this inspection type.</div></div>';
+      return;
+    }
+
+    // Notes not loaded here — loaded per-section when entering capture screen
+    var savedNotes = {};
+
+    list.innerHTML = fcSections.map(function(s) {
+      var count    = fcPhotoCounts[s.id] || 0;
+      var hasNote  = !!(savedNotes[s.id]);
+      var hasData  = count > 0 || hasNote;
+      var iconName = s.icon || 'layout-list';
+      var countTxt = [];
+      if (count > 0) countTxt.push(count + ' photo' + (count !== 1 ? 's' : ''));
+      if (hasNote)   countTxt.push('note saved');
+      return '<div class="fc-section-card' + (hasData ? ' has-photos' : '') + '" onclick="fcSelectSection(\'' + s.id + '\')">'
+        + '<div class="fc-section-icon"><i data-lucide="' + esc(iconName) + '" style="width:18px;height:18px;"></i></div>'
+        + '<div class="fc-section-info">'
+        +   '<div class="fc-section-name">' + esc(s.name) + '</div>'
+        +   '<div class="fc-section-count">' + (countTxt.length ? countTxt.join(' · ') : 'No photos yet') + '</div>'
+        + '</div>'
+        + '<div class="fc-section-arrow"><i data-lucide="chevron-right" style="width:18px;height:18px;"></i></div>'
+        + '</div>';
+    }).join('');
+    lucide.createIcons();
+  }
+
+  // ── Capture Screen ────────────────────────────────────────────────────────
+  async function fcSelectSection(sectionId) {
+    fcActiveSection = fcSections.find(function(s){ return s.id === sectionId; });
+    if (!fcActiveSection) return;
+
+    document.getElementById('fcCaptureSectionName').textContent = fcActiveSection.name;
+    document.getElementById('fcVoiceNote').value = '';
+    fcShowScreen('screenCapture');
+    fcRenderPhotoGrid();
+
+    // Note will be loaded separately if needed — direct query blocked by RLS
+    // Notes are saved via save-field-note function and loaded in office mode
+  }
+
+  async function fcRenderPhotoGrid() {
+    var grid = document.getElementById('fcPhotoGrid');
+    grid.innerHTML = '<div class="fc-loading" style="padding:16px;"><div class="fc-spinner"></div></div>';
+
+    var { data: photos } = await sb.from('inspection_finding_photos')
+      .select('id, cloudinary_url')
+      .eq('record_id', fcCurrentJob.id)
+      .eq('section_id', fcActiveSection.id)
+      .order('created_at');
+
+    if (!photos || !photos.length) {
+      grid.innerHTML = '';
+      return;
+    }
+
+    grid.innerHTML = photos.map(function(p) {
+      return '<div class="fc-photo-thumb" id="thumb_' + p.id + '">'
+        + '<img src="' + esc(p.cloudinary_url) + '" loading="lazy">'
+        + '<button class="fc-photo-delete" onclick="fcDeletePhoto(\'' + p.id + '\')">'
+        +   '<i data-lucide="x" style="width:12px;height:12px;"></i>'
+        + '</button>'
+        + '</div>';
+    }).join('');
+    lucide.createIcons();
+  }
+
+  // ── Camera ────────────────────────────────────────────────────────────────
+  function fcTriggerCamera() {
+    document.getElementById('fcFileInput').click();
+  }
+
+  document.getElementById('fcFileInput').addEventListener('change', async function(e) {
+    var files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    e.target.value = '';
+
+    for (var i = 0; i < files.length; i++) {
+      await fcUploadPhoto(files[i]);
+    }
+  });
+
+  var CLOUD  = 'dmztfzqfm';
+  var PRESET = 'slvlwkcf';
+
+  async function fcUploadPhoto(file) {
+    var grid = document.getElementById('fcPhotoGrid');
+
+    // Add placeholder
+    var ph = document.createElement('div');
+    ph.className = 'fc-photo-thumb';
+    ph.innerHTML = '<div class="fc-photo-uploading"><div class="fc-spinner"></div></div>';
+    grid.appendChild(ph);
+
+    var uploadOk = false;
+    var uploadUrl = null;
+    var uploadId  = null;
+
+    try {
+      // Compress
+      var compressed = await imageCompression(file, { maxSizeMB: 0.15, maxWidthOrHeight: 1600, useWebWorker: false });
+
+      // Upload to Cloudinary
+      var fd = new FormData();
+      fd.append('file', compressed, file.name);
+      fd.append('upload_preset', PRESET);
+      fd.append('folder', 'heartland/field/' + fcCurrentJob.id);
+
+      var cRes = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD + '/image/upload', { method: 'POST', body: fd });
+      if (!cRes.ok) throw new Error('Cloudinary failed (' + cRes.status + ')');
+      var cData = await cRes.json();
+      if (!cData.secure_url) throw new Error('No URL from Cloudinary');
+
+      // Save via function
+      var saveRes = await fetch('/.netlify/functions/save-field-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+        body: JSON.stringify({
+          record_id:            fcCurrentJob.id,
+          section_id:           fcActiveSection.id,
+          cloudinary_url:       cData.secure_url,
+          cloudinary_public_id: cData.public_id,
+        }),
+      });
+      var saveData = await saveRes.json();
+      if (!saveData.ok) throw new Error(saveData.error || 'Save failed');
+
+      uploadOk  = true;
+      uploadUrl = cData.secure_url;
+      uploadId  = saveData.id;
+
+    } catch(err) {
+      ph.remove();
+      console.error('[fcUploadPhoto]', err);
+      fcToast('Upload failed: ' + err.message, 'error');
+      return;
+    }
+
+    // Success — build thumb outside try/catch so img errors don't interfere
+    if (uploadOk) {
+      var img = document.createElement('img');
+      img.src = uploadUrl;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+
+      var delBtn = document.createElement('button');
+      delBtn.className = 'fc-photo-delete';
+      delBtn.innerHTML = '<i data-lucide="x" style="width:12px;height:12px;"></i>';
+      delBtn.onclick = function() { fcDeletePhoto(uploadId); };
+
+      ph.innerHTML = '';
+      ph.appendChild(img);
+      ph.appendChild(delBtn);
+      lucide.createIcons();
+
+      fcPhotoCounts[fcActiveSection.id] = (fcPhotoCounts[fcActiveSection.id] || 0) + 1;
+      fcToast('Photo saved', 'success');
+    }
+  }
+
+  async function fcDeletePhoto(id) {
+    if (!confirm('Delete this photo?')) return;
+    var res = await fetch('/.netlify/functions/delete-field-photo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify({ id }),
+    });
+    var data = await res.json();
+    if (!data.ok) { fcToast('Delete failed', 'error'); return; }
+    var el = document.getElementById('thumb_' + id);
+    if (el) el.remove();
+    if (fcPhotoCounts[fcActiveSection.id] > 0) fcPhotoCounts[fcActiveSection.id]--;
+    fcToast('Photo deleted', 'success');
+  }
+
+  // ── Voice / text note ─────────────────────────────────────────────────────
+  function fcAutoSaveNote() {
+    if (!fcActiveSection || !fcCurrentJob) return;
+    clearTimeout(fcNoteTimers[fcActiveSection.id]);
+    fcNoteTimers[fcActiveSection.id] = setTimeout(async function() {
+      var note = document.getElementById('fcVoiceNote').value.trim();
+      // Save to inspection_narratives as draft so office mode can see it
+      await fetch('/.netlify/functions/save-field-note', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+        body: JSON.stringify({
+          record_id:  fcCurrentJob.id,
+          section_id: fcActiveSection.id,
+          note,
+        }),
+      });
+    }, 800);
+  }
+
+  // ── Job complete ──────────────────────────────────────────────────────────
+  function fcShowComplete() {
+    var totalPhotos = Object.values(fcPhotoCounts).reduce(function(s,c){ return s+c; }, 0);
+    var sectionsWithData = Object.keys(fcPhotoCounts).filter(function(k){ return fcPhotoCounts[k] > 0; }).length;
+    document.getElementById('fcCompleteMsg').textContent =
+      totalPhotos + ' photo' + (totalPhotos !== 1 ? 's' : '') + ' captured across ' +
+      sectionsWithData + ' section' + (sectionsWithData !== 1 ? 's' : '') + '.';
+    fcShowScreen('screenComplete');
+  }
+
+  // ── Start ─────────────────────────────────────────────────────────────────
+  fcInit();
+  </script>
+</body>
+</html>

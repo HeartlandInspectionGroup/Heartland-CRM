@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/brand.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice — Heartland Inspection Group</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+    :root { --muted: #8a9ab0; }
+body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+    overflow-x: hidden;
+}
+
+/* Loading */
+.loading-screen {
+    min-height: 100vh; display:flex; align-items:center;
+    justify-content:center; flex-direction:column; gap:16px;
+}
+.loading-spinner {
+    width:40px; height:40px; border:3px solid #e0e4ea;
+    border-top-color: var(--navy); border-radius:50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-text {
+    font-family:'Barlow Condensed',sans-serif; font-size:13px;
+    color:var(--muted); letter-spacing:1px; text-transform:uppercase;
+}
+
+/* Invoice wrap */
+.invoice-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    display: none;
+}
+
+/* Print bar */
+.print-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+.print-bar-label {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:11px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:var(--muted);
+}
+.print-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:10px 18px;
+    background:var(--navy); color:white;
+    border:none; border-radius:8px;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px; font-weight:700; letter-spacing:1px;
+    text-transform:uppercase; cursor:pointer;
+    transition: background 0.15s;
+}
+.print-btn:hover { background:#243652; }
+
+/* Invoice card */
+.invoice-card {
+    background:white;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow: 0 4px 24px rgba(26,42,68,0.10);
+}
+
+/* Header */
+.inv-header {
+    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);
+    padding: 32px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.inv-header-left {}
+.inv-logo { height: 52px; margin-bottom: 12px; display:block; }
+.inv-company-name {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px; font-weight:700; letter-spacing:1.5px;
+    text-transform:uppercase; color:rgba(255,255,255,0.5);
+    margin-bottom:4px;
+}
+.inv-company-sub {
+    font-size:12px; color:rgba(255,255,255,0.35); line-height:1.6;
+}
+.inv-header-right { text-align:right; }
+.inv-label {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:32px; font-weight:900; letter-spacing:2px;
+    text-transform:uppercase; color:white;
+    margin-bottom:8px;
+}
+.inv-number {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:12px; font-weight:600; letter-spacing:1px;
+    color:rgba(255,255,255,0.4); margin-bottom:12px;
+}
+.inv-status-badge {
+    display:inline-block;
+    padding:5px 14px; border-radius:20px;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:11px; font-weight:700; letter-spacing:1.5px;
+    text-transform:uppercase;
+}
+.inv-status-paid { background:rgba(39,174,96,0.2); color:#4cd47e; border:1px solid rgba(39,174,96,0.3); }
+.inv-status-pending { background:rgba(245,147,33,0.2); color:#f59321; border:1px solid rgba(245,147,33,0.3); }
+
+/* Meta row */
+.inv-meta {
+    display:grid; grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+}
+.inv-meta-cell {
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+}
+.inv-meta-cell:last-child { border-right:none; }
+.inv-meta-label {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:var(--muted);
+    margin-bottom:5px;
+}
+.inv-meta-value {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:15px; font-weight:700; color:var(--navy);
+    line-height:1.3;
+}
+.inv-meta-sub {
+    font-size:12px; color:var(--muted); margin-top:2px;
+}
+
+/* Service table */
+.inv-table-wrap { padding: 24px 28px; }
+.inv-table-header {
+    display:grid; grid-template-columns: 1fr auto auto;
+    gap:12px; padding-bottom:10px;
+    border-bottom:2px solid var(--navy);
+    margin-bottom:12px;
+}
+.inv-table-header span {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:var(--muted);
+}
+.inv-table-header span:last-child,
+.inv-table-header span:nth-child(2) { text-align:right; }
+
+.inv-line {
+    display:grid; grid-template-columns: 1fr auto auto;
+    gap:12px; padding:14px 0;
+    border-bottom:1px solid var(--border);
+    align-items:center;
+}
+.inv-line-name {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:16px; font-weight:700; color:var(--navy);
+}
+.inv-line-desc { font-size:12px; color:var(--muted); margin-top:2px; }
+.inv-line-qty {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:15px; font-weight:600; color:var(--navy);
+    text-align:right;
+}
+.inv-line-price {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:15px; font-weight:700; color:var(--navy);
+    text-align:right; min-width:80px;
+}
+
+/* Totals */
+.inv-totals {
+    padding: 0 28px 24px;
+    display:flex; flex-direction:column; align-items:flex-end;
+    gap:8px;
+}
+.inv-total-row {
+    display:flex; gap:40px; align-items:center;
+}
+.inv-total-label {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:12px; font-weight:600; letter-spacing:1px;
+    text-transform:uppercase; color:var(--muted);
+    min-width:100px; text-align:right;
+}
+.inv-total-value {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:15px; font-weight:700; color:var(--navy);
+    min-width:80px; text-align:right;
+}
+.inv-total-row.grand {
+    padding-top:12px;
+    border-top:2px solid var(--navy);
+    margin-top:4px;
+}
+.inv-total-row.grand .inv-total-label { color:var(--navy); font-size:14px; }
+.inv-total-row.grand .inv-total-value { font-size:22px; color:var(--navy); }
+
+/* Payment details */
+.inv-payment {
+    margin:0 28px 24px;
+    background:#f7f9fb;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px 20px;
+}
+.inv-payment-title {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:var(--muted);
+    margin-bottom:12px;
+}
+.inv-payment-row {
+    display:flex; justify-content:space-between;
+    align-items:center; padding:6px 0;
+    border-bottom:1px solid var(--border);
+}
+.inv-payment-row:last-child { border-bottom:none; }
+.inv-payment-key {
+    font-size:12px; color:var(--muted);
+}
+.inv-payment-val {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px; font-weight:700; color:var(--navy);
+}
+.inv-payment-val.paid { color:var(--green); }
+
+/* Property block */
+.inv-property {
+    margin:0 28px 28px;
+    padding:16px 20px;
+    border-left:4px solid var(--green);
+    background:#f7fdf9;
+    border-radius:0 8px 8px 0;
+}
+.inv-property-label {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:var(--green);
+    margin-bottom:4px;
+}
+.inv-property-address {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:18px; font-weight:700; color:var(--navy);
+    margin-bottom:2px;
+}
+.inv-property-sub { font-size:12px; color:var(--muted); }
+
+/* Footer */
+.inv-footer {
+    background:var(--navy);
+    padding:20px 36px;
+    display:flex; justify-content:space-between;
+    align-items:center; gap:16px; flex-wrap:wrap;
+}
+.inv-footer-text {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:11px; font-weight:600; letter-spacing:1.5px;
+    text-transform:uppercase; color:rgba(255,255,255,0.3);
+}
+.inv-footer-note {
+    font-size:11px; color:rgba(255,255,255,0.2); text-align:right;
+    max-width:280px; line-height:1.5;
+}
+
+/* Not found */
+.not-found {
+    min-height:100vh; display:none; align-items:center;
+    justify-content:center; flex-direction:column; gap:12px;
+    text-align:center; padding:40px;
+}
+.not-found h2 {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:24px; font-weight:800; color:var(--navy);
+}
+.not-found p { font-size:14px; color:var(--muted); }
+
+/* Print styles */
+@media (max-width: 480px) {
+    .invoice-wrap { padding: 0; }
+    .print-bar { flex-direction: column; gap: 8px; align-items: stretch; }
+}
+@media print {
+    body { background:white; padding:0; }
+    .print-bar { display:none; }
+    .invoice-card { box-shadow:none; border-radius:0; }
+    .inv-header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .inv-footer { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+</style>
+  <script src="/config.js"></script>
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading Invoice...</div>
+</div>
+
+<div class="not-found" id="notFoundScreen">
+    <h2>Invoice Not Found</h2>
+    <p>This invoice link may be invalid or expired.</p>
+</div>
+
+<div class="invoice-wrap" id="invoiceWrap">
+
+    <div class="print-bar">
+        <span class="print-bar-label">Heartland Inspection Group · Invoice</span>
+        <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
+    </div>
+
+    <div class="invoice-card">
+
+        <div class="inv-header">
+            <div class="inv-header-left">
+                <img src="https://i.imgur.com/I1vTiVT.png" class="inv-logo" alt="Heartland Inspection Group">
+                <div class="inv-company-name">Heartland Inspection Group</div>
+                <div class="inv-company-sub">heartlandinspectiongroup.com</div>
+            </div>
+            <div class="inv-header-right">
+                <div class="inv-label">Invoice</div>
+                <div class="inv-number" id="invNumber">—</div>
+                <div class="inv-status-badge" id="invStatusBadge">Paid</div>
+            </div>
+        </div>
+
+        <div class="inv-meta">
+            <div class="inv-meta-cell">
+                <div class="inv-meta-label">Invoice Date</div>
+                <div class="inv-meta-value" id="invDate">—</div>
+            </div>
+            <div class="inv-meta-cell">
+                <div class="inv-meta-label">Inspection Date</div>
+                <div class="inv-meta-value" id="invInspDate">—</div>
+            </div>
+            <div class="inv-meta-cell">
+                <div class="inv-meta-label">Inspector</div>
+                <div class="inv-meta-value" id="invInspector">—</div>
+            </div>
+        </div>
+
+        <div class="inv-property">
+            <div class="inv-property-label">Property Inspected</div>
+            <div class="inv-property-address" id="invAddress">—</div>
+            <div class="inv-property-sub" id="invPropertySub">—</div>
+        </div>
+
+        <div class="inv-table-wrap">
+            <div class="inv-table-header">
+                <span>Service</span>
+                <span>Qty</span>
+                <span>Amount</span>
+            </div>
+            <div id="invLineItems"></div>
+        </div>
+
+        <div class="inv-totals">
+            <div class="inv-total-row grand">
+                <span class="inv-total-label">Total</span>
+                <span class="inv-total-value" id="invTotal">—</span>
+            </div>
+        </div>
+
+        <div class="inv-payment">
+            <div class="inv-payment-title">Payment Details</div>
+            <div class="inv-payment-row">
+                <span class="inv-payment-key">Status</span>
+                <span class="inv-payment-val paid" id="invPayStatus">✓ Paid in Full</span>
+            </div>
+            <div class="inv-payment-row">
+                <span class="inv-payment-key">Method</span>
+                <span class="inv-payment-val" id="invMethod">—</span>
+            </div>
+            <div class="inv-payment-row" id="invStripeRow" style="display:none;">
+                <span class="inv-payment-key">Transaction ID</span>
+                <span class="inv-payment-val" id="invStripeId" style="font-size:11px;word-break:break-all;">—</span>
+            </div>
+        </div>
+
+        <div class="inv-footer">
+            <div class="inv-footer-text">Heartland Inspection Group · Thank you for your business</div>
+            <div class="inv-footer-note">This invoice serves as your official receipt for inspection services rendered. Please retain for your records. Questions? Contact us at info@heartlandinspectiongroup.com or (815) 329-8583.</div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+var SUPABASE_URL  = 'https://fusravedbksupcsjfzda.supabase.co';
+var SUPABASE_ANON = window.SUPABASE_ANON_KEY;
+
+function fmt(n) {
+    return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso + (iso.includes('T') ? '' : 'T12:00:00'))
+        .toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+}
+function esc(s) {
+    var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+}
+
+var CAT_LABELS = {
+    home_health_check: 'Home Health Check',
+    home_inspection:   'Home Inspection',
+    new_construction:  'New Construction',
+    addon:             'Add-On Service',
+};
+var ADDON_NAMES = {
+    Radon: 'Radon Testing', 'Sewer Scope': 'Sewer Scope',
+    Mold: 'Mold / Air Quality', 'Water Quality': 'Water Quality Testing',
+    Thermal: 'Thermal Imaging', WDO: 'WDO / Termite Inspection',
+};
+
+async function loadInvoice() {
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+    if (!id) { showNotFound(); return; }
+
+    try {
+        var res = await fetch('/.netlify/functions/get-report?invoice=true&id=' + encodeURIComponent(id));
+        var data = await res.json();
+        if (!res.ok || !data.report) { showNotFound(); return; }
+        renderInvoice(data.report);
+    } catch(err) {
+        showNotFound();
+    }
+}
+
+async function lookupPortalUrl(custEmail) {
+    if (!custEmail) return null;
+    try {
+        var res = await fetch(SUPABASE_URL + '/rest/v1/client_portal_tokens?client_email=eq.' + encodeURIComponent(custEmail) + '&select=token&limit=1', {
+            headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
+        });
+        var rows = await res.json();
+        if (rows && rows[0] && rows[0].token) {
+            return (window.location.origin || 'https://heartlandinspectiongroup.com') + '/client-portal.html?token=' + rows[0].token;
+        }
+    } catch(e) { console.error('Portal lookup failed:', e); }
+    return null;
+}
+
+function renderInvoice(r) {
+    var tier     = r.tier || 'Standard';
+    var cat      = r.category || 'home_health_check';
+    var catLabel = CAT_LABELS[cat] || 'Inspection';
+    var svcName  = cat === 'addon'
+        ? (ADDON_NAMES[tier] || tier)
+        : catLabel + (cat !== 'addon' ? ' — ' + tier : '');
+    var amount   = r.final_total || r.invoice_amount || 0;
+    var method   = r.payment_method || '';
+
+    // Header
+    document.getElementById('invNumber').textContent   = 'INV-' + (r.id || '').slice(-8).toUpperCase();
+    document.getElementById('invDate').textContent     = fmtDate(r.updated_at || r.created_at);
+    document.getElementById('invInspDate').textContent = fmtDate(r.inspection_date);
+    document.getElementById('invInspector').textContent = r.inspector_name || '—';
+
+    // Status badge
+    var badgeEl = document.getElementById('invStatusBadge');
+    if (method) {
+        badgeEl.textContent = 'Paid';
+        badgeEl.className = 'inv-status-badge inv-status-paid';
+    } else {
+        badgeEl.textContent = 'Issued';
+        badgeEl.className = 'inv-status-badge inv-status-pending';
+    }
+
+    // Property
+    document.getElementById('invAddress').textContent    = r.address || '—';
+    document.getElementById('invPropertySub').textContent = r.cust_name ? 'Prepared for ' + r.cust_name : '';
+
+    // Line item
+    document.getElementById('invLineItems').innerHTML =
+        '<div class="inv-line">'
+        + '<div><div class="inv-line-name">' + esc(svcName) + '</div></div>'
+        + '<div class="inv-line-qty">1</div>'
+        + '<div class="inv-line-price">' + (amount ? fmt(amount) : '—') + '</div>'
+        + '</div>';
+
+    // Total
+    document.getElementById('invTotal').textContent = amount ? fmt(amount) : '—';
+
+    // Payment details
+    if (method) {
+        document.getElementById('invPayStatus').textContent = '✓ Paid in Full';
+        document.getElementById('invPayStatus').className = 'inv-payment-val paid';
+        document.getElementById('invMethod').textContent = method;
+        if (r.stripe_payment_id) {
+            document.getElementById('invStripeRow').style.display = 'flex';
+            document.getElementById('invStripeId').textContent = r.stripe_payment_id;
+        }
+    } else {
+        document.getElementById('invPayStatus').textContent = 'Payment recorded at service';
+        document.getElementById('invPayStatus').className = 'inv-payment-val';
+        document.getElementById('invMethod').textContent = '—';
+    }
+
+    // Page title
+    document.title = 'Invoice — ' + (r.address || 'Heartland Inspection Group');
+
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('invoiceWrap').style.display   = 'block';
+    injectPortalButton(r.cust_email || '');
+}
+
+async function injectPortalButton(custEmail) {
+    var url = await lookupPortalUrl(custEmail);
+    if (!url) return;
+    var footer = document.querySelector('.inv-footer');
+    if (!footer) return;
+    var btn = document.createElement('div');
+    btn.style.cssText = 'text-align:center;margin-top:18px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.07);';
+    btn.innerHTML = '<a href="' + url + '" style="display:inline-block;background:#15516d;color:#fff;font-size:13px;font-weight:700;text-decoration:none;padding:10px 24px;border-radius:8px;letter-spacing:0.5px;">&#x1F3E0; Back to My Portal</a>';
+    footer.appendChild(btn);
+}
+
+function showNotFound() {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('notFoundScreen').style.display = 'flex';
+}
+
+loadInvoice();
+</script>
+</body>
+</html>

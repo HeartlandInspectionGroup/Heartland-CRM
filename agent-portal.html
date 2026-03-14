@@ -1,0 +1,3585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Agent Portal — Heartland Inspection Group</title>
+<link rel="stylesheet" href="/brand.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@geoapify/geocoder-autocomplete@3.0.1/styles/minimal.css">
+<script src="https://cdn.jsdelivr.net/npm/@geoapify/geocoder-autocomplete@3.0.1/dist/index.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600;700&family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Portal Shell ── */
+* { margin:0; padding:0; box-sizing:border-box; }
+:root { --muted:#8a9ab0; }
+body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--navy); min-height:100vh; }
+.ap-loading { min-height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
+.ap-spinner { width:40px; height:40px; border:3px solid #e0e4ea; border-top-color:var(--navy); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.ap-invalid { min-height:100vh; display:none; align-items:center; justify-content:center; padding:40px 20px; flex-direction:column; gap:20px; text-align:center; }
+.ap-invalid.visible { display:flex; }
+.ap-shell { display:none; min-height:100vh; flex-direction:column; }
+.ap-shell.visible { display:flex; }
+.ap-header { background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 100%); color:#fff; height:64px; display:flex; align-items:center; padding:0 24px; position:sticky; top:0; z-index:100; box-shadow:0 2px 16px rgba(0,0,0,0.18); }
+.ap-header-logo { height:36px; }
+.ap-header-welcome { margin-left:20px; flex:1; font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; letter-spacing:0.5px; color:rgba(255,255,255,0.9); }
+.ap-header-welcome span { color:var(--green); }
+.ap-hamburger { display:none; background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:4px 8px; margin-left:auto; }
+.ap-body { display:flex; flex:1; }
+.ap-sidebar { width:220px; background:var(--navy-dark); flex-shrink:0; display:flex; flex-direction:column; padding:20px 0; position:sticky; top:64px; height:calc(100vh - 64px); overflow-y:auto; }
+.ap-nav-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,0.3); padding:12px 20px 6px; }
+.ap-nav-btn { display:block; width:100%; text-align:left; background:none; border:none; color:rgba(255,255,255,0.7); font-family:'Barlow',sans-serif; font-size:14px; font-weight:500; padding:10px 20px; cursor:pointer; transition:all 0.15s; border-left:3px solid transparent; }
+.ap-nav-btn:hover { color:#fff; background:rgba(255,255,255,0.06); }
+.ap-nav-btn.active { color:#fff; background:rgba(255,255,255,0.1); border-left-color:var(--green); }
+.ap-main { flex:1; overflow-x:hidden; background:linear-gradient(160deg,#121e30 0%,#1a2a44 100%); }
+.ap-panel { display:none; }
+.ap-panel.active { display:block; }
+#panel-contact.active { display:flex; align-items:center; justify-content:center; height:calc(100vh - 64px); padding:32px; box-sizing:border-box; }
+.ap-card { background:rgba(255,255,255,0.06); border-radius:14px; padding:32px; box-shadow:0 4px 20px rgba(0,0,0,0.2); margin-bottom:24px; border:1px solid rgba(255,255,255,0.1); }
+.ap-card-title { font-family:'Crimson Pro',serif; font-size:26px; font-weight:700; color:#fff; margin-bottom:6px; }
+.ap-card-sub { font-size:14px; color:rgba(255,255,255,0.45); margin-bottom:24px; }
+.ap-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:90; }
+.ap-overlay.visible { display:block; }
+.ap-contact-card { background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 100%); border-radius:16px; padding:40px; color:#fff; max-width:480px; }
+.ap-contact-logo { height:52px; margin-bottom:20px; display:block; }
+.ap-contact-name { font-family:'Crimson Pro',serif; font-size:28px; font-weight:700; margin-bottom:6px; }
+.ap-contact-tagline { font-size:14px; color:rgba(255,255,255,0.55); margin-bottom:28px; }
+.ap-contact-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-top:1px solid rgba(255,255,255,0.1); font-size:15px; }
+.ap-contact-row:last-child { border-bottom:1px solid rgba(255,255,255,0.1); }
+.ap-contact-icon { font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+.ap-contact-link { color:var(--green); text-decoration:none; font-weight:600; }
+.ap-contact-link:hover { text-decoration:underline; }
+/* Booking panel wraps wizard section */
+#panel-booking .wizard-section { padding:0; background:transparent; }
+#panel-booking .wizard-outer { max-width:100%; }
+#panel-booking { padding: 0 !important; background: linear-gradient(160deg, #0e1a2b 0%, #152236 100%); }
+@media (max-width:768px) {
+  .ap-hamburger { display:block; }
+  .ap-sidebar { position:fixed; left:-240px; top:64px; z-index:95; height:calc(100vh - 64px); width:220px; transition:left 0.3s ease; }
+  .ap-sidebar.open { left:0; }
+  #panel-booking { padding: 0 !important; }
+  .ap-card { padding:20px; }
+}
+
+
+/* ── Agent Portal Booking Panel (mirrors inspector-wizard walk-in style) ── */
+/* ══════════════════════════════════════════════════════════
+   AGENT PORTAL BOOKING WIZARD v2
+   ══════════════════════════════════════════════════════════ */
+    /* apw/wiz styles → /shared/booking-tool.css */
+
+/* Property data (Rentcast) read-only fields */
+.apw-prop-data { display:none; margin-top:8px; gap:8px; }
+.apw-prop-data.visible { display:flex; }
+.apw-prop-field { flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:8px 12px; }
+.apw-prop-field-label { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.apw-prop-field-value { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; color:#fff; }
+.apw-prop-field-value.loading { color:rgba(255,255,255,0.3); font-size:13px; font-weight:400; }
+.apw-prop-field-value.not-found { color:rgba(255,255,255,0.3); font-style:italic; font-size:13px; font-weight:400; }
+
+
+/* Header */
+.apc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.apc-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+.apc-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 3px;
+}
+
+/* Summary stat pills */
+.apc-summary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.apc-stat {
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 8px 14px;
+  text-align: center;
+  min-width: 56px;
+}
+.apc-stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #27ae60;
+  line-height: 1;
+}
+.apc-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 3px;
+}
+
+/* Sub-tab panels */
+.apc-subtab-panel { display: block; }
+
+/* Job cards (agent's inspection history) */
+.apcj-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+.apcj-card:hover { background: rgba(255,255,255,0.10); }
+.apcj-card-body { padding: 14px 16px; }
+.apcj-card-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 700;
+  color: #fff; letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.apcj-card-addr { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
+.apcj-card-meta {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  font-size: 12px; color: rgba(255,255,255,0.45);
+}
+.apcj-card-actions {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 16px;
+  display: flex; gap: 8px;
+}
+
+/* Search toolbar */
+.apc-toolbar {
+  margin-bottom: 18px;
+}
+.apc-search {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.apc-search:focus { border-color: rgba(39,174,96,0.5); }
+.apc-search::placeholder { color: rgba(255,255,255,0.3); }
+
+/* Loading */
+.apc-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 0;
+}
+
+/* Section headers (Scheduled / Submitted) */
+.apc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  user-select: none;
+  transition: background 0.15s;
+}
+.apc-section-header:hover { background: rgba(255,255,255,0.08); }
+.apc-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.apc-section-chevron {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  transition: transform 0.2s;
+}
+.apc-section-body-collapsed { display: none; }
+
+/* Empty state */
+.apc-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+/* ── OTHER CLIENTS ── */
+.apco-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.apco-add-btn {
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.apco-add-btn:hover { background: #1e8449; }
+
+.apco-client-card {
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.apco-client-card:hover { border-color: rgba(255,255,255,0.2); }
+.apco-client-info { flex: 1; min-width: 0; }
+.apco-client-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.apco-client-meta {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+.apco-client-meta span { display: flex; align-items: center; gap: 4px; }
+.apco-client-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.apco-icon-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 9px;
+  color: rgba(255,255,255,0.7);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.apco-icon-btn:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.25); color: #fff; }
+.apco-icon-btn.docs { color: #7eb8d4; }
+.apco-icon-btn.docs:hover { background: rgba(21,81,109,0.35); border-color: rgba(21,81,109,0.6); color: #a8d4e8; }
+.apco-icon-btn.upload:hover { background: rgba(39,174,96,0.2); border-color: rgba(39,174,96,0.5); color: #27ae60; }
+
+/* Add Client form */
+.apco-form-group { margin-bottom: 14px; }
+.apco-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 6px;
+}
+.apco-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 9px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.apco-input:focus { border-color: rgba(21,81,109,0.7); }
+.apco-input::placeholder { color: rgba(255,255,255,0.2); }
+
+.apco-drop-zone {
+  border: 2px dashed rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.apco-drop-zone:hover, .apco-drop-zone.drag-over {
+  border-color: #27ae60;
+  background: rgba(39,174,96,0.06);
+}
+
+/* Doc list inside modal */
+.apco-doc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 9px;
+  margin-bottom: 8px;
+}
+.apco-doc-icon { font-size: 18px; flex-shrink: 0; }
+.apco-doc-name {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+}
+.apco-doc-name:hover { color: #7eb8d4; text-decoration: underline; }
+.apco-doc-del {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.apco-doc-del:hover { color: #e74c3c; }
+
+/* File pill in add/upload modals */
+.apco-file-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(39,174,96,0.1);
+  border: 1.5px solid rgba(39,174,96,0.25);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+}
+.apco-file-pill span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.apco-file-remove {
+  background: none; border: none; color: rgba(255,255,255,0.3);
+  cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
+}
+.apco-file-remove:hover { color: #e74c3c; }
+
+/* ── REPAIR BUILDER ── */
+.rb-screen {
+  padding: 28px 24px 60px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.rb-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.rb-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 0.5px;
+}
+.rb-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.rb-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.rb-btn-primary {
+  background: #27ae60; color: #fff; border: none;
+  border-radius: 9px; padding: 10px 18px;
+  font-family: 'Work Sans', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s; white-space: nowrap;
+}
+.rb-btn-primary:hover { background: #1e8449; }
+.rb-btn-secondary {
+  background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 9px; padding: 10px 18px;
+  font-family: 'Work Sans', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.rb-btn-secondary:hover { background: rgba(255,255,255,0.13); }
+.rb-card {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 14px; padding: 20px 22px; margin-bottom: 12px;
+}
+.rb-card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700; color: #fff;
+  letter-spacing: 0.5px; margin-bottom: 16px;
+}
+.rb-property-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 600px) { .rb-property-grid { grid-template-columns: 1fr; } }
+.rb-field-group { display: flex; flex-direction: column; gap: 6px; }
+.rb-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: rgba(255,255,255,0.4);
+}
+.rb-input {
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 9px; padding: 10px 13px;
+  color: #fff; font-family: 'Work Sans', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.15s; width: 100%; box-sizing: border-box;
+}
+.rb-input:focus { border-color: rgba(21,81,109,0.7); }
+.rb-input::placeholder { color: rgba(255,255,255,0.2); }
+.rb-input[type=number]::-webkit-inner-spin-button { opacity: 0.4; }
+.rb-size-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.rb-size-pill {
+  flex: 1; min-width: 110px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 10px 14px;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Work Sans', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; text-align: left;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.rb-size-pill span { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.3); }
+.rb-size-pill.active { background: rgba(21,81,109,0.4); border-color: rgba(21,81,109,0.7); color: #fff; }
+.rb-size-pill.active span { color: rgba(255,255,255,0.55); }
+.rb-size-pill:hover:not(.active) { background: rgba(255,255,255,0.09); }
+.rb-cat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+}
+.rb-cat-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; gap: 8px;
+}
+.rb-cat-chevron { color: rgba(255,255,255,0.35); font-size: 13px; transition: transform 0.2s; }
+.rb-cat-body { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.rb-cat-body.collapsed { display: none; }
+.rb-item-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid rgba(255,255,255,0.07);
+  border-radius: 9px; transition: border-color 0.15s, background 0.15s; cursor: pointer;
+}
+.rb-item-row.selected { background: rgba(39,174,96,0.08); border-color: rgba(39,174,96,0.35); }
+.rb-item-check {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.2); border-radius: 5px;
+  background: none; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; pointer-events: none;
+}
+.rb-item-row.selected .rb-item-check { background: #27ae60; border-color: #27ae60; color: #fff; font-size: 11px; }
+.rb-item-name { flex: 1; font-size: 13px; color: rgba(255,255,255,0.8); font-family: 'Work Sans', sans-serif; }
+.rb-item-row.selected .rb-item-name { color: #fff; }
+.rb-item-cost { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.rb-item-cost-input {
+  background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 7px; padding: 5px 8px;
+  color: #fff; font-family: 'Work Sans', sans-serif; font-size: 13px;
+  font-weight: 600; width: 90px; text-align: right; outline: none;
+}
+.rb-item-cost-input:focus { border-color: #27ae60; }
+.rb-item-cost-symbol { font-size: 13px; color: rgba(255,255,255,0.4); }
+.rb-custom-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.rb-custom-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 8px;
+}
+.rb-custom-item-name { flex: 1; font-size: 13px; color: rgba(255,255,255,0.8); }
+.rb-custom-item-cost { font-size: 13px; font-weight: 700; color: #27ae60; margin-right: 4px; }
+.rb-custom-item-del { background: none; border: none; color: rgba(255,255,255,0.25); cursor: pointer; font-size: 15px; padding: 0 2px; transition: color 0.15s; }
+.rb-custom-item-del:hover { color: #e74c3c; }
+.rb-total-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(21,81,109,0.25); border: 1.5px solid rgba(21,81,109,0.5);
+  border-radius: 14px; padding: 18px 24px; margin-top: 16px;
+}
+.rb-total-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.7);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.rb-total-amount { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; color: #fff; }
+      /* end repair builder */
+
+.apc-subtab-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 5px;
+}
+.apc-subtab {
+  flex: 1;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  border-radius: 9px;
+  color: rgba(255,255,255,0.45);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.apc-subtab:hover {
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.06);
+}
+.apc-subtab.active {
+  background: rgba(21,81,109,0.55);
+  color: #fff;
+  border: 1.5px solid rgba(21,81,109,0.7);
+}
+
+/* ── SCHEDULED JOB CARDS ── */
+.apcs-card {
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.apcs-card:hover { border-color: rgba(255,255,255,0.18); }
+
+.apcs-card-body {
+  padding: 14px 16px 10px;
+}
+.apcs-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.apcs-card-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+.apcs-card-badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.apcs-card-addr {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.apcs-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 2px;
+}
+.apcs-card-meta-item {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+.apcs-card-date {
+  color: rgba(255,255,255,0.75);
+  font-weight: 600;
+}
+.apcs-card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 12px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  flex-wrap: wrap;
+}
+
+/* Badges */
+.apcs-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.apcs-badge-tier {
+  background: rgba(100,149,237,0.15);
+  color: rgba(180,200,255,0.9);
+  border: 1px solid rgba(100,149,237,0.25);
+}
+.apcs-badge-paid {
+  background: rgba(39,174,96,0.15);
+  color: #2ecc71;
+  border: 1px solid rgba(39,174,96,0.3);
+}
+.apcs-badge-unpaid {
+  background: rgba(231,76,60,0.12);
+  color: rgba(231,120,100,0.9);
+  border: 1px solid rgba(231,76,60,0.25);
+}
+.apcs-badge-sig-ok {
+  background: rgba(39,174,96,0.1);
+  color: rgba(100,220,140,0.85);
+  border: 1px solid rgba(39,174,96,0.2);
+}
+.apcs-badge-sig-bad {
+  background: rgba(245,147,33,0.12);
+  color: rgba(245,180,80,0.9);
+  border: 1px solid rgba(245,147,33,0.25);
+}
+
+/* Action buttons */
+.apcs-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1.5px solid;
+  white-space: nowrap;
+}
+.apcs-btn-edit {
+  background: rgba(39,174,96,0.1);
+  border-color: rgba(39,174,96,0.3);
+  color: #2ecc71;
+}
+.apcs-btn-edit:hover {
+  background: rgba(39,174,96,0.2);
+  border-color: rgba(39,174,96,0.6);
+}
+.apcs-btn-cancel {
+  background: rgba(231,76,60,0.08);
+  border-color: rgba(231,76,60,0.25);
+  color: rgba(231,120,100,0.85);
+}
+.apcs-btn-cancel:hover {
+  background: rgba(231,76,60,0.18);
+  border-color: rgba(231,76,60,0.5);
+}
+
+/* ── SUBMITTED CLIENT CARDS ── */
+.apcc-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.apcc-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+.apcc-count {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(39,174,96,0.15);
+  border: 2px solid rgba(39,174,96,0.3);
+  color: #2ecc71;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.apcc-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+.apcc-email {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+}
+.apcc-arrow {
+  margin-left: auto;
+  font-size: 16px;
+  color: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+
+/* Modals */
+.apc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.apc-history-modal {
+  background: #1a2a44;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+.apc-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: rgba(255,255,255,0.6);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.apc-modal-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.apc-modal-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+  padding-right: 36px;
+}
+.apc-modal-type {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+}
+
+@media (max-width: 480px) {
+  .apc-screen { padding: 16px 14px 60px; }
+  .apc-header { flex-direction: column; gap: 12px; }
+  .apc-summary { width: 100%; justify-content: flex-start; }
+  .apcs-card-top { flex-direction: column; }
+  .apcs-card-actions { gap: 6px; }
+  .apcs-btn { padding: 8px 12px; font-size: 12px; }
+}
+
+</style>
+  <link rel="stylesheet" href="/shared/booking-tool.css">
+</head>
+<body>
+
+<!-- Loading -->
+<div class="ap-loading" id="apLoading">
+  <div class="ap-spinner"></div>
+  <div style="font-size:14px;color:var(--muted);">Loading your portal&hellip;</div>
+</div>
+
+<!-- Invalid token -->
+<div class="ap-invalid" id="apInvalid">
+  <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group" style="height:48px;margin-bottom:8px;">
+  <h2 style="font-family:'Crimson Pro',serif;font-size:28px;color:var(--navy);margin-bottom:8px;">Portal Link Invalid</h2>
+  <p style="font-size:15px;color:var(--muted);max-width:380px;line-height:1.6;">This portal link is not recognized. Please use the link from your welcome email, or contact Heartland Inspection Group for a new one.</p>
+  <div style="margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <a href="tel:8153298583" style="color:var(--navy);font-weight:700;font-size:16px;text-decoration:none;">(815) 329-8583</a>
+    <a href="mailto:info@heartlandinspectiongroup.com" style="color:var(--muted);font-size:14px;">info@heartlandinspectiongroup.com</a>
+  </div>
+</div>
+
+<!-- Portal shell -->
+<div class="ap-shell" id="apShell">
+  <header class="ap-header">
+    <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group" class="ap-header-logo">
+    <div class="ap-header-welcome" id="apWelcome">Agent Portal</div>
+    <button class="ap-hamburger" id="apHamburger">&#9776;</button>
+  </header>
+
+  <div class="ap-body">
+    <div class="ap-overlay" id="apOverlay"></div>
+
+    <nav class="ap-sidebar" id="apSidebar">
+      <div class="ap-nav-label">Menu</div>
+      <button class="ap-nav-btn active" data-panel="booking">&#128203; New Inspection</button>
+      <button class="ap-nav-btn" data-panel="clients">&#128101; Clients</button>
+      <button class="ap-nav-btn" data-panel="repair">&#128295; Repair Builder</button>
+      <button class="ap-nav-btn" data-panel="contact">&#9993; Contact Heartland</button>
+    </nav>
+
+    <main class="ap-main">
+
+      <!-- ── Booking Panel ── -->
+      <div class="ap-panel active" id="panel-booking">
+        <div class="apw-screen" id="apwScreen">
+          <!-- Logo + Title -->
+          <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group" class="apw-logo">
+          <div class="apw-title">New Inspection Request</div>
+          <div class="apw-sub">Book on behalf of your client in 4 easy steps</div>
+
+          <!-- Agent Discount Banner -->
+          <div class="apw-discount-banner" id="apwDiscountBanner" style="display:none;">
+            <span class="apw-discount-icon">&#128176;</span>
+            <span id="apwDiscountMsg"></span>
+          </div>
+
+          <!-- Step Progress -->
+          <div class="apw-progress" id="apwProgress">
+            <div class="apw-prog-step active" data-s="0"><div class="apw-prog-circle">1</div><div class="apw-prog-label">Contact</div></div>
+            <div class="apw-prog-line" id="apwLine01"></div>
+            <div class="apw-prog-step" data-s="1"><div class="apw-prog-circle">2</div><div class="apw-prog-label">Pricing</div></div>
+            <div class="apw-prog-line" id="apwLine12"></div>
+            <div class="apw-prog-step" data-s="2"><div class="apw-prog-circle">3</div><div class="apw-prog-label">Schedule</div></div>
+            <div class="apw-prog-line" id="apwLine23"></div>
+            <div class="apw-prog-step" data-s="3"><div class="apw-prog-circle">4</div><div class="apw-prog-label">Review</div></div>
+          </div>
+
+          <!-- STEP 1: Contact -->
+          <div class="apw-step active" id="apwStep0">
+            <div class="apw-step-header">Client Information &amp; Property</div>
+            <div class="apw-row2">
+              <div class="apw-field"><label class="apw-label">First Name *</label><input class="apw-input" id="apw_firstName" placeholder="Jane" autocomplete="off"></div>
+              <div class="apw-field"><label class="apw-label">Last Name</label><input class="apw-input" id="apw_lastName" placeholder="Smith" autocomplete="off"></div>
+            </div>
+            <div class="apw-field"><label class="apw-label">Email *</label><input class="apw-input" id="apw_email" type="email" placeholder="jane@email.com" autocomplete="off"></div>
+            <div class="apw-field"><label class="apw-label">Phone</label><input class="apw-input" id="apw_phone" type="tel" placeholder="(815) 555-0000" autocomplete="off"></div>
+            <div class="apw-field"><label class="apw-label">Client Current Address *</label><div id="apwCurrentAddrAC"></div><input type="hidden" id="apw_currentAddress"></div>
+            <div class="apw-field"><label class="apw-label">Inspection Address *</label><div id="apwInspAddrAC"></div><input type="hidden" id="apw_address">
+              <div class="apw-prop-data" id="apwPropData">
+                <div class="apw-prop-field">
+                  <div class="apw-prop-field-label">Year Built</div>
+                  <div class="apw-prop-field-value loading" id="apwPropYearBuilt">⏳ Looking up...</div>
+                </div>
+                <div class="apw-prop-field">
+                  <div class="apw-prop-field-label">Square Footage</div>
+                  <div class="apw-prop-field-value loading" id="apwPropSqft">⏳ Looking up...</div>
+                </div>
+              </div>
+            </div>
+            <div class="apw-err" id="apwErr0"></div>
+            <button class="apw-btn-primary" id="apwNext0">Next &#8212; Select Services &#8594;</button>
+          </div>
+
+          <!-- STEP 2: Pricing -->
+          <div class="apw-step" id="apwStep1" style="display:none;">
+            <div class="apw-step-header">Select Service &amp; Pricing</div>
+            <div class="apw-cat-grid" id="apwCatGrid"></div>
+            <div id="apwPricingPanel" style="display:none;">
+              <div id="apwPanelHI" style="display:none;">
+                <div class="apw-subsection"><div class="apw-sublabel">Inspection Type</div><div class="apw-type-row" id="apwHITypeRow"><button class="apw-type-btn" data-type="Pre Purchase" data-label="Pre Purchase">&#128273; Pre Purchase</button><button class="apw-type-btn" data-type="Pre Listing" data-label="Pre Listing">&#128203; Pre Listing</button></div></div>
+                <div class="apw-subsection"><div class="apw-sublabel">Home Size</div><div id="apwHISizeGrid" class="apw-size-grid"></div></div>
+                <div class="apw-subsection" id="apwYBSection"><div class="apw-sublabel">Year Built</div><div id="apwYBRow" class="apw-yb-row"></div></div>
+                <div class="apw-subsection" id="apwHIAddonsSection"><div class="apw-sublabel">Add-On Services <span style="font-weight:400;opacity:0.5;">(optional)</span></div><div id="apwHIAddonsList"></div></div>
+              </div>
+              <div id="apwPanelNC" style="display:none;">
+                <div class="apw-subsection"><div class="apw-sublabel">Inspection Phase</div><div id="apwNCGrid"></div></div>
+                <div class="apw-subsection" id="apwNCAddonsSection"><div class="apw-sublabel">Add-On Services <span style="font-weight:400;opacity:0.5;">(optional)</span></div><div id="apwNCAddonsList"></div></div>
+              </div>
+              <div id="apwPanelHHC" style="display:none;">
+                <div class="apw-subsection"><div class="apw-sublabel">Select Tier</div><div id="apwHHCGrid"></div></div>
+                <div class="apw-subsection" id="apwHHCAddonsSection"><div class="apw-sublabel">Add-On Services <span style="font-weight:400;opacity:0.5;">(optional)</span></div><div id="apwHHCAddonsList"></div></div>
+              </div>
+              <div id="apwPanelSA" style="display:none;">
+                <div class="apw-subsection"><div class="apw-sublabel">Select Add-On Services</div><div id="apwSAAddonsList"></div></div>
+              </div>
+              <div class="apw-price-box" id="apwPriceBox"><div id="apwPriceLines"></div><div class="apw-price-total-row"><span>Total</span><span id="apwTotal">$0</span></div></div>
+            </div>
+            <div class="apw-err" id="apwErr1"></div>
+            <div style="display:flex;gap:10px;margin-top:20px;"><button class="apw-btn-back" id="apwBack1">&#8592; Back</button><button class="apw-btn-primary" id="apwNext1" style="flex:1;">Next &#8212; Choose Date &#8594;</button></div>
+          </div>
+
+          <!-- STEP 3: Schedule -->
+          <div class="apw-step" id="apwStep2" style="display:none;">
+            <div class="apw-step-header">Date &amp; Time</div>
+            <div class="wiz-calendar">
+              <div class="wiz-cal-header"><button type="button" class="wiz-cal-nav" id="apwCalPrev">&#8249;</button><span class="wiz-cal-title" id="apwCalTitle"></span><button type="button" class="wiz-cal-nav" id="apwCalNext">&#8250;</button></div>
+              <div class="wiz-cal-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+              <div class="wiz-cal-days" id="apwCalDays"></div>
+              <div class="wiz-cal-legend"><div class="wiz-legend-item"><span class="wiz-legend-dot available"></span> Available</div><div class="wiz-legend-item"><span class="wiz-legend-dot booked"></span> Booked</div><div class="wiz-legend-item"><span class="wiz-legend-dot closed"></span> Closed</div></div>
+            </div>
+            <div id="apwTimeSlots" style="display:none;"><div class="apw-sublabel" id="apwTimeTitle" style="margin-bottom:10px;"></div><div class="wiz-timeslot-grid" id="apwTimeGrid"></div></div>
+            <input type="hidden" id="apw_date"><input type="hidden" id="apw_time">
+            <div class="apw-err" id="apwErr2"></div>
+            <div style="display:flex;gap:10px;margin-top:20px;"><button class="apw-btn-back" id="apwBack2">&#8592; Back</button><button class="apw-btn-primary" id="apwNext2" style="flex:1;">Next &#8212; Review &#8594;</button></div>
+          </div>
+
+          <!-- STEP 4: Review -->
+          <div class="apw-step" id="apwStep3" style="display:none;">
+            <div class="apw-step-header">Review &amp; Submit</div>
+            <div class="apw-review-card">
+              <div class="apw-review-section"><div class="apw-review-label">Client</div><div id="apwRevClient" class="apw-review-value"></div></div>
+              <div class="apw-review-section"><div class="apw-review-label">Current Address</div><div id="apwRevCurrentAddr" class="apw-review-value"></div></div>
+              <div class="apw-review-section"><div class="apw-review-label">Inspection Address</div><div id="apwRevAddress" class="apw-review-value"></div></div>
+              <div class="apw-review-section"><div class="apw-review-label">Service</div><div id="apwRevService" class="apw-review-value"></div></div>
+              <div class="apw-review-section"><div class="apw-review-label">Date &amp; Time</div><div id="apwRevDateTime" class="apw-review-value"></div></div>
+            </div>
+            <div class="apw-price-box" style="margin-top:16px;"><div id="apwRevPriceLines"></div><div class="apw-price-total-row"><span>Total</span><span id="apwRevTotal"></span></div></div>
+            <div class="apw-field" style="margin-top:16px;"><label class="apw-label">Coupon Code <span style="font-weight:400;opacity:0.5;">(optional)</span></label><div style="display:flex;gap:8px;"><input class="apw-input" id="apw_coupon" placeholder="Enter code" style="flex:1;text-transform:uppercase;" autocomplete="off"><button class="apw-coupon-btn" id="apwApplyCoupon">Apply</button></div><div id="apwCouponMsg" style="font-size:12px;margin-top:5px;min-height:16px;color:#27ae60;"></div></div>
+            <div class="apw-err" id="apwErr3"></div>
+            <div style="display:flex;gap:10px;margin-top:20px;"><button class="apw-btn-back" id="apwBack3">&#8592; Back</button><button class="apw-btn-primary" id="apwSubmitBtn" style="flex:1;">&#128640; Send Inspection Request</button></div>
+          </div>
+
+          <!-- SUCCESS -->
+          <div class="apw-step" id="apwSuccess" style="display:none;text-align:center;">
+            <div style="font-size:56px;margin-bottom:16px;">&#10003;</div>
+            <div class="apw-success-title">Request Sent!</div>
+            <div id="apwSuccessMsg" class="apw-success-msg"></div>
+            <button class="apw-btn-primary" id="apwBookAnother" style="margin-top:28px;">+ Book Another Inspection</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Heartland Clients Panel ── -->
+      <div class="ap-panel" id="panel-clients">
+        <div class="apc-screen">
+
+          <div class="apc-header">
+            <div>
+              <div class="apc-title">Clients</div>
+              <div class="apc-sub">Manage your Heartland and independent clients</div>
+            </div>
+            <div class="apc-summary" id="apcSummary"></div>
+          </div>
+
+          <!-- Sub-tabs -->
+          <div class="apc-subtab-bar">
+            <button class="apc-subtab active" data-subtab="heartland">&#127968; Heartland Clients</button>
+            <button class="apc-subtab" data-subtab="other">&#128101; Other Clients</button>
+          </div>
+
+          <!-- ── Heartland Clients sub-tab ── -->
+          <div id="apcSubHeartland" class="apc-subtab-panel">
+
+          <!-- Search -->
+          <div class="apc-toolbar">
+            <input class="apc-search" id="apcSearch" placeholder="&#128269; Search name, address, email&hellip;" autocomplete="off">
+          </div>
+
+          <!-- Loading -->
+          <div class="apc-loading" id="apcLoading">
+            <div class="ap-spinner" style="width:32px;height:32px;border-width:2px;"></div>
+            <span style="font-size:13px;color:rgba(255,255,255,0.4);">Loading clients&hellip;</span>
+          </div>
+
+          <!-- SCHEDULED SECTION -->
+          <div id="apcScheduledSection">
+            <div class="apc-section-header" id="apcSchedHeader">
+              <div class="apc-section-title">&#128197; Scheduled</div>
+              <div class="apc-section-chevron" id="apcSchedChevron">&#9662;</div>
+            </div>
+            <div id="apcScheduledList"></div>
+          </div>
+
+          <!-- SUBMITTED SECTION -->
+          <div id="apcSubmittedSection" style="margin-top:8px;">
+            <div class="apc-section-header" id="apcSubmitHeader">
+              <div class="apc-section-title">&#9989; Submitted</div>
+              <div class="apc-section-chevron" id="apcSubmitChevron">&#9662;</div>
+            </div>
+            <div id="apcSubmittedList"></div>
+          </div>
+
+          <!-- Empty state -->
+          <div class="apc-empty" id="apcEmpty" style="display:none;">
+            <div style="font-size:48px;margin-bottom:12px;">&#128203;</div>
+            <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;">No inspections yet</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);">Inspections you book through this portal will appear here.</div>
+          </div>
+
+          </div><!-- end apcSubHeartland -->
+
+          <!-- ── Other Clients sub-tab ── -->
+          <div id="apcSubOther" class="apc-subtab-panel" style="display:none;">
+
+            <!-- Header + Add Client button -->
+            <div class="apco-header">
+              <div>
+                <div class="apc-title" style="font-size:20px;">Other Clients</div>
+                <div class="apc-sub">Your independent client list</div>
+              </div>
+              <button class="apco-add-btn" id="apcoAddBtn">&#43; Add Client</button>
+            </div>
+
+            <!-- Loading -->
+            <div id="apcoLoading" style="display:flex;align-items:center;gap:10px;padding:32px 0;">
+              <div class="ap-spinner" style="width:28px;height:28px;border-width:2px;"></div>
+              <span style="font-size:13px;color:rgba(255,255,255,0.4);">Loading clients&hellip;</span>
+            </div>
+
+            <!-- Client list -->
+            <div id="apcoList"></div>
+
+            <!-- Empty state -->
+            <div id="apcoEmpty" style="display:none;text-align:center;padding:60px 20px;">
+              <div style="font-size:48px;margin-bottom:12px;">&#128101;</div>
+              <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;">No clients yet</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.4);">Click &ldquo;Add Client&rdquo; to get started.</div>
+            </div>
+
+          </div>
+
+          <!-- ── Add Client Modal ── -->
+          <div class="apc-modal-overlay" id="apcoAddOverlay" style="display:none;">
+            <div class="apc-history-modal" style="max-width:500px;">
+              <button class="apc-modal-close" id="apcoAddClose">&#x2715;</button>
+              <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">New Client</div>
+              <div class="apc-modal-name" style="font-size:20px;margin-bottom:20px;">Add Client</div>
+
+              <div class="apco-form-group">
+                <label class="apco-label">Name <span style="color:#e74c3c;">*</span></label>
+                <input class="apco-input" id="apcoAddName" type="text" placeholder="Full name" autocomplete="off">
+              </div>
+              <div class="apco-form-group">
+                <label class="apco-label">Address</label>
+                <input class="apco-input" id="apcoAddAddress" type="text" placeholder="Property address" autocomplete="off">
+              </div>
+              <div class="apco-form-group">
+                <label class="apco-label">Phone</label>
+                <input class="apco-input" id="apcoAddPhone" type="tel" placeholder="(555) 000-0000" autocomplete="off">
+              </div>
+              <div class="apco-form-group">
+                <label class="apco-label">Email</label>
+                <input class="apco-input" id="apcoAddEmail" type="email" placeholder="email@example.com" autocomplete="off">
+              </div>
+
+              <div class="apco-form-group">
+                <label class="apco-label">Documents <span style="color:rgba(255,255,255,0.35);font-weight:400;">(PDF only, up to 5)</span></label>
+                <div class="apco-drop-zone" id="apcoDropZone">
+                  <div style="font-size:28px;margin-bottom:8px;">&#128196;</div>
+                  <div style="font-size:13px;color:rgba(255,255,255,0.5);">Drag &amp; drop PDFs here or <span style="color:#27ae60;cursor:pointer;" id="apcoDropClick">browse</span></div>
+                  <input type="file" id="apcoFileInput" accept=".pdf,application/pdf" multiple style="display:none;">
+                </div>
+                <div id="apcoFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+              </div>
+
+              <div id="apcoAddErr" style="font-size:13px;color:#e74c3c;margin-bottom:10px;display:none;"></div>
+              <div style="display:flex;gap:10px;margin-top:4px;">
+                <button id="apcoAddCancelBtn" style="flex:1;padding:11px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer;">Cancel</button>
+                <button id="apcoAddSaveBtn" style="flex:2;padding:13px;background:#27ae60;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;">Save Client</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Documents Modal ── -->
+          <div class="apc-modal-overlay" id="apcoDocsOverlay" style="display:none;">
+            <div class="apc-history-modal" style="max-width:480px;">
+              <button class="apc-modal-close" id="apcoDocsClose">&#x2715;</button>
+              <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Documents</div>
+              <div class="apc-modal-name" style="font-size:20px;margin-bottom:4px;" id="apcoDocsClientName"></div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;" id="apcoDocsClientSub"></div>
+              <div id="apcoDocsList"></div>
+              <div id="apcoDocsEmpty" style="display:none;text-align:center;padding:32px 0;font-size:13px;color:rgba(255,255,255,0.35);">No documents uploaded yet.</div>
+            </div>
+          </div>
+
+          <!-- ── Upload Doc Modal ── -->
+          <div class="apc-modal-overlay" id="apcoUploadOverlay" style="display:none;">
+            <div class="apc-history-modal" style="max-width:420px;">
+              <button class="apc-modal-close" id="apcoUploadClose">&#x2715;</button>
+              <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Upload Document</div>
+              <div class="apc-modal-name" style="font-size:20px;margin-bottom:20px;" id="apcoUploadClientName"></div>
+              <div class="apco-drop-zone" id="apcoUpDropZone">
+                <div style="font-size:28px;margin-bottom:8px;">&#128196;</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.5);">Drag &amp; drop a PDF or <span style="color:#27ae60;cursor:pointer;" id="apcoUpDropClick">browse</span></div>
+                <input type="file" id="apcoUpFileInput" accept=".pdf,application/pdf" style="display:none;">
+              </div>
+              <div id="apcoUpFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+              <div id="apcoUploadErr" style="font-size:13px;color:#e74c3c;margin:10px 0;display:none;"></div>
+              <div style="display:flex;gap:10px;margin-top:16px;">
+                <button id="apcoUpCancelBtn" style="flex:1;padding:11px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer;">Cancel</button>
+                <button id="apcoUpSaveBtn" style="flex:2;padding:13px;background:#27ae60;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;" disabled>Upload</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- History modal (submitted jobs per client) -->
+          <div class="apc-modal-overlay" id="apcHistoryOverlay" style="display:none;">
+            <div class="apc-history-modal" id="apcHistoryModal">
+              <button class="apc-modal-close" id="apcHistoryClose">&#x2715;</button>
+              <div class="apc-modal-name" id="apcHistoryName"></div>
+              <div class="apc-modal-type" id="apcHistoryEmail"></div>
+              <div id="apcHistoryBody" style="margin-top:16px;"></div>
+            </div>
+          </div>
+
+          <!-- Edit/reschedule modal -->
+          <div class="apc-modal-overlay" id="apcEditOverlay" style="display:none;">
+            <div class="apc-history-modal" id="apcEditModal" style="max-width:480px;">
+              <button class="apc-modal-close" id="apcEditClose">&#x2715;</button>
+              <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Edit Appointment</div>
+              <div class="apc-modal-name" style="font-size:20px;margin-bottom:6px;">Select New Date &amp; Time</div>
+              <div id="apcEditName" style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:20px;"></div>
+
+              <!-- Loading state -->
+              <div id="apcRsLoadMsg" style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);font-size:14px;display:none;">Loading availability&#8230;</div>
+
+              <!-- Calendar + timeslots -->
+              <div id="apcRsCalWrap" style="display:none;">
+                <!-- Month nav -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                  <button id="apcRsCalPrev" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:16px;">&#8249;</button>
+                  <div id="apcRsCalTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#fff;"></div>
+                  <button id="apcRsCalNext" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:16px;">&#8250;</button>
+                </div>
+                <!-- Weekday headers -->
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;">
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);padding:4px 0;">Su</div>
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);padding:4px 0;">Mo</div>
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);padding:4px 0;">Tu</div>
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);padding:4px 0;">We</div>
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);padding:4px 0;">Th</div>
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);padding:4px 0;">Fr</div>
+                  <div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);padding:4px 0;">Sa</div>
+                </div>
+                <!-- Day cells -->
+                <div id="apcRsCalDays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:18px;"></div>
+                <!-- Time slots -->
+                <div id="apcRsTimesWrap" style="display:none;">
+                  <div id="apcRsTimesTitle" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:10px;"></div>
+                  <div id="apcRsTimesGrid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;"></div>
+                </div>
+              </div>
+
+              <div id="apcEditErr" style="font-size:13px;color:#e74c3c;margin-bottom:10px;display:none;"></div>
+              <div style="display:flex;gap:10px;margin-top:4px;">
+                <button id="apcEditCancel" style="flex:1;padding:11px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;font-family:inherit;font-size:14px;cursor:pointer;">Cancel</button>
+                <button id="apcEditSave" style="flex:2;padding:13px;background:#27ae60;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;opacity:0.45;" disabled>Submit Reschedule</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Repair Builder Panel ── -->
+      <div class="ap-panel" id="panel-repair">
+        <div class="rb-screen">
+
+          <!-- Header -->
+          <div class="rb-header">
+            <div>
+              <div class="rb-title">Repair Builder</div>
+              <div class="rb-sub">Build a repair cost estimate for your client</div>
+            </div>
+            <div class="rb-header-actions">
+              <button class="rb-btn-secondary" id="rbResetBtn">&#8635; Reset</button>
+              <button class="rb-btn-primary" id="rbPrintBtn">&#128424; Print / Save PDF</button>
+            </div>
+          </div>
+
+          <!-- Property Info + Home Size -->
+          <div class="rb-card">
+            <div class="rb-card-title">&#127968; Property Details</div>
+            <div class="rb-property-grid">
+              <div class="rb-field-group">
+                <label class="rb-label">Property Address</label>
+                <input class="rb-input" id="rbAddress" type="text" placeholder="123 Main St, Roscoe, IL 61073" autocomplete="off">
+              </div>
+              <div class="rb-field-group">
+                <label class="rb-label">Client Name</label>
+                <input class="rb-input" id="rbClient" type="text" placeholder="Client full name" autocomplete="off">
+              </div>
+            </div>
+            <div class="rb-field-group" style="margin-top:14px;">
+              <label class="rb-label">Home Size</label>
+              <div class="rb-size-pills">
+                <button class="rb-size-pill active" data-size="small">Small<span>Under 1,500 sq ft</span></button>
+                <button class="rb-size-pill" data-size="medium">Medium<span>1,500 – 2,500 sq ft</span></button>
+                <button class="rb-size-pill" data-size="large">Large<span>Over 2,500 sq ft</span></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Repair Categories -->
+          <div id="rbCategories"></div>
+
+          <!-- Add Custom Repair -->
+          <div class="rb-card" style="margin-top:8px;">
+            <div class="rb-card-title">&#43; Custom Repair</div>
+            <div class="rb-custom-row">
+              <input class="rb-input" id="rbCustomDesc" type="text" placeholder="Describe the repair item..." autocomplete="off" style="flex:2;">
+              <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:140px;">
+                <span style="color:rgba(255,255,255,0.4);font-size:14px;">$</span>
+                <input class="rb-input" id="rbCustomCost" type="number" placeholder="0" min="0" style="flex:1;">
+              </div>
+              <button class="rb-btn-primary" id="rbAddCustomBtn" style="white-space:nowrap;">Add Item</button>
+            </div>
+            <div id="rbCustomList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+
+          <!-- Total + Summary -->
+          <div class="rb-total-bar">
+            <div class="rb-total-label">Estimated Repair Total</div>
+            <div class="rb-total-amount" id="rbTotal">$0</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Contact Panel ── -->
+      <div class="ap-panel" id="panel-contact">
+          <div class="ap-contact-card">
+            <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group" class="ap-contact-logo">
+            <div class="ap-contact-name">Heartland Inspection Group</div>
+            <div class="ap-contact-tagline">Reach our team directly for any questions or concerns.</div>
+            <div class="ap-contact-row">
+              <span class="ap-contact-icon">📞</span>
+              <a href="tel:8153298583" class="ap-contact-link">(815) 329-8583</a>
+            </div>
+            <div class="ap-contact-row">
+              <span class="ap-contact-icon">✉</span>
+              <a href="mailto:info@heartlandinspectiongroup.com" class="ap-contact-link">info@heartlandinspectiongroup.com</a>
+            </div>
+            <div class="ap-contact-row">
+              <span class="ap-contact-icon">🌐</span>
+              <a href="https://heartlandinspectiongroup.com" target="_blank" class="ap-contact-link">heartlandinspectiongroup.com</a>
+            </div>
+            <div class="ap-contact-row">
+              <span class="ap-contact-icon">⭐</span>
+              <a href="https://g.page/r/CS4SFR_hU5gaEBM/review" target="_blank" class="ap-contact-link">Leave us a Google Review</a>
+            </div>
+          </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/config.js"></script>
+  <script src="/shared/config-loader.js"></script>
+  <script src="/shared/booking-tool.js"></script>
+  <script src="/shared/hw-dialogs.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ── AGENT PORTAL AUTH ── */
+var SUPABASE_URL = window.SUPABASE_URL;
+var SUPABASE_KEY = window.SUPABASE_ANON_KEY;
+var _apToken = (new URLSearchParams(window.location.search)).get('token') || '';
+
+if (!_apToken) {
+  showInvalid();
+} else {
+  fetch(SUPABASE_URL + '/rest/v1/agents?portal_token=eq.' + encodeURIComponent(_apToken) + '&role=eq.agent&select=id,name,email,company,phone,active,booking_discount&limit=1', {
+    headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(rows) {
+    if (!rows || !rows.length || rows[0].active === false) { showInvalid(); return; }
+    var agent = rows[0];
+    agent.token = _apToken;
+    window._apAgent = agent;
+    initPortal(agent);
+  })
+  .catch(function() { showInvalid(); });
+}
+
+function showInvalid() {
+  document.getElementById('apLoading').style.display = 'none';
+  document.getElementById('apInvalid').classList.add('visible');
+}
+
+function initPortal(agent) {
+  document.getElementById('apLoading').style.display = 'none';
+  document.getElementById('apShell').classList.add('visible');
+  var firstName = (agent.name || 'Agent').split(' ')[0];
+  document.getElementById('apWelcome').innerHTML = 'Welcome, <span>' + firstName + '</span>';
+  document.title = 'Agent Portal — ' + (agent.name || 'Heartland');
+
+  // Show discount teaser banner immediately if agent has a discount
+  if (agent.booking_discount > 0) {
+    var b = document.getElementById('apwDiscountBanner');
+    var m = document.getElementById('apwDiscountMsg');
+    if (b && m) {
+      m.textContent = 'Your clients save $' + agent.booking_discount + ' on Home Inspections — a benefit of working with you';
+      b.style.display = 'flex';
+    }
+  }
+
+  var navBtns = document.querySelectorAll('.ap-nav-btn');
+  var panels  = document.querySelectorAll('.ap-panel');
+  navBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      navBtns.forEach(function(b) { b.classList.remove('active'); });
+      panels.forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById('panel-' + btn.dataset.panel);
+      if (panel) panel.classList.add('active');
+      closeSidebar();
+      if (btn.dataset.panel === 'clients') { apcLoad(); }
+    });
+  });
+
+  // ── Clients sub-tab wiring ────────────────────────────────────────────
+  document.querySelectorAll('.apc-subtab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.apc-subtab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var which = tab.dataset.subtab;
+      document.getElementById('apcSubHeartland').style.display = which === 'heartland' ? '' : 'none';
+      document.getElementById('apcSubOther').style.display     = which === 'other'     ? '' : 'none';
+      if (which === 'other') apcoLoad();
+    });
+  });
+
+  var hamburger = document.getElementById('apHamburger');
+  var sidebar   = document.getElementById('apSidebar');
+  var overlay   = document.getElementById('apOverlay');
+  hamburger.addEventListener('click', function() { sidebar.classList.toggle('open'); overlay.classList.toggle('visible'); });
+  overlay.addEventListener('click', closeSidebar);
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('visible'); }
+
+  // Load Heartland config then boot wizard
+  // config loaded via /shared/config-loader.js
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 3 — HEARTLAND CLIENTS
+   ══════════════════════════════════════════════════════════ */
+
+var apcAllRecords = [];
+var apcLoaded     = false;
+var apcSchedOpen  = true;
+var apcSubmitOpen = true;
+
+/* ── Called from initPortal nav click ── */
+var apcWaiverVersions   = [];
+var apcWaiverSignatures = [];
+
+function apcLoad() {
+  if (apcLoaded) { apcRender(); return; }
+  var ag = window._apAgent;
+  if (!ag || !ag.id) {
+    var el = document.getElementById('apcScheduledList');
+    if (el) el.innerHTML = '<p style="padding:32px;color:rgba(255,255,255,0.4);font-size:14px;text-align:center;">Unable to load — please refresh.</p>';
+    return;
+  }
+  var loadEl = document.getElementById('apcLoading');
+  if (loadEl) loadEl.style.display = 'flex';
+
+  // Single server-side call — agent_id derived from validated token, not client-supplied
+  fetch('/.netlify/functions/get-agent-records?token=' + encodeURIComponent(_apToken))
+  .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(function(data) {
+    if (loadEl) loadEl.style.display = 'none';
+    apcAllRecords       = Array.isArray(data.records)           ? data.records           : [];
+    apcWaiverVersions   = Array.isArray(data.waiver_versions)   ? data.waiver_versions   : [];
+    apcWaiverSignatures = Array.isArray(data.waiver_signatures)  ? data.waiver_signatures  : [];
+    apcLoaded = true;
+    apcRender();
+  })
+  .catch(function(e) {
+    if (loadEl) loadEl.style.display = 'none';
+    console.error('apcLoad error:', e);
+    var el = document.getElementById('apcScheduledList');
+    if (el) el.innerHTML = '<p style="padding:32px;color:rgba(255,255,255,0.4);font-size:14px;text-align:center;">Error loading clients. Please try again.</p>';
+  });
+}
+
+function apcFormatJobType(r) {
+  var cat  = r.category || '';
+  var tier = r.tier || '';
+  if (cat === 'home_health_check') return 'Home Health Check' + (tier ? ' — ' + tier : '');
+  if (cat === 'home_inspection')   return (tier || 'Home Inspection');
+  if (cat === 'new_construction')  return 'New Construction' + (tier ? ' — ' + tier : '');
+  if (cat === 'standalone_addon')  return 'Standalone Add-On';
+  return tier || cat || 'Inspection';
+}
+
+function apcFormatDate(d) {
+  if (!d) return '';
+  var dt = new Date(d.length === 10 ? d + 'T12:00:00' : d);
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function apcE(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Main render — called after load or search ── */
+function apcRender() {
+  var q = (document.getElementById('apcSearch').value || '').toLowerCase().trim();
+
+  var scheduled = apcAllRecords.filter(function(r) { return r.status === 'scheduled'; });
+  var submitted = apcAllRecords.filter(function(r) {
+    return ['submitted','in_progress','review','approved','delivered','completed'].indexOf(r.status) !== -1;
+  });
+
+  if (q) {
+    var filt = function(r) {
+      return [r.cust_name, r.address, r.cust_email, r.cust_phone].join(' ').toLowerCase().indexOf(q) !== -1;
+    };
+    scheduled = scheduled.filter(filt);
+    submitted = submitted.filter(filt);
+  }
+
+  var empty = document.getElementById('apcEmpty');
+  if (!scheduled.length && !submitted.length) {
+    document.getElementById('apcScheduledSection').style.display = 'none';
+    document.getElementById('apcSubmittedSection').style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  // Show/hide sections based on content
+  var schedSection = document.getElementById('apcScheduledSection');
+  var submitSection = document.getElementById('apcSubmittedSection');
+  schedSection.style.display  = scheduled.length  ? '' : 'none';
+  submitSection.style.display = submitted.length  ? '' : 'none';
+
+  apcRenderSummary();
+  apcRenderScheduled(scheduled);
+  apcRenderSubmitted(submitted);
+}
+
+function apcRenderSummary() {
+  var total     = apcAllRecords.length;
+  var scheduled = apcAllRecords.filter(function(r) { return r.status === 'scheduled'; }).length;
+  var completed = apcAllRecords.filter(function(r) {
+    return ['submitted','in_progress','review','approved','delivered','completed'].indexOf(r.status) !== -1;
+  }).length;
+  var revenue = apcAllRecords
+    .filter(function(r) { return r.payment_status === 'paid'; })
+    .reduce(function(s, r) { return s + (Number(r.total_amount) || 0); }, 0);
+
+  var el = document.getElementById('apcSummary');
+  if (!el) return;
+  el.innerHTML =
+    '<div class="apc-stat"><div class="apc-stat-num">' + total + '</div><div class="apc-stat-label">Total</div></div>' +
+    '<div class="apc-stat"><div class="apc-stat-num">' + scheduled + '</div><div class="apc-stat-label">Scheduled</div></div>' +
+    '<div class="apc-stat"><div class="apc-stat-num">' + completed + '</div><div class="apc-stat-label">Completed</div></div>' +
+    (revenue > 0 ? '<div class="apc-stat"><div class="apc-stat-num" style="color:#fff;">$' + revenue.toLocaleString() + '</div><div class="apc-stat-label">Paid Revenue</div></div>' : '');
+}
+
+/* ── Signature badge helper (mirrors admin logic) ── */
+function apcSigBadge(r) {
+  var sigs     = apcWaiverSignatures;
+  var versions = apcWaiverVersions;
+  if (!versions.length) return '';
+
+  var recSigs = sigs.filter(function(s) { return s.inspection_record_id === r.id; });
+  var rCat    = r.category || '';
+  var rTier   = r.tier     || '';
+  var rAddrU  = (r.address || '').toUpperCase();
+  var rState  = rAddrU.indexOf(', IL') !== -1 || rAddrU.indexOf(',IL') !== -1 ? 'IL'
+              : rAddrU.indexOf(', WI') !== -1 || rAddrU.indexOf(',WI') !== -1 ? 'WI' : null;
+  var appKeys = ['*'];
+  if (rCat) {
+    appKeys.push(rCat);
+    if (rTier)  appKeys.push(rCat + ':' + rTier);
+    if (rState) appKeys.push(rCat + ':' + rState);
+    if (rTier && rState) appKeys.push(rCat + ':' + rTier + ':' + rState);
+  }
+  if (rCat === 'home_inspection') {
+    var tl = rTier.toLowerCase().replace(/[- ]/g, '');
+    if (tl === 'prepurchase') { appKeys.push('pre-purchase'); if (rState) appKeys.push('pre-purchase:' + rState); }
+    else if (tl === 'prelisting') { appKeys.push('pre-listing'); if (rState) appKeys.push('pre-listing:' + rState); }
+  }
+  var appVersions = versions.filter(function(v) {
+    if (!v.is_active) return false;
+    var at = Array.isArray(v.applies_to) ? v.applies_to : [];
+    if (!at.length) return true;
+    return at.some(function(k) { return appKeys.indexOf(k) !== -1; });
+  });
+  var total  = appVersions.length;
+  var signed = recSigs.length;
+  if (!total) return '';
+  if (signed >= total) return '<span class="apcs-badge apcs-badge-sig-ok">✓ Signed</span>';
+  return '<span class="apcs-badge apcs-badge-sig-bad">' + signed + '/' + total + ' Signed</span>';
+}
+
+/* ── SCHEDULED SECTION ── */
+function apcRenderScheduled(records) {
+  var el = document.getElementById('apcScheduledList');
+  if (!el) return;
+  if (!records.length) { el.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(255,255,255,0.3);">No scheduled inspections.</div>'; return; }
+
+  var html = '';
+  records.forEach(function(r) {
+    var name    = apcE(r.cust_name || '—');
+    var addr    = apcE(r.address || '—');
+    var jobType = apcE(apcFormatJobType(r));
+    var dateStr = apcFormatDate(r.inspection_date);
+    var timeStr = r.inspection_time ? ' at ' + apcE(r.inspection_time) : '';
+    var tier    = (r.tier || '').toUpperCase();
+    var payBadge = r.payment_status === 'paid'
+      ? '<span class="apcs-badge apcs-badge-paid">✓ Paid</span>'
+      : '<span class="apcs-badge apcs-badge-unpaid">Unpaid</span>';
+    var sigBadge = apcSigBadge(r);
+
+    html += '<div class="apcs-card" data-rid="' + apcE(r.id) + '">' +
+      '<div class="apcs-card-body">' +
+        '<div class="apcs-card-top">' +
+          '<div class="apcs-card-name">' + name + '</div>' +
+          '<div class="apcs-card-badges">' +
+            (tier ? '<span class="apcs-badge apcs-badge-tier">' + tier + '</span>' : '') +
+            payBadge + sigBadge +
+          '</div>' +
+        '</div>' +
+        '<div class="apcs-card-addr">' + addr + '</div>' +
+        '<div class="apcs-card-meta">' +
+          (dateStr ? '<span class="apcs-card-meta-item apcs-card-date">📅 ' + apcE(dateStr) + timeStr + '</span>' : '') +
+          (r.cust_phone ? '<span class="apcs-card-meta-item">📞 ' + apcE(r.cust_phone) + '</span>' : '') +
+          (r.cust_email ? '<span class="apcs-card-meta-item">✉ ' + apcE(r.cust_email) + '</span>' : '') +
+          (jobType ? '<span class="apcs-card-meta-item" style="color:rgba(255,255,255,0.3);">' + jobType + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="apcs-card-actions">' +
+        (r.reschedule_requested
+          ? '<div style="padding:8px 12px;background:rgba(245,147,33,0.12);border:1.5px solid rgba(245,147,33,0.3);border-radius:8px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.7);">⏰ Reschedule Pending Confirmation</div>'
+          : (r.payment_status === 'paid'
+            ? '<div style="background:rgba(21,81,109,0.18);border:1.5px solid rgba(21,81,109,0.35);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;">' +
+              '<span style="font-size:18px;">📞</span>' +
+              '<div><div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:2px;">Need to reschedule or cancel?</div>' +
+              '<div style="font-size:12px;color:rgba(255,255,255,0.55);">Give us a call: <a href="tel:8153298583" style="color:#27ae60;font-weight:700;text-decoration:none;">(815) 329-8583</a></div></div></div>'
+            : '<button class="apcs-btn apcs-btn-edit" data-action="edit" data-rid="' + apcE(r.id) + '">✏ Edit/Reschedule</button>' +
+              '<button class="apcs-btn apcs-btn-cancel" data-action="cancel" data-rid="' + apcE(r.id) + '">✕ Cancel</button>')) +
+      '</div>' +
+    '</div>';
+  });
+
+  el.innerHTML = html;
+  el.classList.toggle('apc-section-body-collapsed', !apcSchedOpen);
+
+  // Wire Edit button
+  el.querySelectorAll('.apcs-btn[data-action="edit"]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var r = apcAllRecords.find(function(x) { return x.id === btn.dataset.rid; });
+      if (r) apcOpenEdit(r);
+    });
+  });
+
+  // Wire Cancel button — deletes calendar event + sends client cancellation email
+  el.querySelectorAll('.apcs-btn[data-action="cancel"]').forEach(function(btn) {
+    btn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      var r = apcAllRecords.find(function(x) { return x.id === btn.dataset.rid; });
+      if (!r) return;
+      var ok = await apcConfirm('Cancel the inspection for ' + apcE(r.cust_name || 'this client') + ' at ' + apcE(r.address || 'this address') + '?<br><br>The calendar event will be deleted and the client will receive a cancellation email.', 'Cancel Inspection');
+      if (!ok) return;
+      btn.disabled = true; btn.textContent = 'Cancelling…';
+      try {
+        if (r.booking_id) {
+          // cancel-booking handles: DB update + calendar delete + client email
+          var cbRes = await fetch('/.netlify/functions/cancel-booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: window._apAgent.token, booking_id: r.booking_id })
+          });
+          if (!cbRes.ok) throw new Error('Cancel request failed');
+          var cbData = await cbRes.json();
+          if (!cbData.success) throw new Error(cbData.error || 'Cancel failed');
+        } else {
+          // No booking_id — cancel via function using record_id
+          var cbRes2 = await fetch('/.netlify/functions/cancel-booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: window._apAgent.token, record_id: r.id })
+          });
+          if (!cbRes2.ok) throw new Error('Cancel request failed');
+          var cbData2 = await cbRes2.json();
+          if (!cbData2.success) throw new Error(cbData2.error || 'Cancel failed');
+        }
+        // Update local and re-render
+        var rec = apcAllRecords.find(function(x) { return x.id === r.id; });
+        if (rec) rec.status = 'cancelled';
+      } catch(err) {
+        btn.disabled = false; btn.textContent = '✕ Cancel';
+        apcAlert('Error cancelling inspection. Please try again.');
+        return;
+      }
+      apcRender();
+      apcToast('Inspection cancelled. Client has been notified by email.');
+    });
+  });
+}
+
+/* ── SUBMITTED SECTION ── */
+function apcRenderSubmitted(records) {
+  var el = document.getElementById('apcSubmittedList');
+  if (!el) return;
+  if (!records.length) { el.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:rgba(255,255,255,0.3);">No submitted inspections.</div>'; return; }
+
+  // Group by email → one card per client
+  var clientMap = {};
+  records.forEach(function(r) {
+    var key = (r.cust_email || '').toLowerCase().trim() || ('nomail_' + r.id);
+    if (!clientMap[key]) clientMap[key] = { name: r.cust_name || '—', email: r.cust_email || '', records: [] };
+    clientMap[key].records.push(r);
+  });
+
+  // Sort each client's records by most recent first
+  Object.keys(clientMap).forEach(function(k) {
+    clientMap[k].records.sort(function(a, b) {
+      return (b.inspection_date || b.created_at || '').localeCompare(a.inspection_date || a.created_at || '');
+    });
+  });
+
+  // Sort clients by most recent activity
+  var clients = Object.keys(clientMap).map(function(k) { return clientMap[k]; });
+  clients.sort(function(a, b) {
+    var da = a.records[0] ? (a.records[0].inspection_date || a.records[0].created_at || '') : '';
+    var db = b.records[0] ? (b.records[0].inspection_date || b.records[0].created_at || '') : '';
+    return db.localeCompare(da);
+  });
+
+  var html = '';
+  clients.forEach(function(c) {
+    html += '<div class="apcc-card" data-email="' + apcE(c.email) + '">' +
+      '<div class="apcc-count">' + c.records.length + '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="apcc-name">' + apcE(c.name) + '</div>' +
+        (c.email ? '<div class="apcc-email">' + apcE(c.email) + '</div>' : '') +
+      '</div>' +
+      '<div class="apcc-arrow">›</div>' +
+    '</div>';
+  });
+  el.innerHTML = html;
+  el.classList.toggle('apc-section-body-collapsed', !apcSubmitOpen);
+
+  // Click → open history modal
+  el.querySelectorAll('.apcc-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var email = card.dataset.email;
+      var client = clients.find(function(c) { return (c.email || '') === email; });
+      if (client) apcOpenHistory(client);
+    });
+  });
+}
+
+/* ── History modal (submitted jobs for one client) ── */
+function apcOpenHistory(client) {
+  var overlay = document.getElementById('apcHistoryOverlay');
+  var nameEl  = document.getElementById('apcHistoryName');
+  var emailEl = document.getElementById('apcHistoryEmail');
+  var bodyEl  = document.getElementById('apcHistoryBody');
+
+  nameEl.textContent  = client.name;
+  emailEl.textContent = client.email || '';
+
+  var html = '';
+  client.records.forEach(function(r) {
+    var jobType = apcE(apcFormatJobType(r));
+    var dateStr = apcFormatDate(r.inspection_date);
+    var timeStr = r.inspection_time ? ' at ' + apcE(r.inspection_time) : '';
+    var isPaid  = r.payment_status === 'paid';
+    var total   = r.total_amount ? '$' + Number(r.total_amount).toLocaleString() : '';
+    var statusColor = { submitted:'#27ae60', completed:'#27ae60', approved:'#27ae60', in_progress:'#f59321', delivered:'#27ae60' }[r.status] || 'rgba(255,255,255,0.4)';
+
+    html += '<div class="apcj-card">' +
+      '<div class="apcj-card-body">' +
+        '<div class="apcj-card-name">' + jobType + '</div>' +
+        '<div class="apcj-card-addr">' + apcE(r.address || '—') + '</div>' +
+        '<div class="apcj-card-meta">' +
+          (dateStr ? '<span>📅 ' + apcE(dateStr) + timeStr + '</span>' : '') +
+          '<span style="font-weight:700;color:' + statusColor + ';text-transform:uppercase;font-size:11px;">' + apcE(r.status || '') + '</span>' +
+          (isPaid ? '<span style="color:#27ae60;font-weight:700;">✓ Paid</span>' : '<span style="color:#e74c3c;">Unpaid</span>') +
+          (total ? '<span>' + total + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      (r.report_url
+        ? (r.agent_report_release
+          ? '<div class="apcj-card-actions">' +
+              '<a href="' + apcE(r.report_url) + '" target="_blank" class="apcs-btn apcs-btn-edit" style="text-decoration:none;display:inline-block;">📄 View Report</a>' +
+            '</div>'
+          : '<div style="padding:8px 12px 4px;font-size:12px;color:rgba(255,255,255,0.35);font-style:italic;">Client has not authorized report release.</div>')
+        : '') +
+    '</div>';
+  });
+
+  bodyEl.innerHTML = html;
+  overlay.style.display = 'flex';
+}
+
+/* ── Edit/Reschedule modal — live availability picker ── */
+var _apcEditRecord   = null;
+var _apcRsBusy       = [];
+var _apcRsSelDate    = null;
+var _apcRsSelTime    = null;
+var _apcRsCalMonth   = null;
+var _apcRsCalYear    = null;
+var APC_MONTH_NAMES  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function apcOpenEdit(r) {
+  _apcEditRecord = r;
+  _apcRsSelDate  = null;
+  _apcRsSelTime  = null;
+  var now = new Date();
+  _apcRsCalMonth = now.getMonth();
+  _apcRsCalYear  = now.getFullYear();
+
+  // Update modal header
+  var nameEl = document.getElementById('apcEditName');
+  if (nameEl) nameEl.textContent = (r.cust_name || '—') + ' · ' + (r.address || '');
+  var errEl = document.getElementById('apcEditErr');
+  if (errEl) errEl.style.display = 'none';
+  var submitBtn = document.getElementById('apcEditSave');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submit Reschedule'; submitBtn.style.opacity = '0.45'; }
+
+  // Show loading state
+  var calWrap = document.getElementById('apcRsCalWrap');
+  var loadMsg  = document.getElementById('apcRsLoadMsg');
+  if (calWrap) calWrap.style.display = 'none';
+  if (loadMsg) { loadMsg.style.display = 'block'; loadMsg.textContent = 'Loading availability…'; }
+
+  document.getElementById('apcEditOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // Fetch live availability
+  fetch('/.netlify/functions/get-availability?weeks=8')
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      _apcRsBusy = (data.busy||[]).map(function(e){ return { start: new Date(e.start), end: new Date(e.end) }; });
+      if (loadMsg) loadMsg.style.display = 'none';
+      if (calWrap) calWrap.style.display = 'block';
+      _apcRsRenderCal();
+    })
+    .catch(function(){
+      _apcRsBusy = [];
+      if (loadMsg) loadMsg.style.display = 'none';
+      if (calWrap) calWrap.style.display = 'block';
+      _apcRsRenderCal();
+    });
+}
+
+function _apcRsGetSlots(dateStr) {
+  var CFG = (typeof HEARTLAND_CONFIG !== 'undefined') ? HEARTLAND_CONFIG : null;
+  var d = new Date(dateStr + 'T12:00:00');
+  var dow = d.getDay();
+  var sched = CFG && CFG.schedule ? CFG.schedule : {1:['8:00 AM','5:00 PM'],2:['8:00 AM','5:00 PM'],3:['8:00 AM','5:00 PM'],4:['8:00 AM','5:00 PM'],5:['8:00 AM','5:00 PM']};
+  var ov = CFG && CFG.dateOverrides ? CFG.dateOverrides[dateStr] : undefined;
+  var entry = (ov !== undefined) ? ov : sched[dow];
+  if (!entry) return [];
+  function parseT(str){
+    var p=(str||'').trim().split(' '); var hm=p[0].split(':');
+    var h=parseInt(hm[0],10),m=parseInt(hm[1]||'0',10),mer=p[1]?p[1].toUpperCase():null;
+    if(mer==='PM'&&h!==12)h+=12; if(mer==='AM'&&h===12)h=0; return h*60+m;
+  }
+  var wins = (Array.isArray(entry)&&typeof entry[0]==='string') ? [entry] : (Array.isArray(entry)?entry:[]);
+  var dur = (CFG&&CFG.INSPECTION_DURATION_HOURS?CFG.INSPECTION_DURATION_HOURS:2.5)*60;
+  var step = (CFG&&CFG.SLOT_STEP_MINUTES?CFG.SLOT_STEP_MINUTES:60);
+  var slots = [];
+  wins.forEach(function(w){
+    if(!Array.isArray(w)||w.length<2)return;
+    var sM=parseT(w[0]),eM=parseT(w[1]);
+    for(var t=sM;t+dur<=eM;t+=step){
+      var hh=Math.floor(t/60),mm=t%60,ap=hh>=12?'PM':'AM';
+      slots.push({time:(hh%12||12)+':'+(mm<10?'0':'')+mm+' '+ap,minutes:t});
+    }
+  });
+  // Filter busy
+  if (_apcRsBusy.length) {
+    var tz=(CFG&&CFG.TIMEZONE)||'America/Chicago';
+    var fmt=new Intl.DateTimeFormat('en-US',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    var bufMs=(CFG&&CFG.BUFFER_MINUTES?CFG.BUFFER_MINUTES:0)*60000;
+    slots=slots.filter(function(slot){
+      var ns=dateStr+'T'+String(Math.floor(slot.minutes/60)).padStart(2,'0')+':'+String(slot.minutes%60).padStart(2,'0')+':00';
+      var nu=new Date(ns+'Z'),parts=fmt.formatToParts(nu),p={};
+      parts.forEach(function(x){p[x.type]=x.value;});
+      var lMs=Date.UTC(+p.year,+p.month-1,+p.day,+(p.hour==='24'?0:p.hour),+p.minute,+p.second);
+      var off=lMs-nu.getTime(),sU=nu.getTime()-off,eU=sU+dur*60000;
+      for(var i=0;i<_apcRsBusy.length;i++){var bS=_apcRsBusy[i].start.getTime()-bufMs,bE=_apcRsBusy[i].end.getTime()+bufMs;if(sU<bE&&eU>bS)return false;}
+      return true;
+    });
+  }
+  // Filter past + min advance (timezone-aware)
+  var minHrs=(CFG&&CFG.MIN_ADVANCE_HOURS!==undefined?CFG.MIN_ADVANCE_HOURS:24);
+  if (minHrs > 0) {
+    var cutoff=Date.now()+minHrs*3600000;
+    var tzAdv=(CFG&&CFG.TIMEZONE)||'America/Chicago';
+    var fmtAdv=new Intl.DateTimeFormat('en-US',{timeZone:tzAdv,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    slots=slots.filter(function(s){
+      var dtStr=dateStr+'T'+String(Math.floor(s.minutes/60)).padStart(2,'0')+':'+String(s.minutes%60).padStart(2,'0')+':00';
+      var refUtc=new Date(dtStr+'Z');
+      var parts=fmtAdv.formatToParts(refUtc),pObj={};
+      parts.forEach(function(p){pObj[p.type]=p.value;});
+      var localOfRef=Date.UTC(+pObj.year,+pObj.month-1,+pObj.day,+(pObj.hour==='24'?0:pObj.hour),+pObj.minute,+pObj.second);
+      var offsetMs=localOfRef-refUtc.getTime();
+      return refUtc.getTime()-offsetMs>cutoff;
+    });
+  }
+  return slots;
+}
+
+function _apcRsRenderCal() {
+  var today=new Date(),todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var maxDate=new Date(today); maxDate.setDate(maxDate.getDate()+56);
+  var dim=new Date(_apcRsCalYear,_apcRsCalMonth+1,0).getDate();
+  var fd=new Date(_apcRsCalYear,_apcRsCalMonth,1).getDay();
+  var title=document.getElementById('apcRsCalTitle');
+  if(title) title.textContent=APC_MONTH_NAMES[_apcRsCalMonth]+' '+_apcRsCalYear;
+  var canPrev=_apcRsCalYear>today.getFullYear()||(_apcRsCalYear===today.getFullYear()&&_apcRsCalMonth>today.getMonth());
+  var canNext=_apcRsCalYear<maxDate.getFullYear()||(_apcRsCalYear===maxDate.getFullYear()&&_apcRsCalMonth<=maxDate.getMonth());
+  var prevBtn=document.getElementById('apcRsCalPrev'),nextBtn=document.getElementById('apcRsCalNext');
+  if(prevBtn){prevBtn.style.opacity=canPrev?'1':'0.25';prevBtn.style.pointerEvents=canPrev?'auto':'none';}
+  if(nextBtn){nextBtn.style.opacity=canNext?'1':'0.25';nextBtn.style.pointerEvents=canNext?'auto':'none';}
+  var html='';
+  for(var i=0;i<fd;i++) html+='<div></div>';
+  for(var d2=1;d2<=dim;d2++){
+    var ds=_apcRsCalYear+'-'+String(_apcRsCalMonth+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0');
+    var dOb=new Date(_apcRsCalYear,_apcRsCalMonth,d2);
+    var isPast=dOb<new Date(today.getFullYear(),today.getMonth(),today.getDate()),isBeyond=dOb>maxDate;
+    var slots=_apcRsGetSlots(ds),isAvail=slots.length>0&&!isPast&&!isBeyond,isSel=_apcRsSelDate===ds;
+    var sty='text-align:center;padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;cursor:';
+    if(isSel) sty+='pointer;background:#27ae60;color:#fff;';
+    else if(isAvail) sty+='pointer;background:rgba(39,174,96,0.1);color:#27ae60;border:1.5px solid rgba(39,174,96,0.2);';
+    else sty+='default;color:rgba(255,255,255,0.12);';
+    html+='<div style="'+sty+'"'+(isAvail||isSel?' data-apcrs-date="'+ds+'"':'')+'>'+d2+'</div>';
+  }
+  var grid=document.getElementById('apcRsCalDays');
+  if(grid){
+    grid.innerHTML=html;
+    grid.querySelectorAll('[data-apcrs-date]').forEach(function(cell){
+      cell.addEventListener('click',function(){
+        _apcRsSelDate=this.getAttribute('data-apcrs-date');_apcRsSelTime=null;
+        _apcRsRenderCal();_apcRsRenderSlots();_apcRsUpdateBtn();
+      });
+    });
+  }
+  _apcRsRenderSlots();
+}
+
+function _apcRsRenderSlots() {
+  var wrap=document.getElementById('apcRsTimesWrap'),grid=document.getElementById('apcRsTimesGrid'),title=document.getElementById('apcRsTimesTitle');
+  if(!_apcRsSelDate){if(wrap)wrap.style.display='none';return;}
+  var slots=_apcRsGetSlots(_apcRsSelDate);
+  var dOb=new Date(_apcRsSelDate+'T12:00:00');
+  if(title) title.textContent=dOb.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  if(!slots.length){if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:13px;">No available slots for this date.</div>';}
+  else{
+    if(grid) grid.innerHTML=slots.map(function(s){
+      var sel=_apcRsSelTime===s.time;
+      return '<button data-apcrs-time="'+s.time+'" style="padding:8px 14px;background:'+(sel?'#27ae60':'rgba(255,255,255,0.07)')+';border:1.5px solid '+(sel?'#27ae60':'rgba(255,255,255,0.1)')+';border-radius:8px;color:#fff;font-size:12px;font-weight:'+(sel?'700':'500')+';cursor:pointer;">'+s.time+'</button>';
+    }).join('');
+    if(grid) grid.querySelectorAll('[data-apcrs-time]').forEach(function(btn){
+      btn.addEventListener('click',function(){_apcRsSelTime=this.getAttribute('data-apcrs-time');_apcRsRenderSlots();_apcRsUpdateBtn();});
+    });
+  }
+  if(wrap) wrap.style.display='block';
+}
+
+function _apcRsUpdateBtn() {
+  var btn=document.getElementById('apcEditSave');if(!btn)return;
+  var ready=!!_apcRsSelDate&&!!_apcRsSelTime;
+  btn.disabled=!ready;btn.style.opacity=ready?'1':'0.45';
+  btn.textContent=ready?'Submit — '+_apcRsSelTime:'Submit Reschedule';
+}
+
+document.getElementById('apcEditSave').addEventListener('click', async function() {
+  if (!_apcEditRecord || !_apcRsSelDate || !_apcRsSelTime) return;
+  var btn = document.getElementById('apcEditSave');
+  var errEl = document.getElementById('apcEditErr');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  if (errEl) errEl.style.display = 'none';
+  try {
+    var res = await fetch('/.netlify/functions/reschedule-booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token:      window._apAgent.token,
+        booking_id: _apcEditRecord.booking_id,
+        new_date:   _apcRsSelDate,
+        new_time:   _apcRsSelTime,
+      })
+    });
+    var d = await res.json();
+    if (d.success) {
+      // Mark original record as cancelled + reschedule_requested locally
+      var rec = apcAllRecords.find(function(x){ return x.id === _apcEditRecord.id; });
+      if (rec) { rec.status = 'cancelled'; rec.reschedule_requested = true; }
+      document.getElementById('apcEditOverlay').style.display = 'none';
+      document.body.style.overflow = '';
+      apcRender();
+      apcToast('Reschedule submitted! Awaiting confirmation.');
+    } else {
+      if (errEl) { errEl.textContent = d.error || 'Error submitting reschedule.'; errEl.style.display = ''; }
+      btn.disabled = false; btn.textContent = 'Submit Reschedule';
+    }
+  } catch(err) {
+    if (errEl) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = ''; }
+    btn.disabled = false; btn.textContent = 'Submit Reschedule';
+  }
+});
+
+document.getElementById('apcEditClose').addEventListener('click', function()  { document.getElementById('apcEditOverlay').style.display = 'none'; document.body.style.overflow=''; });
+document.getElementById('apcEditCancel').addEventListener('click', function() { document.getElementById('apcEditOverlay').style.display = 'none'; document.body.style.overflow=''; });
+document.getElementById('apcEditOverlay').addEventListener('click', function(e) { if (e.target === this) { this.style.display = 'none'; document.body.style.overflow=''; } });
+document.getElementById('apcRsCalPrev').addEventListener('click', function() {
+  _apcRsCalMonth--;
+  if (_apcRsCalMonth < 0) { _apcRsCalMonth = 11; _apcRsCalYear--; }
+  _apcRsRenderCal();
+});
+document.getElementById('apcRsCalNext').addEventListener('click', function() {
+  _apcRsCalMonth++;
+  if (_apcRsCalMonth > 11) { _apcRsCalMonth = 0; _apcRsCalYear++; }
+  _apcRsRenderCal();
+});
+document.getElementById('apcHistoryClose').addEventListener('click', function()  { document.getElementById('apcHistoryOverlay').style.display = 'none'; });
+document.getElementById('apcHistoryOverlay').addEventListener('click', function(e) { if (e.target === this) this.style.display = 'none'; });
+
+/* ── Section toggle (collapse/expand) ── */
+document.getElementById('apcSchedHeader').addEventListener('click', function() {
+  apcSchedOpen = !apcSchedOpen;
+  document.getElementById('apcScheduledList').classList.toggle('apc-section-body-collapsed', !apcSchedOpen);
+  document.getElementById('apcSchedChevron').classList.toggle('collapsed', !apcSchedOpen);
+});
+document.getElementById('apcSubmitHeader').addEventListener('click', function() {
+  apcSubmitOpen = !apcSubmitOpen;
+  document.getElementById('apcSubmittedList').classList.toggle('apc-section-body-collapsed', !apcSubmitOpen);
+  document.getElementById('apcSubmitChevron').classList.toggle('collapsed', !apcSubmitOpen);
+});
+
+/* ── Debounced search ── */
+var apcDebounce;
+document.getElementById('apcSearch').addEventListener('input', function() {
+  clearTimeout(apcDebounce);
+  apcDebounce = setTimeout(apcRender, 220);
+});
+
+async function apcoDownloadDoc(url, name) {
+  try {
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch document');
+    var blob = await res.blob();
+    var blobUrl = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = name || 'document.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 5000);
+  } catch(e) {
+    apcAlert('Could not download document. Please try again.');
+  }
+}
+
+/* ── OTHER CLIENTS ── */
+var apcoClients = [];
+var apcoDocsClientId = null;
+var apcoUploadClientId = null;
+var apcoAddFiles = [];
+var apcoUpFile = null;
+
+var CLOUDINARY_CLOUD  = 'dmztfzqfm';
+var CLOUDINARY_PRESET = 'slvlwkcf';
+
+function apcoEsc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function apcoSbUrl(path) {
+  return SUPABASE_URL + '/rest/v1/' + path;
+}
+function apcoHeaders() {
+  return { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+}
+
+// ── Load clients ──────────────────────────────────────────────────────────
+async function apcoLoad() {
+  var ag = window._apAgent;
+  if (!ag) return;
+  var loadEl = document.getElementById('apcoLoading');
+  var listEl = document.getElementById('apcoList');
+  var emptyEl = document.getElementById('apcoEmpty');
+  if (loadEl) loadEl.style.display = 'flex';
+  if (listEl) listEl.innerHTML = '';
+  if (emptyEl) emptyEl.style.display = 'none';
+  try {
+    var res = await fetch(apcoSbUrl('agent_clients?agent_id=eq.' + ag.id + '&order=created_at.desc'), {
+      headers: apcoHeaders()
+    });
+    apcoClients = await res.json();
+  } catch(e) {
+    apcoClients = [];
+  }
+  if (loadEl) loadEl.style.display = 'none';
+  apcoRender();
+}
+// ── Render client cards ───────────────────────────────────────────────────
+function apcoRender() {
+  var listEl  = document.getElementById('apcoList');
+  var emptyEl = document.getElementById('apcoEmpty');
+  if (!listEl) return;
+  if (!apcoClients || !apcoClients.length) {
+    listEl.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = '';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  listEl.innerHTML = apcoClients.map(function(c) {
+    var meta = '';
+    if (c.address) meta += '<span>&#127968; ' + apcoEsc(c.address) + '</span>';
+    if (c.phone)   meta += '<span>&#128222; ' + apcoEsc(c.phone) + '</span>';
+    if (c.email)   meta += '<span>&#9993; ' + apcoEsc(c.email) + '</span>';
+    return '<div class="apco-client-card" data-cid="' + c.id + '">' +
+      '<div class="apco-client-info">' +
+        '<div class="apco-client-name">' + apcoEsc(c.name) + '</div>' +
+        (meta ? '<div class="apco-client-meta">' + meta + '</div>' : '') +
+      '</div>' +
+      '<div class="apco-client-actions">' +
+        '<button class="apco-icon-btn docs" title="Documents" data-action="docs" data-cid="' + c.id + '" data-cname="' + apcoEsc(c.name) + '">&#128196;</button>' +
+        '<button class="apco-icon-btn upload" title="Upload Document" data-action="upload" data-cid="' + c.id + '" data-cname="' + apcoEsc(c.name) + '">&#11014;</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Wire card action buttons
+  listEl.querySelectorAll('[data-action]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var action = btn.dataset.action;
+      var cid    = btn.dataset.cid;
+      var cname  = btn.dataset.cname;
+      if (action === 'docs')   apcoOpenDocs(cid, cname);
+      if (action === 'upload') apcoOpenUpload(cid, cname);
+    });
+  });
+}
+
+// ── Add Client modal ──────────────────────────────────────────────────────
+function apcoOpenAdd() {
+  apcoAddFiles = [];
+  document.getElementById('apcoAddName').value    = '';
+  document.getElementById('apcoAddAddress').value = '';
+  document.getElementById('apcoAddPhone').value   = '';
+  document.getElementById('apcoAddEmail').value   = '';
+  document.getElementById('apcoFileList').innerHTML = '';
+  document.getElementById('apcoAddErr').style.display = 'none';
+  document.getElementById('apcoAddOverlay').style.display = 'flex';
+}
+function apcoCloseAdd() {
+  document.getElementById('apcoAddOverlay').style.display = 'none';
+}
+
+function apcoRenderAddFiles() {
+  var el = document.getElementById('apcoFileList');
+  el.innerHTML = apcoAddFiles.map(function(f, i) {
+    return '<div class="apco-file-pill">' +
+      '<span>&#128196; ' + apcoEsc(f.name) + '</span>' +
+      '<button class="apco-file-remove" data-i="' + i + '">&#x2715;</button>' +
+    '</div>';
+  }).join('');
+  el.querySelectorAll('.apco-file-remove').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      apcoAddFiles.splice(parseInt(btn.dataset.i), 1);
+      apcoRenderAddFiles();
+    });
+  });
+}
+
+async function apcoUploadPdf(file, folder) {
+  var fd = new FormData();
+  fd.append('file', file, file.name);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  fd.append('folder', 'heartland/' + folder);
+  var res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/raw/upload', {
+    method: 'POST', body: fd
+  });
+  if (!res.ok) throw new Error('Cloudinary upload failed (' + res.status + ')');
+  var data = await res.json();
+  return { url: data.secure_url, public_id: data.public_id };
+}
+
+async function apcoSaveClient() {
+  var ag      = window._apAgent;
+  var nameVal = (document.getElementById('apcoAddName').value || '').trim();
+  var errEl   = document.getElementById('apcoAddErr');
+  var saveBtn = document.getElementById('apcoAddSaveBtn');
+
+  if (!nameVal) {
+    errEl.textContent = 'Name is required.';
+    errEl.style.display = '';
+    return;
+  }
+  errEl.style.display = 'none';
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  try {
+    // Insert client
+    var clientRes = await fetch(apcoSbUrl('agent_clients'), {
+      method: 'POST',
+      headers: Object.assign({}, apcoHeaders(), { 'Prefer': 'return=representation' }),
+      body: JSON.stringify({
+        agent_id: ag.id,
+        name:     nameVal,
+        address:  document.getElementById('apcoAddAddress').value.trim() || null,
+        phone:    document.getElementById('apcoAddPhone').value.trim()   || null,
+        email:    document.getElementById('apcoAddEmail').value.trim()   || null,
+      })
+    });
+    var clientData = await clientRes.json();
+    var client = Array.isArray(clientData) ? clientData[0] : clientData;
+    if (!client || !client.id) throw new Error('Failed to create client record.');
+
+    // Upload any PDFs
+    for (var i = 0; i < apcoAddFiles.length; i++) {
+      saveBtn.textContent = 'Uploading ' + (i+1) + '/' + apcoAddFiles.length + '…';
+      var up = await apcoUploadPdf(apcoAddFiles[i], 'agent-docs/' + ag.id);
+      await fetch(apcoSbUrl('agent_client_documents'), {
+        method: 'POST',
+        headers: Object.assign({}, apcoHeaders(), { 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({
+          client_id:          client.id,
+          name:               apcoAddFiles[i].name,
+          cloudinary_url:     up.url,
+          cloudinary_public_id: up.public_id,
+        })
+      });
+    }
+
+    apcoCloseAdd();
+    await apcoLoad();
+  } catch(e) {
+    errEl.textContent = e.message || 'An error occurred.';
+    errEl.style.display = '';
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Client';
+  }
+}
+
+// ── Documents modal ───────────────────────────────────────────────────────
+async function apcoOpenDocs(clientId, clientName) {
+  apcoDocsClientId = clientId;
+  document.getElementById('apcoDocsClientName').textContent = clientName;
+  document.getElementById('apcoDocsClientSub').textContent  = 'Uploaded documents';
+  document.getElementById('apcoDocsList').innerHTML = '<div style="padding:20px 0;text-align:center;color:rgba(255,255,255,0.35);font-size:13px;">Loading…</div>';
+  document.getElementById('apcoDocsEmpty').style.display = 'none';
+  document.getElementById('apcoDocsOverlay').style.display = 'flex';
+  await apcoLoadDocs(clientId);
+}
+function apcoCloseDocs() {
+  document.getElementById('apcoDocsOverlay').style.display = 'none';
+}
+
+async function apcoLoadDocs(clientId) {
+  var listEl  = document.getElementById('apcoDocsList');
+  var emptyEl = document.getElementById('apcoDocsEmpty');
+  try {
+    var res  = await fetch(apcoSbUrl('agent_client_documents?client_id=eq.' + clientId + '&order=created_at.asc'), {
+      headers: apcoHeaders()
+    });
+    var docs = await res.json();
+    if (!docs || !docs.length) {
+      listEl.innerHTML = '';
+      emptyEl.style.display = '';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    listEl.innerHTML = docs.map(function(d) {
+      return '<div class="apco-doc-row" data-did="' + d.id + '">' +
+        '<span class="apco-doc-icon">&#128196;</span>' +
+        '<button class="apco-doc-name" onclick="apcoDownloadDoc(\'' + apcoEsc(d.cloudinary_url) + '\', \'' + apcoEsc(d.name) + '\')">' + apcoEsc(d.name) + '</button>' +
+        '<button class="apco-doc-del" title="Delete" data-did="' + d.id + '">&#128465;</button>' +
+      '</div>';
+    }).join('');
+    listEl.querySelectorAll('.apco-doc-del').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        if (!await apcConfirm('Delete this document? This cannot be undone.', 'Delete')) return;
+        btn.disabled = true;
+        try {
+          await fetch(apcoSbUrl('agent_client_documents?id=eq.' + btn.dataset.did), {
+            method: 'DELETE', headers: apcoHeaders()
+          });
+          await apcoLoadDocs(apcoDocsClientId);
+        } catch(e) {
+          apcAlert('Error deleting document.');
+          btn.disabled = false;
+        }
+      });
+    });
+  } catch(e) {
+    listEl.innerHTML = '<div style="padding:20px 0;text-align:center;color:#e74c3c;font-size:13px;">Error loading documents.</div>';
+  }
+}
+
+// ── Upload modal ──────────────────────────────────────────────────────────
+function apcoOpenUpload(clientId, clientName) {
+  apcoUploadClientId = clientId;
+  apcoUpFile = null;
+  document.getElementById('apcoUploadClientName').textContent = clientName;
+  document.getElementById('apcoUpFileList').innerHTML = '';
+  document.getElementById('apcoUploadErr').style.display = 'none';
+  document.getElementById('apcoUpSaveBtn').disabled = true;
+  document.getElementById('apcoUpFileInput').value = '';
+  document.getElementById('apcoUploadOverlay').style.display = 'flex';
+}
+function apcoCloseUpload() {
+  document.getElementById('apcoUploadOverlay').style.display = 'none';
+}
+
+function apcoSetUpFile(file) {
+  apcoUpFile = file;
+  var listEl = document.getElementById('apcoUpFileList');
+  listEl.innerHTML = '<div class="apco-file-pill">' +
+    '<span>&#128196; ' + apcoEsc(file.name) + '</span>' +
+    '<button class="apco-file-remove" id="apcoUpRemove">&#x2715;</button>' +
+  '</div>';
+  document.getElementById('apcoUpRemove').addEventListener('click', function() {
+    apcoUpFile = null;
+    listEl.innerHTML = '';
+    document.getElementById('apcoUpSaveBtn').disabled = true;
+    document.getElementById('apcoUpFileInput').value = '';
+  });
+  document.getElementById('apcoUpSaveBtn').disabled = false;
+}
+
+async function apcoDoUpload() {
+  var ag     = window._apAgent;
+  var errEl  = document.getElementById('apcoUploadErr');
+  var saveBtn = document.getElementById('apcoUpSaveBtn');
+  if (!apcoUpFile) return;
+  errEl.style.display = 'none';
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Uploading…';
+  try {
+    var up = await apcoUploadPdf(apcoUpFile, 'agent-docs/' + ag.id);
+    await fetch(apcoSbUrl('agent_client_documents'), {
+      method: 'POST',
+      headers: Object.assign({}, apcoHeaders(), { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({
+        client_id:           apcoUploadClientId,
+        name:                apcoUpFile.name,
+        cloudinary_url:      up.url,
+        cloudinary_public_id: up.public_id,
+      })
+    });
+    apcoCloseUpload();
+  } catch(e) {
+    errEl.textContent = e.message || 'Upload failed.';
+    errEl.style.display = '';
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Upload';
+  }
+}
+
+// ── Wire up when DOM is ready ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Add Client button
+  var addBtn = document.getElementById('apcoAddBtn');
+  if (addBtn) addBtn.addEventListener('click', apcoOpenAdd);
+
+  // Add modal close/cancel
+  document.getElementById('apcoAddClose').addEventListener('click', apcoCloseAdd);
+  document.getElementById('apcoAddCancelBtn').addEventListener('click', apcoCloseAdd);
+  document.getElementById('apcoAddSaveBtn').addEventListener('click', apcoSaveClient);
+
+  // Add modal file input
+  var fileInput = document.getElementById('apcoFileInput');
+  document.getElementById('apcoDropClick').addEventListener('click', function() { fileInput.click(); });
+  document.getElementById('apcoDropZone').addEventListener('click', function(e) {
+    if (e.target.id !== 'apcoDropClick') fileInput.click();
+  });
+  fileInput.addEventListener('change', function() {
+    var files = Array.from(fileInput.files).filter(function(f) { return f.type === 'application/pdf'; });
+    var remaining = 5 - apcoAddFiles.length;
+    files.slice(0, remaining).forEach(function(f) { apcoAddFiles.push(f); });
+    apcoRenderAddFiles();
+    fileInput.value = '';
+  });
+  var dropZone = document.getElementById('apcoDropZone');
+  dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('drag-over'); });
+  dropZone.addEventListener('drop', function(e) {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    var files = Array.from(e.dataTransfer.files).filter(function(f) { return f.type === 'application/pdf'; });
+    var remaining = 5 - apcoAddFiles.length;
+    files.slice(0, remaining).forEach(function(f) { apcoAddFiles.push(f); });
+    apcoRenderAddFiles();
+  });
+
+  // Docs modal close
+  document.getElementById('apcoDocsClose').addEventListener('click', apcoCloseDocs);
+
+  // Upload modal
+  document.getElementById('apcoUploadClose').addEventListener('click', apcoCloseUpload);
+  document.getElementById('apcoUpCancelBtn').addEventListener('click', apcoCloseUpload);
+  document.getElementById('apcoUpSaveBtn').addEventListener('click', apcoDoUpload);
+  var upFileInput = document.getElementById('apcoUpFileInput');
+  document.getElementById('apcoUpDropClick').addEventListener('click', function() { upFileInput.click(); });
+  document.getElementById('apcoUpDropZone').addEventListener('click', function(e) {
+    if (e.target.id !== 'apcoUpDropClick') upFileInput.click();
+  });
+  upFileInput.addEventListener('change', function() {
+    var files = Array.from(upFileInput.files).filter(function(f) { return f.type === 'application/pdf'; });
+    if (files[0]) apcoSetUpFile(files[0]);
+    upFileInput.value = '';
+  });
+  var upDropZone = document.getElementById('apcoUpDropZone');
+  upDropZone.addEventListener('dragover', function(e) { e.preventDefault(); upDropZone.classList.add('drag-over'); });
+  upDropZone.addEventListener('dragleave', function() { upDropZone.classList.remove('drag-over'); });
+  upDropZone.addEventListener('drop', function(e) {
+    e.preventDefault(); upDropZone.classList.remove('drag-over');
+    var files = Array.from(e.dataTransfer.files).filter(function(f) { return f.type === 'application/pdf'; });
+    if (files[0]) apcoSetUpFile(files[0]);
+  });
+});
+
+/* ── Lightweight alert/confirm for agent portal dark theme ── */
+function apcAlert(msg) {
+  // Use a simple overlay — agent portal doesn't have hw-* (light theme)
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  d.innerHTML = '<div style="background:#1e3150;border:1.5px solid rgba(255,255,255,0.15);border-radius:14px;padding:28px 24px;max-width:360px;width:100%;text-align:center;">' +
+    '<div style="font-size:15px;color:#fff;margin-bottom:20px;">' + msg + '</div>' +
+    '<button style="padding:11px 32px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;" id="_apcAlertOk">OK</button>' +
+    '</div>';
+  document.body.appendChild(d);
+  document.getElementById('_apcAlertOk').onclick = function() { d.remove(); };
+  d.addEventListener('click', function(e) { if (e.target === d) d.remove(); });
+}
+function apcConfirm(msg, confirmLabel) {
+  return new Promise(function(resolve) {
+    var d = document.createElement('div');
+    d.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    d.innerHTML = '<div style="background:#1e3150;border:1.5px solid rgba(255,255,255,0.15);border-radius:14px;padding:28px 24px;max-width:360px;width:100%;text-align:center;">' +
+      '<div style="font-size:15px;color:#fff;margin-bottom:20px;">' + msg + '</div>' +
+      '<div style="display:flex;gap:10px;">' +
+        '<button style="flex:1;padding:11px;background:#e74c3c;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;" id="_apcCfmOk">' + (confirmLabel || 'Confirm') + '</button>' +
+        '<button style="flex:1;padding:11px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-family:inherit;font-size:14px;cursor:pointer;" id="_apcCfmNo">Cancel</button>' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(d);
+    document.getElementById('_apcCfmOk').onclick  = function() { d.remove(); resolve(true);  };
+    document.getElementById('_apcCfmNo').onclick  = function() { d.remove(); resolve(false); };
+    d.addEventListener('click', function(e) { if (e.target === d) { d.remove(); resolve(false); } });
+  });
+}
+
+
+
+
+/* ── REPAIR BUILDER ── */
+var rbSize = 'small';
+var rbCustomItems = [];
+
+// Cost data: [small, medium, large]
+var RB_CATEGORIES = [
+  {
+    id: 'roof', icon: '🏠', label: 'Roof',
+    items: [
+      { id: 'roof_replace',   label: 'Roof Replacement (Asphalt Shingles)',    costs: [7500,  10000, 14000] },
+      { id: 'roof_repair',    label: 'Roof Repair (Partial / Spot Repair)',     costs: [800,   1200,  1800]  },
+      { id: 'roof_gutter',    label: 'Gutter Replacement (Full)',               costs: [1200,  1800,  2600]  },
+      { id: 'roof_fascia',    label: 'Fascia & Soffit Repair',                  costs: [600,   900,   1400]  },
+      { id: 'roof_flashing',  label: 'Flashing Repair / Replacement',           costs: [400,   600,   900]   },
+      { id: 'roof_chimney',   label: 'Chimney Tuckpointing / Repointing',       costs: [800,   1200,  1800]  },
+    ]
+  },
+  {
+    id: 'siding', icon: '🧱', label: 'Siding & Exterior',
+    items: [
+      { id: 'sid_replace',    label: 'Vinyl Siding Replacement (Full)',         costs: [8500,  14000, 22000] },
+      { id: 'sid_repair',     label: 'Siding Repair (Partial)',                 costs: [600,   1000,  1600]  },
+      { id: 'sid_windows',    label: 'Window Replacement (per window avg)',     costs: [400,   500,   600]   },
+      { id: 'sid_doors',      label: 'Exterior Door Replacement',               costs: [900,   1200,  1600]  },
+      { id: 'sid_paint',      label: 'Exterior Paint / Stain',                  costs: [2500,  3800,  5500]  },
+      { id: 'sid_caulk',      label: 'Caulking & Weatherstripping',             costs: [300,   450,   650]   },
+    ]
+  },
+  {
+    id: 'hvac', icon: '🌡️', label: 'Heating & Cooling (HVAC)',
+    items: [
+      { id: 'hvac_furnace',   label: 'Gas Furnace Replacement',                 costs: [4500,  6500,  9000]  },
+      { id: 'hvac_ac',        label: 'Central AC Unit Replacement',             costs: [4000,  6000,  8500]  },
+      { id: 'hvac_both',      label: 'Furnace + AC Replacement (Combined)',     costs: [7500,  11000, 15000] },
+      { id: 'hvac_duct',      label: 'Ductwork Repair / Partial Replacement',   costs: [1200,  2000,  3500]  },
+      { id: 'hvac_duct_full', label: 'Ductwork Full Replacement',               costs: [3500,  5500,  8000]  },
+      { id: 'hvac_water',     label: 'Water Heater Replacement (Tank)',         costs: [1200,  1500,  1900]  },
+      { id: 'hvac_tankless',  label: 'Water Heater Replacement (Tankless)',     costs: [2800,  3200,  3800]  },
+    ]
+  },
+  {
+    id: 'electrical', icon: '⚡', label: 'Electrical',
+    items: [
+      { id: 'elec_panel',     label: 'Electrical Panel Replacement (200A)',     costs: [2200,  2800,  3800]  },
+      { id: 'elec_panel_up',  label: 'Panel Upgrade (100A to 200A)',            costs: [1800,  2400,  3200]  },
+      { id: 'elec_rewire',    label: 'Partial Rewiring',                        costs: [2000,  3500,  5500]  },
+      { id: 'elec_gfci',      label: 'GFCI Outlet Installation (per outlet)',   costs: [150,   150,   150]   },
+      { id: 'elec_smoke',     label: 'Smoke / CO Detector Installation',        costs: [200,   300,   400]   },
+      { id: 'elec_grounding', label: 'Grounding / Bonding Correction',          costs: [400,   600,   900]   },
+    ]
+  },
+  {
+    id: 'plumbing', icon: '🚿', label: 'Plumbing',
+    items: [
+      { id: 'plumb_main',     label: 'Main Water Line Replacement',             costs: [2500,  3500,  5000]  },
+      { id: 'plumb_drain',    label: 'Main Drain Line / Sewer Repair',         costs: [2000,  3500,  6000]  },
+      { id: 'plumb_supply',   label: 'Supply Line Replacement (Full)',          costs: [1800,  2800,  4000]  },
+      { id: 'plumb_toilet',   label: 'Toilet Replacement (per unit)',           costs: [400,   500,   600]   },
+      { id: 'plumb_faucet',   label: 'Faucet Replacement (per unit)',           costs: [250,   300,   350]   },
+      { id: 'plumb_sump',     label: 'Sump Pump Replacement',                  costs: [700,   900,   1200]  },
+    ]
+  },
+  {
+    id: 'structural', icon: '🏗️', label: 'Structural & Foundation',
+    items: [
+      { id: 'str_foundation', label: 'Foundation Crack Repair',                 costs: [1500,  2500,  4000]  },
+      { id: 'str_waterproof', label: 'Basement Waterproofing',                  costs: [4000,  7000,  12000] },
+      { id: 'str_crawl',      label: 'Crawlspace Encapsulation',                costs: [3000,  5000,  8000]  },
+      { id: 'str_beam',       label: 'Structural Beam / Joist Repair',          costs: [1500,  2500,  4500]  },
+      { id: 'str_floor_joist',label: 'Subfloor Repair',                         costs: [800,   1400,  2400]  },
+    ]
+  },
+  {
+    id: 'garage', icon: '🚗', label: 'Garage',
+    items: [
+      { id: 'gar_door',       label: 'Garage Door Replacement',                 costs: [1200,  1800,  2800]  },
+      { id: 'gar_opener',     label: 'Garage Door Opener Replacement',          costs: [350,   450,   550]   },
+      { id: 'gar_floor',      label: 'Garage Floor Epoxy / Sealing',            costs: [700,   1100,  1600]  },
+    ]
+  },
+  {
+    id: 'deck', icon: '🌲', label: 'Deck & Outdoor',
+    items: [
+      { id: 'deck_replace',   label: 'Deck Replacement (Pressure Treated)',     costs: [6000,  9000,  14000] },
+      { id: 'deck_repair',    label: 'Deck Repair (Partial / Boards)',          costs: [800,   1400,  2200]  },
+      { id: 'deck_stain',     label: 'Deck Stain / Seal',                       costs: [500,   750,   1100]  },
+      { id: 'deck_driveway',  label: 'Driveway Resurfacing (Asphalt)',          costs: [2000,  3500,  5500]  },
+      { id: 'deck_concrete',  label: 'Concrete Sidewalk / Patio Repair',        costs: [800,   1400,  2200]  },
+    ]
+  },
+  {
+    id: 'interior', icon: '🛋️', label: 'Interior',
+    items: [
+      { id: 'int_floor_hard', label: 'Hardwood Floor Refinishing',              costs: [2000,  3200,  5000]  },
+      { id: 'int_floor_rep',  label: 'Hardwood Floor Replacement',              costs: [4500,  7000,  11000] },
+      { id: 'int_floor_carp', label: 'Carpet Replacement',                      costs: [2500,  4000,  6500]  },
+      { id: 'int_floor_lux',  label: 'LVP / Luxury Vinyl Plank Replacement',   costs: [3000,  5000,  8000]  },
+      { id: 'int_paint',      label: 'Interior Paint (Full)',                   costs: [3000,  4500,  7000]  },
+      { id: 'int_drywall',    label: 'Drywall Repair / Replacement',            costs: [500,   900,   1600]  },
+      { id: 'int_insul',      label: 'Attic Insulation (Blown-In)',             costs: [1500,  2200,  3500]  },
+    ]
+  },
+  {
+    id: 'appliances', icon: '🍳', label: 'Appliances',
+    items: [
+      { id: 'app_fridge',     label: 'Refrigerator Replacement',                costs: [1200,  1500,  2000]  },
+      { id: 'app_range',      label: 'Range / Stove Replacement',               costs: [800,   1100,  1600]  },
+      { id: 'app_dishwash',   label: 'Dishwasher Replacement',                  costs: [700,   900,   1200]  },
+      { id: 'app_washer',     label: 'Washer Replacement',                      costs: [700,   900,   1100]  },
+      { id: 'app_dryer',      label: 'Dryer Replacement',                       costs: [600,   800,   1000]  },
+      { id: 'app_microwave',  label: 'Built-In Microwave Replacement',          costs: [400,   550,   700]   },
+    ]
+  },
+  {
+    id: 'mold', icon: '⚠️', label: 'Environmental & Safety',
+    items: [
+      { id: 'env_mold',       label: 'Mold Remediation',                        costs: [2000,  3500,  6000]  },
+      { id: 'env_asbestos',   label: 'Asbestos Abatement',                      costs: [2500,  4000,  7000]  },
+      { id: 'env_radon',      label: 'Radon Mitigation System',                 costs: [900,   1200,  1600]  },
+      { id: 'env_lead',       label: 'Lead Paint Remediation',                  costs: [2000,  3500,  6000]  },
+      { id: 'env_termite',    label: 'Termite / Pest Treatment',                costs: [800,   1200,  2000]  },
+    ]
+  },
+];
+
+var rbSelected = {}; // { itemId: editedCostValue }
+
+function rbSizeIndex() {
+  return rbSize === 'small' ? 0 : rbSize === 'medium' ? 1 : 2;
+}
+
+function rbRenderCategories() {
+  var el = document.getElementById('rbCategories');
+  if (!el) return;
+  var idx = rbSizeIndex();
+  el.innerHTML = RB_CATEGORIES.map(function(cat) {
+    var items = cat.items.map(function(item) {
+      var sel = rbSelected.hasOwnProperty(item.id);
+      var cost = sel ? rbSelected[item.id] : item.costs[idx];
+      return '<div class="rb-item-row' + (sel ? ' selected' : '') + '" data-item="' + item.id + '">' +
+        '<div class="rb-item-check">' + (sel ? '✓' : '') + '</div>' +
+        '<div class="rb-item-name">' + item.label + '</div>' +
+        '<div class="rb-item-cost">' +
+          '<span class="rb-item-cost-symbol">$</span>' +
+          '<input class="rb-item-cost-input" type="number" value="' + cost + '" data-item="' + item.id + '" onclick="event.stopPropagation()" min="0">' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    return '<div class="rb-card">' +
+      '<div class="rb-cat-header" data-cat="' + cat.id + '">' +
+        '<div class="rb-cat-title">' + cat.icon + ' ' + cat.label + '</div>' +
+        '<div class="rb-cat-chevron" id="rbChev_' + cat.id + '">▼</div>' +
+      '</div>' +
+      '<div class="rb-cat-body collapsed" id="rbCat_' + cat.id + '">' + items + '</div>' +
+    '</div>';
+  }).join('');
+
+  // Wire category toggles
+  el.querySelectorAll('.rb-cat-header').forEach(function(hdr) {
+    hdr.addEventListener('click', function() {
+      var catId = hdr.dataset.cat;
+      var body = document.getElementById('rbCat_' + catId);
+      var chev = document.getElementById('rbChev_' + catId);
+      var collapsed = body.classList.toggle('collapsed');
+      chev.style.transform = collapsed ? '' : 'rotate(180deg)';
+    });
+  });
+
+  // Wire item row clicks (toggle selected)
+  el.querySelectorAll('.rb-item-row').forEach(function(row) {
+    row.addEventListener('click', function(e) {
+      if (e.target.classList.contains('rb-item-cost-input')) return;
+      var itemId = row.dataset.item;
+      var input = row.querySelector('.rb-item-cost-input');
+      if (rbSelected.hasOwnProperty(itemId)) {
+        delete rbSelected[itemId];
+      } else {
+        rbSelected[itemId] = parseFloat(input.value) || 0;
+      }
+      rbRenderCategories();
+      rbUpdateTotal();
+    });
+  });
+
+  // Wire cost input changes
+  el.querySelectorAll('.rb-item-cost-input').forEach(function(input) {
+    input.addEventListener('change', function() {
+      var itemId = input.dataset.item;
+      var val = parseFloat(input.value) || 0;
+      if (rbSelected.hasOwnProperty(itemId)) {
+        rbSelected[itemId] = val;
+        rbUpdateTotal();
+      }
+    });
+    input.addEventListener('click', function(e) { e.stopPropagation(); });
+  });
+}
+
+function rbUpdateTotal() {
+  var idx = rbSizeIndex();
+  var total = 0;
+  Object.keys(rbSelected).forEach(function(itemId) {
+    total += parseFloat(rbSelected[itemId]) || 0;
+  });
+  rbCustomItems.forEach(function(ci) { total += ci.cost; });
+  var el = document.getElementById('rbTotal');
+  if (el) el.textContent = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function rbRenderCustomList() {
+  var el = document.getElementById('rbCustomList');
+  if (!el) return;
+  if (!rbCustomItems.length) { el.innerHTML = ''; return; }
+  el.innerHTML = rbCustomItems.map(function(ci, i) {
+    return '<div class="rb-custom-item">' +
+      '<span class="rb-custom-item-name">' + apcoEsc(ci.desc) + '</span>' +
+      '<span class="rb-custom-item-cost">$' + ci.cost.toLocaleString() + '</span>' +
+      '<button class="rb-custom-item-del" data-i="' + i + '">&#x2715;</button>' +
+    '</div>';
+  }).join('');
+  el.querySelectorAll('.rb-custom-item-del').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      rbCustomItems.splice(parseInt(btn.dataset.i), 1);
+      rbRenderCustomList();
+      rbUpdateTotal();
+    });
+  });
+}
+
+function rbGetSelectedItems() {
+  var idx = rbSizeIndex();
+  var items = [];
+  RB_CATEGORIES.forEach(function(cat) {
+    cat.items.forEach(function(item) {
+      if (rbSelected.hasOwnProperty(item.id)) {
+        items.push({ label: item.label, cost: rbSelected[item.id], category: cat.label });
+      }
+    });
+  });
+  rbCustomItems.forEach(function(ci) {
+    items.push({ label: ci.desc, cost: ci.cost, category: 'Custom' });
+  });
+  return items;
+}
+
+function rbBuildPrintDoc() {
+  var ag      = window._apAgent || {};
+  var address = (document.getElementById('rbAddress') || {}).value || '';
+  var client  = (document.getElementById('rbClient')  || {}).value || '';
+  var items   = rbGetSelectedItems();
+  var total   = items.reduce(function(s, i) { return s + i.cost; }, 0);
+  var today   = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  var sizeLabel = rbSize.charAt(0).toUpperCase() + rbSize.slice(1);
+
+  // Group by category
+  var grouped = {};
+  items.forEach(function(item) {
+    if (!grouped[item.category]) grouped[item.category] = [];
+    grouped[item.category].push(item);
+  });
+
+  var rows = Object.keys(grouped).map(function(cat) {
+    var catRows = grouped[cat].map(function(item) {
+      return '<tr>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#2d3748;border-bottom:1px solid #f0f0f0;">' + item.label + '</td>' +
+        '<td style="padding:8px 12px;font-size:13px;color:#2d3748;text-align:right;border-bottom:1px solid #f0f0f0;font-weight:600;">$' + item.cost.toLocaleString() + '</td>' +
+      '</tr>';
+    }).join('');
+    return '<tr><td colspan="2" style="padding:10px 12px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#718096;background:#f9f9f9;">' + cat + '</td></tr>' + catRows;
+  }).join('');
+
+  var html = '<!-- print doc -->' +
+    '<div style="text-align:center;margin-bottom:32px;padding-bottom:24px;border-bottom:2px solid #e2e8f0;">' +
+      '<div style="font-size:22px;font-weight:800;color:#1a2530;letter-spacing:0.5px;margin-bottom:4px;">REPAIR COST ESTIMATE</div>' +
+      (ag.name ? '<div style="font-size:14px;color:#4a5568;font-weight:600;">' + apcoEsc(ag.name) + (ag.company ? ' &bull; ' + apcoEsc(ag.company) : '') + '</div>' : '') +
+      '<div style="font-size:12px;color:#a0aec0;margin-top:4px;">' + today + '</div>' +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">' +
+      (address ? '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a0aec0;margin-bottom:4px;">Property</div><div style="font-size:14px;font-weight:600;color:#1a2530;">' + apcoEsc(address) + '</div></div>' : '') +
+      (client  ? '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a0aec0;margin-bottom:4px;">Prepared For</div><div style="font-size:14px;font-weight:600;color:#1a2530;">' + apcoEsc(client) + '</div></div>' : '') +
+      '<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a0aec0;margin-bottom:4px;">Home Size</div><div style="font-size:14px;font-weight:600;color:#1a2530;">' + sizeLabel + '</div></div>' +
+    '</div>' +
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:24px;">' +
+      '<thead><tr style="background:#f7f7f7;"><th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;">Repair Item</th><th style="padding:10px 12px;text-align:right;font-size:12px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:0.5px;">Est. Cost</th></tr></thead>' +
+      '<tbody>' + (rows || '<tr><td colspan="2" style="padding:20px;text-align:center;color:#a0aec0;">No repair items selected.</td></tr>') + '</tbody>' +
+    '</table>' +
+    '<div style="display:flex;justify-content:flex-end;margin-bottom:32px;">' +
+      '<div style="background:#1a2530;color:#fff;border-radius:10px;padding:14px 24px;min-width:220px;display:flex;justify-content:space-between;align-items:center;gap:24px;">' +
+        '<span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;opacity:0.7;">Estimated Total</span>' +
+        '<span style="font-size:22px;font-weight:800;">$' + total.toLocaleString() + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div style="border-top:1px solid #e2e8f0;padding-top:18px;font-size:11px;color:#a0aec0;line-height:1.8;">' +
+      '<strong style="color:#718096;display:block;margin-bottom:4px;">DISCLAIMER</strong>' +
+      '1. All cost estimates are regional averages for the Northern Illinois / Midwest market and are intended for informational purposes only.<br>' +
+      '2. These figures do not constitute a contractor quote, bid, or guarantee of actual repair costs for any specific property.<br>' +
+      '3. Actual costs may vary significantly based on property condition, material selection, contractor rates, permits, and site-specific factors.<br>' +
+      '4. Consult a licensed contractor for accurate project pricing. The agent providing this estimate is not liable for cost variations.' +
+    '</div>';
+
+  return html;
+}
+
+// ── Wire Repair Builder on DOMContentLoaded ───────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  rbRenderCategories();
+
+  // Size pills
+  document.querySelectorAll('.rb-size-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      document.querySelectorAll('.rb-size-pill').forEach(function(p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      rbSize = pill.dataset.size;
+      // Update costs for unselected items; keep edited values for selected
+      rbRenderCategories();
+      rbUpdateTotal();
+    });
+  });
+
+  // Add custom repair
+  document.getElementById('rbAddCustomBtn').addEventListener('click', function() {
+    var desc = (document.getElementById('rbCustomDesc').value || '').trim();
+    var cost = parseFloat(document.getElementById('rbCustomCost').value) || 0;
+    if (!desc) { apcAlert('Please enter a description for the repair item.'); return; }
+    rbCustomItems.push({ desc: desc, cost: cost });
+    document.getElementById('rbCustomDesc').value = '';
+    document.getElementById('rbCustomCost').value = '';
+    rbRenderCustomList();
+    rbUpdateTotal();
+  });
+
+  // Reset
+  document.getElementById('rbResetBtn').addEventListener('click', async function() {
+    if (!await apcConfirm('Reset all selections and clear the estimate?', 'Reset')) return;
+    rbSelected = {};
+    rbCustomItems = [];
+    rbSize = 'small';
+    document.querySelectorAll('.rb-size-pill').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelector('.rb-size-pill[data-size="small"]').classList.add('active');
+    document.getElementById('rbAddress').value = '';
+    document.getElementById('rbClient').value = '';
+    rbRenderCategories();
+    rbRenderCustomList();
+    rbUpdateTotal();
+  });
+
+  // Print
+  document.getElementById('rbPrintBtn').addEventListener('click', function() {
+    var items = rbGetSelectedItems();
+    if (!items.length) { apcAlert('Please select at least one repair item before printing.'); return; }
+    var docHtml = rbBuildPrintDoc();
+    var win = window.open('', '_blank');
+    if (!win) { apcAlert('Pop-up blocked. Please allow pop-ups for this site and try again.'); return; }
+    win.document.write(
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<title>Repair Cost Estimate</title>' +
+      '<style>' +
+        'body{margin:0;padding:0;font-family:"Segoe UI",Arial,sans-serif;color:#1a2530;background:#fff;}' +
+        '.print-wrap{max-width:780px;margin:0 auto;padding:48px 40px;}' +
+        '@media print{body{margin:0;}.print-wrap{padding:32px 28px;}}' +
+      '</style>' +
+      '</head><body>' +
+      '<div class="print-wrap">' + docHtml + '</div>' +
+      '<script>window.onload=function(){setTimeout(function(){window.print();},400);};<\/script>' +
+      '</body></html>'
+    );
+    win.document.close();
+  });
+});
+
+/* global apw state */
+var apw = {
+  step: 0,
+  category: null,      // 'home-inspection'|'new-construction'|'home-health-check'|'standalone-addon'
+  hiType: null,        // 'Pre Purchase'|'Pre Listing'
+  hiTypeLabel: null,
+  hiSize: null,
+  hiSizeLabel: null,
+  hiSizePrice: 0,
+  hiYB: null,
+  hiYBLabel: null,
+  hiYBSurcharge: 0,
+  ncPhase: null,
+  ncPhaseLabel: null,
+  ncPhasePrice: 0,
+  hhcTier: null,
+  hhcTierLabel: null,
+  hhcTierPrice: 0,
+  addons: [],
+  coupon: null,
+  couponDiscount: 0,
+  total: 0,
+  selectedDate: null,
+  selectedTime: null,
+  rentcastYearBuilt: null,
+  rentcastSqft: null,
+  busyEvents: [],
+  busyEvents: [],
+  calYear: null,
+  calMonth: null,
+  cfg: null,
+};
+
+/* ══════════════════════════════════════════════════════════
+   SECTION 2 — BOOKING WIZARD
+   ══════════════════════════════════════════════════════════ */
+(function() {
+// apw declared globally
+
+
+/* \u2500\u2500 Wait for config \u2500\u2500 */
+window.addEventListener('heartland-config-ready', function() {
+  apw.cfg = window.HEARTLAND_CONFIG || {};
+  BookingTool.initGeoapify(
+    {
+      currentAddrAC:     'apwCurrentAddrAC',
+      currentAddrHidden: 'apw_currentAddress',
+      inspAddrAC:        'apwInspAddrAC',
+      inspAddrHidden:    'apw_address'
+    },
+    {
+      onInspSelect: function(addr) { apwFetchPropertyData(addr); },
+      onInspClear:  function() {
+        apw.rentcastYearBuilt = null; apw.rentcastSqft = null;
+        var propData = document.getElementById('apwPropData');
+        if (propData) propData.classList.remove('visible');
+      },
+      scopeStyles:  false
+    }
+  );
+  apwInitCalendar();
+  apwFetchBusy();
+});
+
+/* \u2550\u2550 NAVIGATION \u2550\u2550 */
+function apwGoTo(step) {
+  apw.step = step;
+  [0,1,2,3].forEach(function(i) {
+    var el = document.getElementById('apwStep' + i);
+    if (el) el.style.display = (i === step) ? 'block' : 'none';
+  });
+  var successEl = document.getElementById('apwSuccess');
+  if (successEl) successEl.style.display = 'none';
+  apwUpdateProgress(step);
+  if (step === 2) { apwRenderCalendar(); }
+  if (step === 3) { apwRenderReview(); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function apwUpdateProgress(step) {
+  [0,1,2,3].forEach(function(i) {
+    var el = document.querySelector('.apw-prog-step[data-s="' + i + '"]');
+    if (!el) return;
+    el.classList.remove('active','done');
+    if (i < step) el.classList.add('done');
+    else if (i === step) el.classList.add('active');
+    // Lines
+    if (i < 3) {
+      var line = document.getElementById('apwLine' + i + (i+1));
+      if (line) line.classList.toggle('done', i < step);
+    }
+  });
+}
+
+/* \u2550\u2550 STEP 1: CONTACT \u2550\u2550 */
+document.getElementById('apwNext0').addEventListener('click', function() {
+  var fn = (document.getElementById('apw_firstName').value || '').trim();
+  var em = (document.getElementById('apw_email').value || '').trim();
+  var ca = (document.getElementById('apw_currentAddress').value || '').trim();
+  var ad = (document.getElementById('apw_address').value || '').trim();
+  var err = document.getElementById('apwErr0');
+  if (!fn) { err.textContent = 'First name is required.'; return; }
+  if (!em || !em.includes('@')) { err.textContent = 'A valid email is required.'; return; }
+  if (!ca) { err.textContent = 'Client current address is required.'; return; }
+  if (!ad) { err.textContent = 'Inspection address is required.'; return; }
+  err.textContent = '';
+  // Build pricing panel before showing step 2
+  apwBuildPricingPanel();
+  apwGoTo(1);
+});
+
+/* \u2500\u2500 Phone format \u2500\u2500 */
+document.getElementById('apw_phone').addEventListener('input', function() {
+  var d = this.value.replace(/\D/g,'').substring(0,10);
+  var f = '';
+  if (d.length > 0) f = '(' + d.substring(0,3);
+  if (d.length >= 3) f += ') ';
+  if (d.length > 3) f += d.substring(3,6);
+  if (d.length >= 6) f += '-' + d.substring(6,10);
+  this.value = f;
+});
+
+/* \u2500\u2500 Geoapify init \u2500\u2500 */
+/* Geoapify init moved to BookingTool — see top of script */
+
+/* \u2500\u2500 Rentcast lookup \u2500\u2500 */
+function apwFetchPropertyData(address) {
+  var propData   = document.getElementById('apwPropData');
+  var ybEl       = document.getElementById('apwPropYearBuilt');
+  var sqftEl     = document.getElementById('apwPropSqft');
+  propData.classList.add('visible');
+  ybEl.className   = 'apw-prop-field-value loading'; ybEl.textContent   = '\u23f3 Looking up...';
+  sqftEl.className = 'apw-prop-field-value loading'; sqftEl.textContent = '\u23f3 Looking up...';
+
+  fetch('/.netlify/functions/get-property-data?address=' + encodeURIComponent(address))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      apw.rentcastYearBuilt = data.yearBuilt || null;
+      apw.rentcastSqft = data.sqft || null;
+      if (data.yearBuilt) {
+        ybEl.className = 'apw-prop-field-value'; ybEl.textContent = data.yearBuilt;
+      } else {
+        ybEl.className = 'apw-prop-field-value not-found'; ybEl.textContent = 'Not found';
+      }
+      if (data.sqft) {
+        sqftEl.className = 'apw-prop-field-value'; sqftEl.textContent = Number(data.sqft).toLocaleString() + ' sqft';
+      } else {
+        sqftEl.className = 'apw-prop-field-value not-found'; sqftEl.textContent = 'Not found';
+      }
+      apwPreselectHI(); // safe to call anytime — guards itself; fires if HI panel is already built
+    })
+    .catch(function() {
+      apw.rentcastYearBuilt = null;
+      apw.rentcastSqft = null;
+      ybEl.className   = 'apw-prop-field-value not-found'; ybEl.textContent   = 'Not found';
+      sqftEl.className = 'apw-prop-field-value not-found'; sqftEl.textContent = 'Not found';
+    });
+}
+
+/* \u2550\u2550 STEP 2: PRICING \u2550\u2550 */
+function apwBuildPricingPanel() {
+  var cfg = apw.cfg || {};
+  var P = cfg.pricing || {};
+
+  /* \u2500\u2500 Category cards \u2500\u2500 */
+  var catGrid = document.getElementById('apwCatGrid');
+  var cats = [
+    { id:'home-inspection',   icon:'\ud83c\udfe0', name:'Home Inspection',   desc:'Pre-Purchase \u00b7 Pre-Listing' },
+    { id:'new-construction',  icon:'\ud83c\udfd7\ufe0f', name:'New Construction',  desc:'Pre-Pour \u00b7 Pre-Drywall \u00b7 Final' },
+    { id:'home-health-check', icon:'\ud83d\udc9a', name:'Home Health Check', desc:'Standard \u00b7 Premium \u00b7 Signature' },
+    { id:'standalone-addon',  icon:'\ud83d\udd2c', name:'Standalone Add-On', desc:'Radon \u00b7 Sewer \u00b7 Mold \u00b7 Water' },
+  ];
+  catGrid.innerHTML = cats.map(function(c) {
+    return '<button class="apw-cat-btn" data-catid="' + c.id + '">' +
+      '<span class="apw-cat-icon">' + c.icon + '</span>' +
+      '<span class="apw-cat-name">' + c.name + '</span>' +
+      '<span class="apw-cat-desc">' + c.desc + '</span>' +
+    '</button>';
+  }).join('');
+
+  catGrid.querySelectorAll('.apw-cat-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = btn.dataset.catid;
+      catGrid.querySelectorAll('.apw-cat-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      apw.category = id;
+      // Reset selections
+      apw.hiType=null; apw.hiTypeLabel=null; apw.hiSize=null; apw.hiSizeLabel=null; apw.hiSizePrice=0;
+      apw.hiYB=null; apw.hiYBLabel=null; apw.hiYBSurcharge=0;
+      apw.ncPhase=null; apw.ncPhaseLabel=null; apw.ncPhasePrice=0;
+      apw.hhcTier=null; apw.hhcTierLabel=null; apw.hhcTierPrice=0;
+      apw.addons = [];
+      // Show panel
+      apwShowCategoryPanel(id);
+      // Discount banner
+      apwToggleDiscountBanner(id);
+      apwCalcTotal();
+    });
+  });
+
+  /* \u2500\u2500 Build each sub-panel \u2500\u2500 */
+  apwBuildHIPanel();
+  apwBuildNCPanel();
+  apwBuildHHCPanel();
+  apwBuildSAPanel();
+  apwBuildAllAddonLists();
+}
+
+function apwToggleDiscountBanner(catId) {
+  var ag = window._apAgent;
+  var banner = document.getElementById('apwDiscountBanner');
+  if (!banner) return;
+  var disc = ag && ag.booking_discount > 0 ? Number(ag.booking_discount) : 0;
+  if (disc > 0 && catId === 'home-inspection') {
+    document.getElementById('apwDiscountMsg').textContent =
+      'Your clients save $' + disc + ' on Home Inspections \u2014 a benefit of working with you';
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function apwShowCategoryPanel(catId) {
+  var panelMap = {
+    'home-inspection':   'apwPanelHI',
+    'new-construction':  'apwPanelNC',
+    'home-health-check': 'apwPanelHHC',
+    'standalone-addon':  'apwPanelSA',
+  };
+  document.getElementById('apwPricingPanel').style.display = 'block';
+  ['apwPanelHI','apwPanelNC','apwPanelHHC','apwPanelSA'].forEach(function(id) {
+    document.getElementById(id).style.display = (id === panelMap[catId]) ? 'block' : 'none';
+  });
+  if (catId === 'home-inspection') {
+    apwPreselectHI(); // pre-fill from Rentcast data if already returned
+  }
+}
+
+/* \u2500\u2500 Home Inspection panel \u2500\u2500 */
+function apwBuildHIPanel() {
+  var cfg = apw.cfg || {};
+  var P = cfg.pricing || {};
+  var tiers = (P.homeSizeTiers || []).filter(function(t) { return t.active !== false; });
+
+  /* Size grid */
+  var sizeGrid = document.getElementById('apwHISizeGrid');
+  sizeGrid.innerHTML = tiers.map(function(t, i) {
+    return '<button class="apw-size-btn" data-sizeidx="' + i + '" data-sizelabel="' + (t.label||'').replace(/"/g,'&quot;') + '" data-sizeprice="' + (t.price||0) + '">' +
+      '<span>' + (t.label||'') + '</span>' +
+      '<span class="apw-size-price">$' + (t.price||0) + '</span>' +
+    '</button>';
+  }).join('');
+  sizeGrid.querySelectorAll('.apw-size-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      sizeGrid.querySelectorAll('.apw-size-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      apw.hiSize = btn.dataset.sizeidx;
+      apw.hiSizeLabel = btn.dataset.sizelabel;
+      apw.hiSizePrice = Number(btn.dataset.sizeprice) || 0;
+      apwCalcTotal();
+    });
+  });
+
+  /* Type buttons */
+  document.getElementById('apwHITypeRow').querySelectorAll('.apw-type-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('apwHITypeRow').querySelectorAll('.apw-type-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      apw.hiType = btn.dataset.type;
+      apw.hiTypeLabel = btn.dataset.label;
+      apwCalcTotal();
+    });
+  });
+
+  /* Year built pills */
+  var surcharges = cfg.yearBuiltSurcharges || [];
+  var ybRow = document.getElementById('apwYBRow');
+  if (surcharges.length) {
+    ybRow.innerHTML = surcharges.map(function(yb, i) {
+      var surchargeHtml = yb.surcharge > 0 ? '<span class="apw-yb-surcharge">+$' + yb.surcharge + '</span>' : '';
+      return '<button class="apw-yb-pill" data-ybidx="' + i + '" data-ybsurcharge="' + (yb.surcharge||0) + '" data-yblabel="' + (yb.label||'').replace(/"/g,'&quot;') + '">' +
+        (yb.label||'') + surchargeHtml + '</button>';
+    }).join('');
+    ybRow.querySelectorAll('.apw-yb-pill').forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        ybRow.querySelectorAll('.apw-yb-pill').forEach(function(p) { p.classList.remove('selected'); });
+        pill.classList.add('selected');
+        apw.hiYB = pill.dataset.ybidx;
+        apw.hiYBLabel = pill.dataset.yblabel;
+        apw.hiYBSurcharge = Number(pill.dataset.ybsurcharge) || 0;
+        apwCalcTotal();
+      });
+    });
+    document.getElementById('apwYBSection').style.display = 'block';
+  } else {
+    document.getElementById('apwYBSection').style.display = 'none';
+  }
+}
+
+function apwPreselectHI() {
+  // Guard: if HI panel isn't built yet, nothing to select — Rentcast callback will retry
+  var sizeGridCheck = document.getElementById('apwHISizeGrid');
+  if (!sizeGridCheck || !sizeGridCheck.querySelector('.apw-size-btn')) return;
+
+  /* Pre-select size if Rentcast returned sqft */
+  var sqft = apw.rentcastSqft;
+  if (sqft) {
+    var cfg = apw.cfg || {};
+    var P = cfg.pricing || {};
+    var tiers = (P.homeSizeTiers || []).filter(function(t) { return t.active !== false; });
+    var matched = null, matchedIdx = -1;
+    tiers.forEach(function(t, i) {
+      // minSqft/maxSqft are not stored — parse range from label
+      // Labels: "0 – 1,500 sqft", "1,501 – 2,499 sqft", "2,500 – 3499 sqft", "3,500+ sqft"
+      var min = 0, max = 999999;
+      if (t.minSqft != null && t.maxSqft != null) {
+        min = Number(t.minSqft); max = Number(t.maxSqft);
+      } else if (t.label) {
+        var nums = t.label.replace(/,/g, '').match(/\d+/g) || [];
+        if (nums.length >= 2) { min = Number(nums[0]); max = Number(nums[1]); }
+        else if (nums.length === 1) {
+          // "3,500+ sqft" style — one number, open-ended max
+          if (/\+/.test(t.label)) { min = Number(nums[0]); max = 999999; }
+          else { min = 0; max = Number(nums[0]); }
+        }
+      }
+      if (sqft >= min && sqft <= max) { matched = t; matchedIdx = i; }
+    });
+    if (matched) {
+      var sizeGrid = document.getElementById('apwHISizeGrid');
+      sizeGrid.querySelectorAll('.apw-size-btn').forEach(function(btn) {
+        var isMatch = Number(btn.dataset.sizeidx) === matchedIdx;
+        btn.classList.toggle('selected', isMatch);
+        if (isMatch) {
+          apw.hiSize = btn.dataset.sizeidx;
+          apw.hiSizeLabel = matched.label;
+          apw.hiSizePrice = Number(matched.price) || 0;
+        }
+      });
+    }
+  }
+  /* Pre-select year built if Rentcast returned yearBuilt */
+  var yb = apw.rentcastYearBuilt;
+  if (yb) {
+    var cfg2 = apw.cfg || {};
+    var surcharges = cfg2.yearBuiltSurcharges || [];
+    var matchedYB = null, matchedIdx = -1;
+    surcharges.forEach(function(s, i) {
+      // Config stores min_year/max_year (snake_case from DB), support both forms
+      var minY = s.min_year != null ? s.min_year : (s.minYear != null ? s.minYear : 0);
+      var maxY = s.max_year != null ? s.max_year : (s.maxYear != null ? s.maxYear : 9999);
+      if (yb >= minY && yb <= maxY) { matchedYB = s; matchedIdx = i; }
+    });
+    if (matchedYB) {
+      var ybRow = document.getElementById('apwYBRow');
+      ybRow.querySelectorAll('.apw-yb-pill').forEach(function(pill) {
+        var isMatch = Number(pill.dataset.ybidx) === matchedIdx;
+        pill.classList.toggle('selected', isMatch);
+        if (isMatch) {
+          apw.hiYB = String(matchedIdx);
+          apw.hiYBLabel = matchedYB.label;
+          apw.hiYBSurcharge = Number(matchedYB.surcharge) || 0;
+        }
+      });
+    }
+  }
+  apwCalcTotal();
+}
+
+/* \u2500\u2500 New Construction panel \u2500\u2500 */
+function apwBuildNCPanel() {
+  var cfg = apw.cfg || {};
+  var ncItems = (cfg.newConstructionItems || []).filter(function(it) { return it.active !== false; });
+  var phases = ncItems.filter(function(it) { return !it.isBundle; });
+  var bundle = ncItems.find(function(it) { return it.isBundle; }) || null;
+  var ncIcons = { 'Pre Pour':'\ud83e\udea8','Pre Drywall':'\ud83d\udd28','Final Walkthrough':'\ud83c\udfc1' };
+  var grid = document.getElementById('apwNCGrid');
+
+  var items = phases.slice();
+  if (bundle) {
+    var savings = phases.reduce(function(s,p){return s+Number(p.price||0);},0) - Number(bundle.price||0);
+    items.push({ id:'__bundle__', name:(bundle.name||'Full Bundle'), price:bundle.price||0, _savings:savings, isBundle:true });
+  }
+  if (!items.length) {
+    // Fallback
+    items = [
+      {id:'Pre Pour',name:'Pre Pour',price:0},{id:'Pre Drywall',name:'Pre Drywall',price:0},{id:'Final Walkthrough',name:'Final Walkthrough',price:0}
+    ];
+  }
+
+  grid.innerHTML = items.map(function(it) {
+    var icon = ncIcons[it.name] || (it.isBundle ? '\ud83d\udce6' : '\ud83c\udfd7\ufe0f');
+    var sub = it.isBundle && it._savings > 0 ? '<span style="font-size:11px;color:rgba(255,255,255,0.4);">All 3 phases \u00b7 save $' + it._savings + '</span>' : '';
+    return '<button class="apw-phase-btn" data-pid="' + it.id + '" data-plabel="' + (it.name||'').replace(/"/g,'&quot;') + '" data-pprice="' + (it.price||0) + '">' +
+      '<span>' + icon + ' ' + (it.name||'') + (sub ? '<br>' + sub : '') + '</span>' +
+      '<span class="apw-phase-price">$' + (it.price||0) + '</span>' +
+    '</button>';
+  }).join('');
+
+  grid.querySelectorAll('.apw-phase-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      grid.querySelectorAll('.apw-phase-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      apw.ncPhase = btn.dataset.pid;
+      apw.ncPhaseLabel = btn.dataset.plabel;
+      apw.ncPhasePrice = Number(btn.dataset.pprice) || 0;
+      apwCalcTotal();
+    });
+  });
+}
+
+/* \u2500\u2500 Home Health Check panel \u2500\u2500 */
+function apwBuildHHCPanel() {
+  var cfg = apw.cfg || {};
+  var hcTiers = (cfg.healthCheckTiers || []).filter(function(t) { return t.active !== false; });
+  var grid = document.getElementById('apwHHCGrid');
+  if (!hcTiers.length) { grid.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">No tiers configured.</p>'; return; }
+  grid.innerHTML = hcTiers.map(function(t) {
+    return '<button class="apw-tier-btn" data-hid="' + t.id + '" data-hlabel="' + (t.name||'').replace(/"/g,'&quot;') + '" data-hprice="' + (t.price||0) + '">' +
+      '<span>\ud83d\udc9a ' + (t.name||'') + '</span>' +
+      '<span class="apw-phase-price">$' + (t.price||0) + '</span>' +
+    '</button>';
+  }).join('');
+  grid.querySelectorAll('.apw-tier-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      grid.querySelectorAll('.apw-tier-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      apw.hhcTier = btn.dataset.hid;
+      apw.hhcTierLabel = btn.dataset.hlabel;
+      apw.hhcTierPrice = Number(btn.dataset.hprice) || 0;
+      apwCalcTotal();
+    });
+  });
+}
+
+/* \u2500\u2500 Standalone Add-On panel \u2500\u2500 */
+function apwBuildSAPanel() {
+  var cfg = apw.cfg || {};
+  var P = cfg.pricing || {};
+  var addons = (P.addonServices || []).filter(function(a) { return a.active !== false; });
+  apwRenderAddonList('apwSAAddonsList', addons, 'sa');
+}
+
+/* \u2500\u2500 Shared addon list builder \u2500\u2500 */
+function apwBuildAllAddonLists() {
+  var cfg = apw.cfg || {};
+  var P = cfg.pricing || {};
+  var addons = (P.addonServices || []).filter(function(a) { return a.active !== false; });
+  if (!addons.length) {
+    ['apwHIAddonsSection','apwNCAddonsSection','apwHHCAddonsSection'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  } else {
+    apwRenderAddonList('apwHIAddonsList', addons, 'hi');
+    apwRenderAddonList('apwNCAddonsList', addons, 'nc');
+    apwRenderAddonList('apwHHCAddonsList', addons, 'hhc');
+  }
+}
+
+function apwRenderAddonList(containerId, addons, prefix) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  if (!addons.length) { container.parentElement.style.display='none'; return; }
+  container.innerHTML = addons.map(function(a, i) {
+    var safeN = (a.name||'').replace(/"/g,'&quot;');
+    return '<div class="apw-addon-row" data-prefix="' + prefix + '" data-idx="' + i + '" data-name="' + safeN + '" data-price="' + (a.price||0) + '">' +
+      '<div class="apw-addon-check">\u2713</div>' +
+      '<span class="apw-addon-name">' + (a.name||'') + '</span>' +
+      '<span class="apw-addon-price">+$' + (a.price||0) + '</span>' +
+    '</div>';
+  }).join('');
+  container.querySelectorAll('.apw-addon-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+      var name = row.dataset.name;
+      var price = Number(row.dataset.price);
+      var idx = apw.addons.findIndex(function(a) { return a.name === name; });
+      if (idx >= 0) { apw.addons.splice(idx,1); row.classList.remove('selected'); }
+      else { apw.addons.push({name:name,price:price}); row.classList.add('selected'); }
+      apwCalcTotal();
+    });
+  });
+}
+
+/* \u2500\u2500 Total calculation \u2500\u2500 */
+function apwCalcTotal() {
+  var base = 0, baseLabel = '';
+  if (apw.category === 'home-inspection') {
+    base = apw.hiSizePrice;
+    baseLabel = [apw.hiTypeLabel, apw.hiSizeLabel].filter(Boolean).join(' \u2014 ');
+  } else if (apw.category === 'new-construction') {
+    base = apw.ncPhasePrice;
+    baseLabel = apw.ncPhaseLabel || '';
+  } else if (apw.category === 'home-health-check') {
+    base = apw.hhcTierPrice;
+    baseLabel = apw.hhcTierLabel || '';
+  } else if (apw.category === 'standalone-addon') {
+    base = 0; baseLabel = '';
+  }
+
+  var yb = apw.hiYBSurcharge || 0;
+  var addonTotal = apw.addons.reduce(function(s,a){return s+a.price;},0);
+  var subtotal = base + yb + addonTotal;
+
+  var ag = window._apAgent;
+  var agentDisc = (apw.category === 'home-inspection' && ag && ag.booking_discount > 0)
+    ? Math.min(Number(ag.booking_discount), subtotal) : 0;
+  var afterAgent = subtotal - agentDisc;
+
+  var couponAmt = 0;
+  if (apw.coupon) {
+    if (apw.coupon.type === 'percent') couponAmt = Math.round(afterAgent * apw.coupon.value / 100);
+    else couponAmt = Math.min(apw.coupon.value, afterAgent);
+  }
+  apw.couponDiscount = couponAmt;
+  apw.total = afterAgent - couponAmt;
+
+  var html = '';
+  if (baseLabel) html += '<div class="apw-price-line"><span>' + baseLabel + '</span><span>$' + base + '</span></div>';
+  if (yb > 0) html += '<div class="apw-price-line"><span>Older Home Surcharge (' + (apw.hiYBLabel||'') + ')</span><span>+$' + yb + '</span></div>';
+  apw.addons.forEach(function(a) { html += '<div class="apw-price-line"><span>' + a.name + '</span><span>+$' + a.price + '</span></div>'; });
+  if (agentDisc > 0) html += '<div class="apw-price-line green"><span>Agent Portal Booking Discount</span><span>-$' + agentDisc + '</span></div>';
+  if (couponAmt > 0) html += '<div class="apw-price-line green"><span>Coupon (' + apw.coupon.code + ')</span><span>-$' + couponAmt + '</span></div>';
+
+  var priceLines = document.getElementById('apwPriceLines');
+  var totalEl    = document.getElementById('apwTotal');
+  if (priceLines) priceLines.innerHTML = html;
+  if (totalEl)    totalEl.textContent = '$' + apw.total;
+}
+
+/* \u2500\u2500 Step 2 next \u2500\u2500 */
+document.getElementById('apwNext1').addEventListener('click', function() {
+  var err = document.getElementById('apwErr1');
+  if (!apw.category) { err.textContent = 'Please select a service category.'; return; }
+  if (apw.category === 'home-inspection') {
+    if (!apw.hiType)  { err.textContent = 'Please select Pre Purchase or Pre Listing.'; return; }
+    if (!apw.hiSize)  { err.textContent = 'Please select a home size.'; return; }
+    if (!apw.hiYB && (apw.cfg && apw.cfg.yearBuiltSurcharges && apw.cfg.yearBuiltSurcharges.length))
+      { err.textContent = 'Please select a year built range.'; return; }
+  }
+  if (apw.category === 'new-construction' && !apw.ncPhase) { err.textContent = 'Please select an inspection phase.'; return; }
+  if (apw.category === 'home-health-check' && !apw.hhcTier) { err.textContent = 'Please select a tier.'; return; }
+  if (apw.category === 'standalone-addon' && apw.addons.length === 0) { err.textContent = 'Please select at least one add-on.'; return; }
+  err.textContent = '';
+  apwGoTo(2);
+});
+document.getElementById('apwBack1').addEventListener('click', function() { apwGoTo(0); });
+
+/* \u2550\u2550 STEP 3: CALENDAR \u2550\u2550 */
+/* ── Calendar / Slots — BookingTool ── */
+function apwInitCalendar() { BookingTool.initCalendar(apw); }
+function apwFetchBusy() {
+  apw.busyEvents = apw.busyEvents || [];
+  BookingTool.fetchBusy(apw, function() {
+    if (apw.step === 2) apwRenderCalendar();
+  });
+}
+function apwGetSlots(dateStr) { return BookingTool.getSlots(dateStr, apw); }
+function apwRenderCalendar() { BookingTool.renderCalendar(apw, { title:'apwCalTitle', prev:'apwCalPrev', next:'apwCalNext', days:'apwCalDays', timeSlots:'apwTimeSlots', timeGrid:'apwTimeGrid', timeTitle:'apwTimeTitle', dateHidden:'apw_date', timeHidden:'apw_time' }); }
+function apwRenderTimeSlots() { BookingTool.renderTimeSlots(apw, { title:'apwCalTitle', prev:'apwCalPrev', next:'apwCalNext', days:'apwCalDays', timeSlots:'apwTimeSlots', timeGrid:'apwTimeGrid', timeTitle:'apwTimeTitle', dateHidden:'apw_date', timeHidden:'apw_time' }, null); }
+
+document.getElementById('apwCalPrev').addEventListener('click', function() {
+  if (apw.calMonth === 0) { apw.calMonth = 11; apw.calYear--; } else { apw.calMonth--; }
+  apwRenderCalendar();
+});
+document.getElementById('apwCalNext').addEventListener('click', function() {
+  if (apw.calMonth === 11) { apw.calMonth = 0; apw.calYear++; } else { apw.calMonth++; }
+  apwRenderCalendar();
+});
+
+document.getElementById('apwNext2').addEventListener('click', function() {
+  var err = document.getElementById('apwErr2');
+  if (!apw.selectedDate) { err.textContent = 'Please select a date from the calendar.'; return; }
+  if (!apw.selectedTime) { err.textContent = 'Please select a time slot.'; return; }
+  err.textContent = '';
+  apwGoTo(3);
+});
+document.getElementById('apwBack2').addEventListener('click', function() { apwGoTo(1); });
+
+/* \u2550\u2550 STEP 4: REVIEW \u2550\u2550 */
+// NOTE: keep in sync with iwbRenderReview() in inspector-wizard.html
+function apwRenderReview() {
+  var fn = (document.getElementById('apw_firstName').value||'').trim();
+  var ln = (document.getElementById('apw_lastName').value||'').trim();
+  var em = (document.getElementById('apw_email').value||'').trim();
+  var ph = (document.getElementById('apw_phone').value||'').trim();
+  var ca = (document.getElementById('apw_currentAddress').value||'').trim();
+  var ad = (document.getElementById('apw_address').value||'').trim();
+
+  document.getElementById('apwRevClient').textContent = [fn+' '+ln, em, ph].filter(Boolean).join(' \u00b7 ');
+  document.getElementById('apwRevCurrentAddr').textContent = ca || '\u2014';
+  document.getElementById('apwRevAddress').textContent = ad || '\u2014';
+
+  var svcParts = [];
+  if (apw.category === 'home-inspection') {
+    if (apw.hiTypeLabel) svcParts.push(apw.hiTypeLabel);
+    if (apw.hiSizeLabel) svcParts.push(apw.hiSizeLabel);
+    if (apw.hiYBLabel) svcParts.push('Built: ' + apw.hiYBLabel);
+  } else if (apw.category === 'new-construction') {
+    if (apw.ncPhaseLabel) svcParts.push('New Construction \u2014 ' + apw.ncPhaseLabel);
+  } else if (apw.category === 'home-health-check') {
+    if (apw.hhcTierLabel) svcParts.push('Home Health Check \u2014 ' + apw.hhcTierLabel);
+  } else if (apw.category === 'standalone-addon') {
+    svcParts.push('Standalone Add-On(s)');
+  }
+  if (apw.addons.length) svcParts.push(apw.addons.map(function(a){return a.name;}).join(', '));
+  document.getElementById('apwRevService').textContent = svcParts.join(' \u00b7 ') || '\u2014';
+
+  var dObj = apw.selectedDate ? new Date(apw.selectedDate+'T12:00:00') : null;
+  var dtStr = dObj ? dObj.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : '\u2014';
+  if (apw.selectedTime) dtStr += ' at ' + apw.selectedTime;
+  document.getElementById('apwRevDateTime').textContent = dtStr;
+
+  // Re-render price lines in review
+  var base = 0, baseLabel = '';
+  if (apw.category === 'home-inspection') { base=apw.hiSizePrice; baseLabel=[apw.hiTypeLabel,apw.hiSizeLabel].filter(Boolean).join(' \u2014 '); }
+  else if (apw.category === 'new-construction') { base=apw.ncPhasePrice; baseLabel=apw.ncPhaseLabel||''; }
+  else if (apw.category === 'home-health-check') { base=apw.hhcTierPrice; baseLabel=apw.hhcTierLabel||''; }
+
+  var yb=apw.hiYBSurcharge||0;
+  var ag=window._apAgent;
+  var agentDisc=(apw.category==='home-inspection'&&ag&&ag.booking_discount>0)?Math.min(Number(ag.booking_discount),base+yb+apw.addons.reduce(function(s,a){return s+a.price;},0)):0;
+  var subtotal=base+yb+apw.addons.reduce(function(s,a){return s+a.price;},0)-agentDisc;
+  var couponAmt=apw.couponDiscount||0;
+  var finalTotal=subtotal-couponAmt;
+
+  var html='';
+  if(baseLabel) html+='<div class="apw-price-line"><span>'+baseLabel+'</span><span>$'+base+'</span></div>';
+  if(yb>0) html+='<div class="apw-price-line"><span>Older Home Surcharge ('+apw.hiYBLabel+')</span><span>+$'+yb+'</span></div>';
+  apw.addons.forEach(function(a){html+='<div class="apw-price-line"><span>'+a.name+'</span><span>+$'+a.price+'</span></div>';});
+  if(agentDisc>0) html+='<div class="apw-price-line green"><span>Agent Portal Booking Discount</span><span>-$'+agentDisc+'</span></div>';
+  if(couponAmt>0&&apw.coupon) html+='<div class="apw-price-line green"><span>Coupon ('+apw.coupon.code+')</span><span>-$'+couponAmt+'</span></div>';
+
+  document.getElementById('apwRevPriceLines').innerHTML = html;
+  document.getElementById('apwRevTotal').textContent = '$' + finalTotal;
+  apw.total = finalTotal;
+}
+
+/* \u2500\u2500 Coupon \u2500\u2500 */
+document.getElementById('apwApplyCoupon').addEventListener('click', function() {
+  var code = (document.getElementById('apw_coupon').value||'').trim().toUpperCase();
+  var msgEl = document.getElementById('apwCouponMsg');
+  msgEl.style.color = '#e74c3c';
+  if (!code) { msgEl.textContent = 'Enter a coupon code.'; return; }
+  var coupons = (apw.cfg && apw.cfg.coupons) ? apw.cfg.coupons : [];
+  var match = coupons.find(function(c) { return c.code.toUpperCase()===code && c.active!==false; });
+  if (!match) { msgEl.textContent = 'Code not found or inactive.'; apw.coupon=null; apw.couponDiscount=0; apwRenderReview(); return; }
+  apw.coupon = match;
+  msgEl.style.color = '#27ae60';
+  msgEl.textContent = match.type==='percent' ? match.value+'% off applied!' : '$'+match.value+' off applied!';
+  apwCalcTotal();
+  apwRenderReview();
+});
+
+document.getElementById('apwBack3').addEventListener('click', function() { apwGoTo(2); });
+
+/* \u2550\u2550 SUBMIT \u2550\u2550 */
+document.getElementById('apwSubmitBtn').addEventListener('click', async function() {
+  var btn = document.getElementById('apwSubmitBtn');
+  var err = document.getElementById('apwErr3');
+  err.textContent = '';
+  btn.disabled = true;
+  btn.textContent = '\u23f3 Sending request...';
+
+  try {
+    var firstName = (document.getElementById('apw_firstName').value||'').trim();
+    var lastName  = (document.getElementById('apw_lastName').value||'').trim();
+    var email     = (document.getElementById('apw_email').value||'').trim().toLowerCase();
+    var phone     = (document.getElementById('apw_phone').value||'').trim();
+    var currAddr  = (document.getElementById('apw_currentAddress').value||'').trim();
+    var address   = (document.getElementById('apw_address').value||'').trim();
+    var date      = document.getElementById('apw_date').value;
+    var time      = document.getElementById('apw_time').value;
+
+    var ag = window._apAgent;
+    var agentDisc = (apw.category==='home-inspection'&&ag&&ag.booking_discount>0)
+      ? Math.min(Number(ag.booking_discount), apw.total + (apw.couponDiscount||0) + Number(ag.booking_discount))
+      : 0;
+
+    // Derive category key
+    var recCat = apw.category==='home-inspection'?'home_inspection'
+               : apw.category==='new-construction'?'new_construction'
+               : apw.category==='home-health-check'?'home_health_check'
+               : 'standalone_addon';
+
+    // Services array
+    var base = 0, baseLabel = '';
+    if (apw.category==='home-inspection') { base=apw.hiSizePrice; baseLabel=[apw.hiTypeLabel,apw.hiSizeLabel].filter(Boolean).join(' \u2014 '); }
+    else if (apw.category==='new-construction') { base=apw.ncPhasePrice; baseLabel=apw.ncPhaseLabel||''; }
+    else if (apw.category==='home-health-check') { base=apw.hhcTierPrice; baseLabel=apw.hhcTierLabel||''; }
+
+    var services = [];
+    if (baseLabel) services.push({ name: baseLabel, price: base });
+    apw.addons.forEach(function(a) { services.push({ name:a.name, price:a.price }); });
+
+    var addrParts = address.split(',').map(function(s){return s.trim();});
+    var stateZip = address.match(/,\s*([A-Z]{2})\s+(\d{5})/);
+
+    var booking = {
+      data_source:      'agent_portal',
+      status:           'scheduled',
+      client_name:      (firstName+' '+lastName).trim(),
+      client_email:     email,
+      client_phone:     phone||null,
+      property_address: address,
+
+      services:         services,
+      base_price:       base,
+      addons_total:     apw.addons.reduce(function(s,a){return s+a.price;},0),
+      discount_amount:  agentDisc||null,
+      coupon_code:      apw.coupon?apw.coupon.code:null,
+      coupon_discount:  apw.couponDiscount||0,
+      final_total:      apw.total,
+      preferred_date:   date||null,
+      preferred_time:   time||null,
+      agent_id:         ag?ag.id:null,
+
+    };
+
+    // Inspection record payload (booking_id will be set by the function)
+    var recPayload = {
+      inspector_name:   null,
+      inspector_id:     null,
+      agent_id:         ag?ag.id:null,
+      category:         recCat,
+      tier:             apw.hiType||apw.ncPhase||apw.hhcTier||null,
+      status:           'scheduled',
+      inspection_date:  date||null,
+      cust_name:        (firstName+' '+lastName).trim(),
+      cust_email:       email,
+      cust_phone:       phone||null,
+      address:          address,
+      payment_status:   'unpaid',
+      final_total:      apw.total,
+    };
+
+    // Calendar payload forwarded by the function after booking_id is known
+    var calPayload = {
+      firstName:firstName, lastName:lastName, phone:phone, email:email,
+      address:address, date:date, time:time,
+      inspectionCategoryName: apw.category==='home-inspection'?'Home Inspection'
+        :apw.category==='new-construction'?'New Construction'
+        :apw.category==='home-health-check'?'Home Health Check':'Add-On',
+      services:services, total:apw.total,
+      agentName:ag?ag.name:null, agentPhone:ag?ag.phone:null,
+    };
+
+    // Single server-side call — no anon key touches PII tables
+    var bRes = await fetch('/.netlify/functions/agent-submit-booking', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ portal_token: _apToken, booking: booking, record: recPayload, calendar: calPayload })
+    });
+    var bData = await bRes.json();
+    if (!bRes.ok || !bData.booking_id) throw new Error(bData.error || 'Booking failed');
+    var bookingId = bData.booking_id;
+
+    // Show success
+    [0,1,2,3].forEach(function(i){var el=document.getElementById('apwStep'+i);if(el)el.style.display='none';});
+    document.getElementById('apwSuccess').style.display = 'block';
+    var dObj2 = date ? new Date(date+'T12:00:00') : null;
+    var dtDisp = dObj2 ? dObj2.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : '';
+    if (time) dtDisp += ' at ' + time;
+    document.getElementById('apwSuccessMsg').innerHTML =
+      'Inspection request sent for <strong>'+firstName+' '+lastName+'</strong>.<br>' +
+      (dtDisp ? dtDisp+'<br>' : '') +
+      '<span style="color:rgba(255,255,255,0.4);font-size:13px;">Heartland will confirm within 24 hours.</span>';
+    apwUpdateProgress(4);
+
+  } catch(e) {
+    err.textContent = 'Error: ' + e.message;
+    btn.disabled = false;
+    btn.textContent = '\ud83d\ude80 Send Inspection Request';
+  }
+});
+
+/* \u2500\u2500 Book Another \u2500\u2500 */
+document.getElementById('apwBookAnother').addEventListener('click', function() {
+  // Reset state
+  apw.category=null; apw.hiType=null; apw.hiTypeLabel=null; apw.hiSize=null; apw.hiSizeLabel=null; apw.hiSizePrice=0;
+  apw.hiYB=null; apw.hiYBLabel=null; apw.hiYBSurcharge=0;
+  apw.ncPhase=null; apw.ncPhaseLabel=null; apw.ncPhasePrice=0;
+  apw.hhcTier=null; apw.hhcTierLabel=null; apw.hhcTierPrice=0;
+  apw.addons=[]; apw.coupon=null; apw.couponDiscount=0; apw.total=0;
+  apw.selectedDate=null; apw.selectedTime=null;
+  apw.rentcastYearBuilt=null; apw.rentcastSqft=null;
+  // Clear form inputs
+  ['apw_firstName','apw_lastName','apw_email','apw_phone','apw_coupon'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  ['apw_currentAddress','apw_address','apw_date','apw_time'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  // Reset Geoapify widgets
+  if (apw._acCurr) { try { apw._acCurr.setValue(''); } catch(e){} }
+  if (apw._acInsp) { try { apw._acInsp.setValue(''); } catch(e){} }
+  // Reset UI
+  document.getElementById('apwCouponMsg').textContent = '';
+  document.getElementById('apwPricingPanel').style.display = 'none';
+  document.getElementById('apwDiscountBanner').style.display = 'none';
+  document.getElementById('apwErr0').textContent = '';
+  document.getElementById('apwSuccess').style.display = 'none';
+  apwGoTo(0);
+});
+})();
+
+</script>
+
+</body>
+</html>

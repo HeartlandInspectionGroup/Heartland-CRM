@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspection Invoice | Heartland Inspection Group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #15516d;
+    --navy2:  #1a2a44;
+    --green:  #27ae60;
+    --orange: #f59321;
+    --red:    #e74c3c;
+    --white:  #ffffff;
+    --bg:     #f0f4f7;
+    --text:   #1a2530;
+    --muted:  #6b7d8a;
+    --border: #dde4ea;
+  }
+
+  body {
+    font-family: 'Work Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .ri-header {
+    background: var(--navy2);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ri-header img { height: 38px; }
+  .ri-header-text { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
+
+  .ri-main {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px 60px;
+  }
+
+  .ri-card {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* ── CARD HEADER ── */
+  .ri-card-head {
+    background: var(--navy);
+    padding: 32px 32px 28px;
+  }
+  .ri-card-head-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .ri-card-head h1 {
+    font-family: 'Crimson Pro', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.1;
+  }
+  .ri-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ri-status-badge.paid    { background: rgba(39,174,96,0.2);  color: #4ade80; }
+  .ri-status-badge.unpaid  { background: rgba(245,147,33,0.2); color: #fbbf24; }
+  .ri-status-badge.waived  { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+
+  .ri-card-head-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ri-card-head-address {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+  }
+  .ri-card-head-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ── BODY ── */
+  .ri-body { padding: 28px 32px 32px; }
+
+  .ri-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* Client info row */
+  .ri-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .ri-info-item {}
+  .ri-info-item-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+  .ri-info-item-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* Line items */
+  .ri-lines { margin-bottom: 20px; }
+  .ri-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .ri-line:last-child { border-bottom: none; }
+  .ri-line-name { color: var(--text); font-weight: 500; }
+  .ri-line-price { font-weight: 600; color: var(--navy); }
+
+  .ri-divider { border: none; border-top: 2px solid var(--border); margin: 4px 0 8px; }
+
+  /* Total row */
+  .ri-total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0 0;
+    border-top: 2px solid var(--navy2);
+    margin-top: 4px;
+  }
+  .ri-total-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ri-total-amount {
+    font-family: 'Crimson Pro', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--navy2);
+  }
+
+  /* Payment record */
+  .ri-payment-block {
+    margin-top: 24px;
+    background: #f0f9f4;
+    border: 1.5px solid #b7e4c7;
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .ri-payment-block.unpaid {
+    background: #fff8f0;
+    border-color: #fcd9a0;
+  }
+  .ri-payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 3px 0;
+  }
+  .ri-payment-row-label { color: var(--muted); }
+  .ri-payment-row-value { font-weight: 600; color: var(--text); }
+  .ri-payment-row-value.green { color: var(--green); }
+  .ri-payment-row-value.orange { color: var(--orange); }
+
+  /* Print / actions */
+  .ri-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .ri-btn {
+    flex: 1;
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition: opacity 0.15s;
+  }
+  .ri-btn:hover { opacity: 0.85; }
+  .ri-btn-primary { background: var(--navy2); color: #fff; }
+  .ri-btn-outline { background: #fff; color: var(--navy2); border: 2px solid var(--navy2); }
+
+  /* Loading / error states */
+  .ri-state {
+    padding: 60px 32px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .ri-state-icon { font-size: 40px; margin-bottom: 12px; }
+  .ri-state h2 { font-family: 'Crimson Pro', serif; font-size: 22px; color: var(--text); margin-bottom: 8px; }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .ri-footer {
+    background: var(--navy2);
+    padding: 20px 24px;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+  }
+  .ri-footer a { color: rgba(255,255,255,0.55); text-decoration: none; }
+  .ri-footer a:hover { color: #fff; }
+
+  @media print {
+    .ri-header, .ri-footer, .ri-actions { display: none !important; }
+    body { background: #fff; }
+    .ri-main { padding: 0; }
+    .ri-card { box-shadow: none; border-radius: 0; }
+  }
+
+  @media (max-width: 540px) {
+    .ri-card-head, .ri-body { padding-left: 20px; padding-right: 20px; }
+    .ri-info-grid { grid-template-columns: 1fr; }
+    .ri-total-amount { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ri-header">
+  <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group">
+  <span class="ri-header-text">INSPECTION INVOICE</span>
+</div>
+
+<div class="ri-main">
+  <div class="ri-card">
+
+    <!-- Loading state -->
+    <div class="ri-state" id="riLoading">
+      <div class="spinner"></div>
+      Loading invoice&hellip;
+    </div>
+
+    <!-- Error state -->
+    <div class="ri-state" id="riError" style="display:none;">
+      <div class="ri-state-icon">⚠️</div>
+      <h2>Invoice Not Found</h2>
+      <p id="riErrorMsg">This invoice could not be loaded.</p>
+    </div>
+
+    <!-- Invoice content -->
+    <div id="riContent" style="display:none;">
+
+      <div class="ri-card-head">
+        <div class="ri-card-head-top">
+          <h1>Invoice</h1>
+          <span class="ri-status-badge" id="riStatusBadge">—</span>
+        </div>
+        <div class="ri-card-head-meta">
+          <div class="ri-card-head-address" id="riAddress">—</div>
+          <div class="ri-card-head-sub" id="riSubLine">—</div>
+        </div>
+      </div>
+
+      <div class="ri-body">
+
+        <!-- Client / Inspection info -->
+        <div class="ri-section-label">Inspection Details</div>
+        <div class="ri-info-grid">
+          <div class="ri-info-item">
+            <div class="ri-info-item-label">Client</div>
+            <div class="ri-info-item-value" id="riClient">—</div>
+          </div>
+          <div class="ri-info-item">
+            <div class="ri-info-item-label">Inspector</div>
+            <div class="ri-info-item-value" id="riInspector">—</div>
+          </div>
+          <div class="ri-info-item">
+            <div class="ri-info-item-label">Date</div>
+            <div class="ri-info-item-value" id="riDate">—</div>
+          </div>
+          <div class="ri-info-item">
+            <div class="ri-info-item-label">Service</div>
+            <div class="ri-info-item-value" id="riService">—</div>
+          </div>
+        </div>
+
+        <!-- Line items -->
+        <div class="ri-section-label">Services</div>
+        <div class="ri-lines" id="riLines">
+          <!-- filled by JS -->
+        </div>
+
+        <!-- Total -->
+        <div class="ri-total-row">
+          <span class="ri-total-label">Total</span>
+          <span class="ri-total-amount" id="riTotal">—</span>
+        </div>
+
+        <!-- Payment record -->
+        <div class="ri-payment-block" id="riPaymentBlock">
+          <!-- filled by JS -->
+        </div>
+
+        <!-- Actions -->
+        <div class="ri-actions">
+          <button class="ri-btn ri-btn-outline" onclick="window.print()">🖨 Print</button>
+          <button class="ri-btn ri-btn-primary" id="riReportBtn" onclick="goToReport()" style="display:none;">📋 View Report</button>
+          <button class="ri-btn ri-btn-outline" id="riCopyBtn" onclick="copyLink()">🔗 Copy Link</button>
+        </div>
+
+      </div>
+    </div><!-- /riContent -->
+
+  </div>
+</div>
+
+<div class="ri-footer">
+  <a href="tel:8153298583">(815) 329-8583</a>
+  &nbsp;&middot;&nbsp;
+  <a href="mailto:info@heartlandinspectiongroup.com">info@heartlandinspectiongroup.com</a>
+  &nbsp;&middot;&nbsp;
+  <a href="https://heartlandinspectiongroup.com">heartlandinspectiongroup.com</a>
+</div>
+
+<script>
+(function() {
+  var SUPABASE_URL  = 'https://fusravedbksupcsjfzda.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1c3JhdmVkYmtzdXBjc2pmemRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzMxMTEsImV4cCI6MjA4Njk0OTExMX0.DOZAe6PNWKnKtrrlfCGWjyOMnmbdp92Vssj9ahUhvcU';
+
+  var recordId  = null;
+  var reportUrl = null;
+
+  function qs(id) { return document.getElementById(id); }
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmt(n) {
+    var num = parseFloat(n);
+    if (isNaN(num)) return '—';
+    return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtDate(s) {
+    if (!s) return '—';
+    return new Date(s + 'T12:00:00').toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+    });
+  }
+
+  function showError(msg) {
+    qs('riLoading').style.display = 'none';
+    qs('riError').style.display = '';
+    qs('riErrorMsg').textContent = msg || 'This invoice could not be loaded.';
+  }
+
+  function showContent() {
+    qs('riLoading').style.display = 'none';
+    qs('riContent').style.display = '';
+  }
+
+  // Derive a human-readable service name from category + tier
+  function serviceName(cat, tier) {
+    var ADDON_NAMES = {
+      'Radon': 'Radon Testing',
+      'Sewer Scope': 'Sewer Scope Inspection',
+      'Mold': 'Mold / Air Quality Testing',
+      'Water Quality': 'Water Quality Testing',
+      'Thermal': 'Thermal Imaging',
+      'WDO': 'WDO / Termite Inspection'
+    };
+    if (cat === 'addon') return ADDON_NAMES[tier] || tier || 'Add-On Service';
+    if (cat === 'home_inspection') return 'Home Inspection — ' + (tier || 'Standard');
+    if (cat === 'new_construction') return 'New Construction — ' + (tier || 'Standard');
+    if (cat === 'home_health_check') return 'Home Health Check — ' + (tier || 'Standard');
+    return tier || 'Inspection';
+  }
+
+  // Build payment status badge + block from inspection_records fields
+  function renderPayment(r) {
+    var method  = r.payment_method  || '';
+    var amount  = parseFloat(r.invoice_amount || 0);
+    var hasPaid = !!method;
+
+    // Status badge
+    var badge = qs('riStatusBadge');
+    if (!amount || amount === 0) {
+      badge.textContent = 'No Charge';
+      badge.className   = 'ri-status-badge waived';
+    } else if (hasPaid) {
+      badge.textContent = '✓ Paid';
+      badge.className   = 'ri-status-badge paid';
+    } else {
+      badge.textContent = 'Unpaid';
+      badge.className   = 'ri-status-badge unpaid';
+    }
+
+    // Payment block
+    var block = qs('riPaymentBlock');
+    if (!amount || amount === 0) {
+      block.style.display = 'none';
+      return;
+    }
+
+    if (hasPaid) {
+      block.className = 'ri-payment-block';
+      block.innerHTML =
+        '<div class="ri-payment-row">' +
+          '<span class="ri-payment-row-label">Payment method</span>' +
+          '<span class="ri-payment-row-value">' + esc(method) + '</span>' +
+        '</div>' +
+        (r.stripe_payment_id ? (
+          '<div class="ri-payment-row">' +
+            '<span class="ri-payment-row-label">Transaction ID</span>' +
+            '<span class="ri-payment-row-value" style="font-size:11px;font-family:monospace;">' + esc(r.stripe_payment_id) + '</span>' +
+          '</div>'
+        ) : '') +
+        '<div class="ri-payment-row" style="margin-top:6px;">' +
+          '<span class="ri-payment-row-label" style="font-weight:700;">Amount paid</span>' +
+          '<span class="ri-payment-row-value green" style="font-size:15px;">' + fmt(amount) + '</span>' +
+        '</div>';
+    } else {
+      block.className = 'ri-payment-block unpaid';
+      block.innerHTML =
+        '<div class="ri-payment-row">' +
+          '<span class="ri-payment-row-label" style="font-weight:700;">Balance due</span>' +
+          '<span class="ri-payment-row-value orange" style="font-size:15px;">' + fmt(amount) + '</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:8px;">Payment not yet recorded. Contact us at (815) 329-8583.</div>';
+    }
+  }
+
+  async function loadRecord() {
+    var params = new URLSearchParams(window.location.search);
+    recordId = params.get('id');
+
+    if (!recordId) { showError('No invoice ID provided.'); return; }
+
+    try {
+      var res = await fetch(
+        SUPABASE_URL + '/rest/v1/inspection_records?id=eq.' + recordId + '&select=*',
+        { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON } }
+      );
+      var rows = await res.json();
+      var r = rows && rows[0];
+      if (!r) { showError('Invoice not found. It may have been removed.'); return; }
+
+      // Store report URL for button
+      reportUrl = r.report_url || null;
+      if (reportUrl) qs('riReportBtn').style.display = '';
+
+      var svc = serviceName(r.category, r.tier);
+      var amount = parseFloat(r.invoice_amount || 0);
+
+      // Header
+      qs('riAddress').textContent = r.address || r.inspection_address || '—';
+      qs('riSubLine').textContent = svc + (r.inspection_date ? '  ·  ' + fmtDate(r.inspection_date) : '');
+
+      // Info grid
+      qs('riClient').textContent    = r.cust_name    || '—';
+      qs('riInspector').textContent = r.inspector_name || '—';
+      qs('riDate').textContent      = fmtDate(r.inspection_date);
+      qs('riService').textContent   = svc;
+
+      // Line items — build from what we know
+      var linesHtml = '';
+      linesHtml += '<div class="ri-line">'
+        + '<span class="ri-line-name">' + esc(svc) + '</span>'
+        + '<span class="ri-line-price">' + (amount ? fmt(amount) : 'See total') + '</span>'
+        + '</div>';
+
+      qs('riLines').innerHTML = linesHtml;
+      qs('riTotal').textContent = amount ? fmt(amount) : '—';
+
+      renderPayment(r);
+      showContent();
+
+    } catch(e) {
+      console.error(e);
+      showError('Could not load invoice. Please try again.');
+    }
+  }
+
+  window.goToReport = function() {
+    if (reportUrl) window.open(reportUrl, '_blank');
+  };
+
+  window.copyLink = function() {
+    var btn = qs('riCopyBtn');
+    navigator.clipboard.writeText(window.location.href).then(function() {
+      btn.textContent = '✓ Copied!';
+      setTimeout(function() { btn.textContent = '🔗 Copy Link'; }, 2000);
+    }).catch(function() {
+      btn.textContent = 'Copy failed';
+      setTimeout(function() { btn.textContent = '🔗 Copy Link'; }, 2000);
+    });
+  };
+
+  loadRecord();
+})();
+</script>
+
+</body>
+</html>

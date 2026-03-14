@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sewer Scope Inspection | Heartland Inspection Group | Roscoe, IL</title>
+    <meta name="description" content="Professional sewer scope camera inspection in Roscoe, IL. Identify blockages, damage, and potential sewer line issues.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <div id="site-header"></div>
+    <script src="../shared/header.js" data-base="../"></script>
+
+    <div class="breadcrumbs">
+        <div class="breadcrumb-container">
+            <a href="../index.html">Home</a>
+            <span>/</span>
+            <a href="../index.html#services">Services</a>
+            <span>/</span>
+            <span>Sewer Scope</span>
+        </div>
+    </div>
+
+    <section class="service-hero" data-section-id="hero" data-section-label="Hero">
+        <div class="service-hero-content">
+            <h1 data-edit-id="hero-title">Sewer Scope Inspection</h1>
+            <p class="subtitle" data-edit-id="hero-subtitle">See What's Happening Underground</p>
+            <p data-edit-id="hero-description">
+                A sewer scope inspection uses a specialized video camera to examine the interior of your sewer line from the house to the city connection. We identify blockages, root intrusion, cracks, bellies, and other issues that could lead to costly repairs — often costing $5,000 to $25,000 if left undetected.
+            </p>
+        </div>
+    </section>
+
+    <section class="video-section" data-section-id="video" data-section-label="Video">
+        <div class="video-container" style="text-align: center;">
+            <div class="section-header">
+                <div class="section-label" data-edit-id="video-label">Watch &amp; Learn</div>
+                <h2 class="section-title" data-edit-id="video-title">Understanding Sewer Scope Inspections</h2>
+            </div>
+            <div class="video-wrapper">
+                <iframe
+                    data-edit-id="video-url"
+                    src="https://www.youtube.com/embed/rVpbmHl9Mpc?si=5Eo5kRBKFrWyAvfJ"
+                    title="Understanding Sewer Scope Inspections"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section (loaded from Supabase) -->
+    <section class="service-faq" id="faq" data-section-id="faq" data-section-label="FAQ">
+        <div class="faq-container">
+            <div class="section-header">
+                <div class="section-label" data-edit-id="faq-label">Common Questions</div>
+                <h2 class="section-title" data-edit-id="faq-title">Sewer Scope FAQ</h2>
+            </div>
+            <div id="serviceFaqList"></div>
+        </div>
+    </section>
+
+    <section class="service-cta" data-section-id="cta" data-section-label="Call to Action">
+        <h2 data-edit-id="cta-title">Don't Let Sewer Problems Surprise You</h2>
+        <p data-edit-id="cta-description">Sewer line repairs are among the most expensive home repairs. A quick camera inspection can save you thousands.</p>
+        <div class="cta-buttons">
+            <a href="../index.html#bundle" class="btn-primary" data-edit-id="cta-button-primary" data-edit-link>Get Instant Quote</a>
+            <a href="../index.html#contact" class="btn-secondary" data-edit-id="cta-button-secondary" data-edit-link>Ask a Question</a>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+    <script src="../shared/footer.js" data-base="../"></script>
+    <!-- Service FAQ loader -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../shared/service-faq.js" data-slug="sewer-scope"></script>
+    <script src="../shared/inline-editor.js" defer></script>
+</body>
+</html>

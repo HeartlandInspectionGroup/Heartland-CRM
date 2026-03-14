@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /.netlify/
+Allow: /
+
+Sitemap: https://heartlandinspectiongroup.netlify.app/sitemap.xml

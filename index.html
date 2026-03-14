@@ -1,0 +1,3321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heartland Home Inspections | Roscoe, IL | Family. Trust. Hard Work.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+    /* ═══════════════════════════════════════════════════════════ */
+    /* BOOKING WIZARD STYLES                                       */
+    /* ═══════════════════════════════════════════════════════════ */
+    .wizard-section { padding: 80px 20px; background: var(--neutral-light); }
+    .wizard-outer { max-width: 720px; margin: 0 auto; }
+    .wizard-container {
+        background: var(--white); border-radius: 16px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+        overflow: hidden; margin-top: 40px;
+    }
+
+    /* ─── Progress Bar ─── */
+    .wizard-progress {
+        display: flex; align-items: center; justify-content: center;
+        gap: 0; padding: 28px 20px 32px;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    }
+    .wizard-step-indicator {
+        display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 68px;
+    }
+    .wizard-step-circle {
+        width: 38px; height: 38px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6);
+        font-weight: 700; font-size: 14px; font-family: 'Work Sans', sans-serif;
+        transition: all 0.3s ease;
+    }
+    .wizard-step-indicator.active .wizard-step-circle {
+        background: var(--accent); color: #fff;
+        box-shadow: 0 0 0 4px rgba(245,147,33,0.25);
+    }
+    .wizard-step-indicator.complete .wizard-step-circle {
+        background: var(--secondary); color: #fff;
+    }
+    .wizard-step-label {
+        font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.5);
+        font-family: 'Work Sans', sans-serif; text-transform: uppercase;
+        letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .wizard-step-indicator.active .wizard-step-label { color: #fff; font-weight: 700; }
+    .wizard-step-indicator.complete .wizard-step-label { color: rgba(255,255,255,0.7); }
+    .wizard-step-line {
+        width: 36px; height: 2px; background: rgba(255,255,255,0.2);
+        margin: 0 6px; margin-bottom: 22px; border-radius: 1px;
+        transition: background 0.3s ease;
+    }
+    .wizard-step-line.complete { background: var(--secondary); }
+
+    /* ─── Step Header ─── */
+    .wizard-step-header {
+        padding: 22px 28px 18px; border-bottom: 1px solid var(--neutral-warm);
+    }
+    .wizard-step-title {
+        font-family: 'Crimson Pro', serif; font-size: 24px; font-weight: 700;
+        color: var(--primary); margin: 0 0 4px;
+    }
+    .wizard-step-desc {
+        font-family: 'Work Sans', sans-serif; font-size: 14px;
+        color: var(--text-light); margin: 0;
+    }
+
+    /* ─── Panels ─── */
+    .wizard-panel-inner { padding: 28px 28px 12px; }
+
+    /* ─── Form Elements ─── */
+    .wiz-field-group { margin-bottom: 4px; }
+    .wiz-label {
+        display: block; font-family: 'Crimson Pro', serif; font-size: 19px;
+        font-weight: 600; color: var(--primary); margin-bottom: 10px;
+    }
+    .wiz-hint {
+        font-family: 'Work Sans', sans-serif; font-size: 13px;
+        color: var(--text-light); margin: -6px 0 14px;
+    }
+    .wiz-select {
+        width: 100%; padding: 14px 16px; font-size: 15px;
+        border: 2px solid var(--neutral-warm); border-radius: 10px;
+        background: var(--white); color: var(--text-dark);
+        font-family: 'Work Sans', sans-serif; cursor: pointer;
+        outline: none; transition: border-color 0.2s;
+    }
+    .wiz-select:focus { border-color: var(--primary); }
+    .wiz-input {
+        width: 100%; padding: 12px 14px; font-size: 15px;
+        border: 2px solid var(--neutral-warm); border-radius: 10px;
+        background: var(--white); color: var(--text-dark);
+        font-family: 'Work Sans', sans-serif; outline: none;
+        transition: border-color 0.2s; box-sizing: border-box;
+    }
+    .wiz-input:focus { border-color: var(--primary); }
+    .wiz-input.has-error { border-color: var(--red, #e03328); }
+    .wiz-req { color: var(--red, #e03328); }
+    .wiz-error {
+        display: block; font-family: 'Work Sans', sans-serif; font-size: 12px;
+        color: var(--red, #e03328); min-height: 16px; margin-top: 4px;
+    }
+
+    /* ─── Base Service Radios ─── */
+    .wiz-radio-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 16px 18px; border-radius: 10px;
+        border: 2px solid var(--neutral-warm); background: var(--white);
+        cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+    }
+    .wiz-radio-item:hover { border-color: var(--primary-light, var(--primary)); }
+    .wiz-radio-item.selected {
+        border-color: var(--primary);
+        background: color-mix(in srgb, var(--primary) 4%, white);
+    }
+    .wiz-radio-circle {
+        width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+        border: 2px solid var(--neutral-warm); display: flex;
+        align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .wiz-radio-item.selected .wiz-radio-circle {
+        border-color: var(--primary); background: var(--primary);
+    }
+    .wiz-radio-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: transparent; transition: background 0.2s;
+    }
+    .wiz-radio-item.selected .wiz-radio-dot { background: var(--white); }
+    .wiz-radio-info { flex: 1; }
+    .wiz-radio-name {
+        font-family: 'Work Sans', sans-serif; font-weight: 600;
+        font-size: 15px; color: var(--text-dark); display: block;
+    }
+    .wiz-radio-desc {
+        font-family: 'Work Sans', sans-serif; font-size: 12px;
+        color: var(--text-light); display: block; margin-top: 2px;
+    }
+    .wiz-radio-price {
+        font-family: 'Work Sans', sans-serif; font-weight: 600;
+        font-size: 15px; color: var(--secondary); flex-shrink: 0;
+    }
+
+    /* ─── Add-on Checkboxes ─── */
+    .wiz-addon-item { margin-bottom: 8px; border-radius: 10px; border: 2px solid var(--neutral-warm); overflow: hidden; transition: border-color 0.2s; }
+    .wiz-addon-item:hover { border-color: var(--secondary-light, var(--secondary)); }
+    .wiz-addon-item.selected { border-color: var(--secondary); background: color-mix(in srgb, var(--secondary) 3%, white); }
+    .wiz-checkbox-row {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 18px; cursor: pointer;
+    }
+    .wiz-check-box {
+        width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+        border: 2px solid var(--neutral-warm); display: flex;
+        align-items: center; justify-content: center;
+        transition: all 0.2s; color: var(--white);
+    }
+    .wiz-check-svg { width: 14px; height: 14px; opacity: 0; transition: opacity 0.2s; }
+    .wiz-addon-item.selected .wiz-check-box {
+        background: var(--secondary); border-color: var(--secondary);
+    }
+    .wiz-addon-item.selected .wiz-check-svg { opacity: 1; }
+    .wiz-addon-info { flex: 1; }
+    .wiz-addon-name {
+        font-family: 'Work Sans', sans-serif; font-weight: 500;
+        font-size: 15px; color: var(--text-dark);
+    }
+    .wiz-addon-subtext {
+        font-size: 12px; color: var(--text-light); font-weight: 400;
+        display: block; margin-top: 2px;
+    }
+    .wiz-addon-price {
+        font-family: 'Work Sans', sans-serif; font-weight: 600;
+        font-size: 15px; color: var(--text-dark); flex-shrink: 0;
+    }
+
+    /* Sub-items */
+    .wiz-sub-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 18px 10px 52px; background: var(--neutral-light);
+        border-top: 1px solid var(--neutral-warm); font-family: 'Work Sans', sans-serif; font-size: 13px;
+    }
+    .wiz-sub-name { flex: 1; color: var(--text-mid); font-weight: 500; }
+    .wiz-sub-price-each { color: var(--text-light); font-size: 12px; margin-right: 8px; }
+    .wiz-qty-controls { display: flex; align-items: center; gap: 0; }
+    .wiz-qty-btn {
+        width: 28px; height: 28px; border: 1px solid var(--neutral-warm);
+        background: var(--white); font-size: 16px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary); font-weight: 600; transition: background 0.15s;
+    }
+    .wiz-qty-btn:hover { background: var(--neutral-light); }
+    .wiz-qty-minus { border-radius: 6px 0 0 6px; }
+    .wiz-qty-plus { border-radius: 0 6px 6px 0; }
+    .wiz-qty-val {
+        width: 32px; text-align: center; border-top: 1px solid var(--neutral-warm);
+        border-bottom: 1px solid var(--neutral-warm); height: 28px; line-height: 28px;
+        font-weight: 600; color: var(--text-dark); font-size: 14px;
+    }
+    .wiz-sub-total { font-weight: 600; color: var(--text-dark); min-width: 48px; text-align: right; }
+
+    /* ─── Price Summary ─── */
+    .wiz-price-summary {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        border-radius: 14px; padding: 22px 24px; color: var(--white); margin-top: 8px;
+    }
+    .wiz-price-row {
+        display: flex; justify-content: space-between; padding: 4px 0;
+        font-family: 'Work Sans', sans-serif; font-size: 14px; opacity: 0.85;
+    }
+    .wiz-discount-row { color: var(--accent); opacity: 1; }
+    .wiz-price-total {
+        display: flex; justify-content: space-between; padding-top: 12px;
+        margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);
+        font-family: 'Crimson Pro', serif;
+    }
+    .wiz-price-total span:first-child { font-size: 20px; font-weight: 600; }
+    .wiz-price-total span:last-child { font-size: 26px; font-weight: 700; }
+    .wiz-savings-badge {
+        margin-top: 10px; padding: 6px 14px; background: var(--accent);
+        border-radius: 20px; display: inline-block; font-size: 12px;
+        font-weight: 700; font-family: 'Work Sans', sans-serif;
+    }
+
+    /* ─── Calendar ─── */
+    .wiz-calendar { margin-bottom: 20px; }
+    .wiz-cal-header {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+    }
+    .wiz-cal-title {
+        font-family: 'Crimson Pro', serif; font-size: 22px; font-weight: 600; color: var(--primary);
+    }
+    .wiz-cal-nav {
+        width: 38px; height: 38px; border-radius: 50%;
+        border: 1px solid var(--neutral-warm); background: var(--white);
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: var(--primary); transition: all 0.15s;
+    }
+    .wiz-cal-nav:hover { background: var(--neutral-light); }
+    .wiz-cal-weekdays {
+        display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px;
+    }
+    .wiz-cal-weekdays span {
+        text-align: center; font-family: 'Work Sans', sans-serif;
+        font-size: 11px; font-weight: 600; color: var(--text-light);
+        text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 0;
+    }
+    .wiz-cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .wiz-cal-cell {
+        aspect-ratio: 1; border-radius: 10px; display: flex;
+        flex-direction: column; align-items: center; justify-content: center;
+        font-family: 'Work Sans', sans-serif; font-size: 14px;
+        position: relative; transition: all 0.15s; border: none; gap: 2px;
+    }
+    .wiz-cal-cell.empty { background: transparent; }
+    .wiz-cal-cell.disabled { color: #ccc; cursor: default; }
+    .wiz-cal-cell.booked {
+        color: var(--text-light); cursor: default;
+        background: color-mix(in srgb, var(--accent) 10%, white);
+        position: relative;
+    }
+    .wiz-cal-cell.booked::after {
+        content: ''; position: absolute; top: 50%; left: 25%; right: 25%;
+        height: 1.5px; background: var(--accent); opacity: 0.5;
+    }
+    .wiz-cal-cell.available {
+        background: var(--white); cursor: pointer; color: var(--text-dark);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .wiz-cal-cell.available:hover {
+        background: color-mix(in srgb, var(--primary) 6%, white);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .wiz-cal-cell.selected {
+        background: var(--primary) !important; color: var(--white) !important;
+        font-weight: 700; box-shadow: 0 2px 8px rgba(21,81,109,0.3);
+    }
+    .wiz-cal-cell.today { font-weight: 700; }
+    .wiz-cal-dot {
+        width: 5px; height: 5px; border-radius: 50%;
+        background: var(--secondary); position: absolute; bottom: 5px;
+    }
+    .wiz-cal-legend {
+        display: flex; gap: 20px; margin-top: 16px; padding-top: 12px;
+        border-top: 1px solid var(--neutral-warm);
+    }
+    .wiz-legend-item {
+        display: flex; align-items: center; gap: 6px;
+        font-family: 'Work Sans', sans-serif; font-size: 12px; color: var(--text-light);
+    }
+    .wiz-legend-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+    }
+    .wiz-legend-dot.available { background: var(--secondary); }
+    .wiz-legend-dot.booked { background: var(--accent); }
+    .wiz-legend-dot.closed { background: #ddd; }
+    .wiz-cal-note {
+        margin-top: 16px; padding: 12px 16px;
+        background: color-mix(in srgb, var(--accent) 8%, white);
+        border-radius: 10px; border: 1px solid color-mix(in srgb, var(--accent) 20%, white);
+        font-family: 'Work Sans', sans-serif; font-size: 13px; color: var(--text-mid);
+    }
+
+    /* ─── Time Slots ─── */
+    .wiz-timeslot-title {
+        font-family: 'Crimson Pro', serif; font-size: 18px; font-weight: 600;
+        color: var(--primary); margin: 0 0 12px;
+    }
+    .wiz-timeslot-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px;
+    }
+    .wiz-time-btn {
+        padding: 12px 8px; border-radius: 10px;
+        border: 2px solid var(--neutral-warm); background: var(--white);
+        color: var(--text-dark); font-family: 'Work Sans', sans-serif;
+        font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+    }
+    .wiz-time-btn:hover { border-color: var(--accent); }
+    .wiz-time-btn.selected {
+        border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, white);
+        color: var(--accent); font-weight: 700;
+    }
+    .wiz-no-slots { font-family: 'Work Sans', sans-serif; font-size: 14px; color: var(--text-light); }
+
+    /* ─── Customer Form Grid ─── */
+    .wiz-info-intro {
+        font-family: 'Work Sans', sans-serif; font-size: 14px;
+        color: var(--text-mid); margin-bottom: 24px;
+    }
+    .wiz-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .wiz-half { grid-column: auto; }
+    .wiz-form-grid .wiz-field-group:not(.wiz-half) { grid-column: 1 / -1; }
+    @media (max-width: 500px) {
+        .wiz-form-grid { grid-template-columns: 1fr; }
+        .wiz-half { grid-column: auto; }
+        .wiz-label { font-size: 14px; margin-bottom: 4px; }
+        .wiz-field-group { margin-bottom: 6px; }
+        .wiz-input { padding: 10px 12px; font-size: 14px; }
+        .wiz-info-intro { margin-bottom: 12px; }
+        .wizard-panel-inner { padding: 16px 16px 8px; }
+    }
+
+    /* ─── Review ─── */
+    .wiz-review-section { margin-bottom: 20px; }
+    .wiz-review-heading {
+        font-family: 'Crimson Pro', serif; font-size: 18px; font-weight: 600;
+        color: var(--primary); margin: 0 0 10px;
+        padding-bottom: 8px; border-bottom: 1px solid var(--neutral-warm);
+    }
+    .wiz-review-row {
+        display: flex; justify-content: space-between; padding: 5px 0;
+        font-family: 'Work Sans', sans-serif; font-size: 14px;
+    }
+    .wiz-review-row span:first-child { color: var(--text-mid); }
+    .wiz-review-row span:last-child { font-weight: 600; color: var(--text-dark); }
+    .wiz-review-row.discount span { color: var(--secondary); }
+    .wiz-review-row.total {
+        border-top: 1px solid var(--neutral-warm); margin-top: 6px; padding-top: 8px;
+    }
+    .wiz-review-row.total span:last-child { color: var(--primary); font-size: 18px; }
+    .wiz-review-note {
+        padding: 14px 18px; border-radius: 10px;
+        background: color-mix(in srgb, var(--secondary) 6%, white);
+        border: 1px solid color-mix(in srgb, var(--secondary) 18%, white);
+        font-family: 'Work Sans', sans-serif; font-size: 13px; color: var(--text-mid);
+    }
+
+    /* ─── Navigation Bar ─── */
+    .wizard-nav {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 16px 28px 24px; border-top: 1px solid var(--neutral-warm);
+    }
+    .wiz-btn-back {
+        padding: 12px 24px; border-radius: 10px; background: var(--neutral-light);
+        border: none; font-family: 'Work Sans', sans-serif; font-size: 14px;
+        font-weight: 600; color: var(--text-mid); cursor: pointer;
+    }
+    .wiz-btn-back:hover { background: var(--neutral-warm); }
+    .wiz-btn-next {
+        padding: 12px 28px; border-radius: 10px; background: var(--accent);
+        border: none; font-family: 'Work Sans', sans-serif; font-size: 14px;
+        font-weight: 700; color: var(--white); cursor: pointer;
+        box-shadow: 0 2px 8px rgba(245,147,33,0.3); transition: all 0.2s;
+    }
+    .wiz-btn-next:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+    .wiz-btn-next:disabled { background: var(--neutral-warm); color: var(--text-light); box-shadow: none; cursor: default; }
+    .wiz-btn-submit {
+        background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light, var(--secondary)) 100%) !important;
+        box-shadow: 0 4px 12px rgba(61,122,60,0.3) !important;
+        padding: 14px 32px !important; font-size: 15px !important;
+    }
+    .wiz-btn-submit:hover:not(:disabled) {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 16px rgba(61,122,60,0.35) !important;
+    }
+
+    /* ─── Success State ─── */
+    .wizard-success { text-align: center; }
+    .wiz-success-inner { padding: 60px 32px; }
+    .wiz-success-icon {
+        width: 72px; height: 72px; border-radius: 50%; background: var(--secondary);
+        color: var(--white); font-size: 32px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 20px;
+    }
+    .wiz-success-title {
+        font-family: 'Crimson Pro', serif; font-size: 28px; font-weight: 700;
+        color: var(--primary); margin: 0 0 8px;
+    }
+    .wiz-success-text {
+        font-family: 'Work Sans', sans-serif; font-size: 15px;
+        color: var(--text-mid); margin: 0 0 6px;
+    }
+    .wiz-success-email {
+        font-family: 'Work Sans', sans-serif; font-size: 14px;
+        color: var(--text-light); margin: 0 0 24px;
+    }
+    .wiz-btn-reset {
+        padding: 12px 28px; border-radius: 10px; background: var(--neutral-light);
+        border: none; font-family: 'Work Sans', sans-serif; font-size: 14px;
+        font-weight: 600; color: var(--primary); cursor: pointer;
+    }
+    .wiz-btn-reset:hover { background: var(--neutral-warm); }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 600px) {
+        .wizard-progress { padding: 20px 12px 24px; gap: 0; }
+        .wizard-step-indicator { min-width: 56px; }
+        .wizard-step-circle { width: 32px; height: 32px; font-size: 13px; }
+        .wizard-step-label { font-size: 9px; }
+        .wizard-step-line { width: 20px; }
+        .wizard-step-header { padding: 16px 20px 14px; }
+        .wizard-step-title { font-size: 20px; }
+        .wizard-panel-inner { padding: 20px 20px 8px; }
+        .wizard-nav { padding: 12px 20px 20px; }
+        .wiz-timeslot-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+    }
+    /* ─── Address Autocomplete Dropdown ─── */
+    .wiz-address-dropdown {
+        position: absolute; left: 0; right: 0; top: 100%;
+        z-index: 100; background: var(--white); border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12); border: 1px solid var(--neutral-warm);
+        margin-top: 4px; overflow: hidden; max-height: 280px; overflow-y: auto;
+    }
+    .wiz-address-option {
+        padding: 11px 14px; font-family: 'Work Sans', sans-serif;
+        font-size: 13px; color: var(--text-dark); cursor: pointer;
+        border-bottom: 1px solid var(--neutral-light); line-height: 1.4;
+    }
+    .wiz-address-option:last-child { border-bottom: none; }
+    .wiz-address-option:hover, .wiz-address-option.active { background: var(--neutral-light); }
+    .wiz-address-loading {
+        padding: 12px 14px; font-family: 'Work Sans', sans-serif;
+        font-size: 13px; color: var(--text-light); text-align: center;
+    }
+
+    /* ─── Property Info Card (shown after Zillow lookup) ─── */
+    .wiz-property-card {
+        margin-top: 12px; padding: 16px 18px; border-radius: 12px;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 6%, white), color-mix(in srgb, var(--secondary) 4%, white));
+        border: 1px solid color-mix(in srgb, var(--primary) 18%, white);
+        font-family: 'Work Sans', sans-serif; animation: wizFadeIn 0.3s ease;
+    }
+    .wiz-property-card-title {
+        font-family: 'Crimson Pro', serif; font-size: 16px; font-weight: 600;
+        color: var(--primary); margin: 0 0 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .wiz-property-details {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px 16px;
+    }
+    .wiz-property-detail {
+        display: flex; flex-direction: column; gap: 1px;
+    }
+    .wiz-property-detail-label {
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+        color: var(--text-light); font-weight: 500;
+    }
+    .wiz-property-detail-value {
+        font-size: 15px; font-weight: 600; color: var(--text-dark);
+    }
+    .wiz-property-loading {
+        display: flex; align-items: center; gap: 8px; margin-top: 8px;
+        font-family: 'Work Sans', sans-serif; font-size: 13px; color: var(--text-light);
+    }
+    .wiz-property-spinner {
+        width: 16px; height: 16px; border: 2px solid var(--neutral-warm);
+        border-top-color: var(--primary); border-radius: 50%;
+        animation: wizSpin 0.6s linear infinite;
+    }
+    @keyframes wizSpin { to { transform: rotate(360deg); } }
+    @keyframes wizFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── Recommendation Badge on Add-on Services ─── */
+    .wiz-recommend-badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+        background: color-mix(in srgb, var(--accent) 14%, white);
+        color: var(--accent); margin-left: 8px; white-space: nowrap;
+        animation: wizFadeIn 0.3s ease; vertical-align: middle;
+    }
+    .wiz-recommend-reason {
+        display: block; font-size: 11px; color: var(--text-light); font-weight: 400;
+        margin-top: 2px; font-family: 'Work Sans', sans-serif; line-height: 1.3;
+        animation: wizFadeIn 0.3s ease;
+    }
+    .wiz-addon-item.recommended {
+        border-color: color-mix(in srgb, var(--accent) 50%, var(--neutral-warm));
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 15%, transparent);
+    }
+    .wiz-homesize-auto {
+        display: block; margin-top: 4px; font-family: 'Work Sans', sans-serif;
+        font-size: 12px; color: var(--secondary); font-weight: 500;
+        animation: wizFadeIn 0.3s ease;
+    }
+
+    /* ─── Category Cards ─── */
+    .wiz-cat-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
+    }
+    .wiz-cat-card {
+        display: flex; flex-direction: column; align-items: center; gap: 6px;
+        padding: 20px 14px 16px; border-radius: 12px;
+        border: 2px solid var(--neutral-warm); background: var(--white);
+        cursor: pointer; transition: all 0.2s; text-align: center;
+    }
+    .wiz-cat-card:hover { border-color: var(--primary-light, var(--primary)); }
+    .wiz-cat-card.selected {
+        border-color: #1a4d2e; background: color-mix(in srgb, #1a4d2e 5%, white);
+        box-shadow: 0 0 0 1px #1a4d2e;
+    }
+    .wiz-cat-icon { font-size: 28px; line-height: 1; }
+    .wiz-cat-name {
+        font-family: 'Work Sans', sans-serif; font-weight: 600;
+        font-size: 14px; color: var(--text-dark);
+    }
+    .wiz-cat-tagline {
+        font-family: 'Work Sans', sans-serif; font-size: 12px;
+        color: var(--text-light); line-height: 1.3;
+    }
+    .wiz-cat-check {
+        width: 20px; height: 20px; border-radius: 50%; background: #1a4d2e;
+        color: #fff; font-size: 12px; font-weight: 700; display: none;
+        align-items: center; justify-content: center; margin-top: 2px;
+    }
+    .wiz-cat-card.selected .wiz-cat-check { display: flex; }
+
+    /* ─── Expansion Panel ─── */
+    .wiz-expansion {
+        overflow: hidden; max-height: 0; opacity: 0;
+        transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+    .wiz-expansion.open { max-height: 2000px; opacity: 1; }
+    .wiz-expansion-inner { padding-top: 4px; }
+
+    /* ─── Home Size Selector ─── */
+    .wiz-hs-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .wiz-hs-btn {
+        flex: 1; min-width: 120px; padding: 12px 10px; border-radius: 10px;
+        border: 2px solid var(--neutral-warm); background: var(--white);
+        cursor: pointer; transition: all 0.2s; text-align: center;
+        font-family: 'Work Sans', sans-serif; font-size: 13px; color: var(--text-dark);
+    }
+    .wiz-hs-btn:hover { border-color: var(--primary-light, var(--primary)); }
+    .wiz-hs-btn.selected {
+        border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, white);
+        font-weight: 600;
+    }
+    .wiz-hs-label { display: block; font-weight: 600; }
+    .wiz-hs-price {
+        display: block; font-size: 11px; color: var(--text-light); margin-top: 2px;
+    }
+    .wiz-hs-btn.selected .wiz-hs-price { color: var(--primary); }
+
+    /* ─── Year Built Selector ─── */
+    .wiz-yb-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .wiz-yb-btn {
+        flex: 1; min-width: 120px; padding: 12px 10px; border-radius: 10px;
+        border: 2px solid var(--neutral-warm); background: var(--white);
+        cursor: pointer; transition: all 0.2s; text-align: center;
+        font-family: 'Work Sans', sans-serif; font-size: 13px; color: var(--text-dark);
+    }
+    .wiz-yb-btn:hover { border-color: var(--primary-light, var(--primary)); }
+    .wiz-yb-btn.selected {
+        border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, white);
+        font-weight: 600;
+    }
+    .wiz-yb-label { display: block; font-weight: 600; }
+    .wiz-yb-surcharge {
+        display: block; font-size: 11px; color: var(--text-light); margin-top: 2px;
+    }
+    .wiz-yb-btn.selected .wiz-yb-surcharge { color: var(--primary); }
+    .wiz-autofill-hint {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-family: 'Work Sans', sans-serif; font-size: 12px;
+        color: var(--secondary); font-weight: 500; margin-top: 4px;
+        animation: wizFadeIn 0.3s ease;
+    }
+
+    /* ─── New Construction Panel ─── */
+    .wiz-nc-toggle {
+        display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .wiz-nc-toggle-btn {
+        flex: 1; padding: 12px 14px; border-radius: 10px;
+        border: 2px solid var(--neutral-warm); background: var(--white);
+        cursor: pointer; transition: all 0.2s; text-align: center;
+        font-family: 'Work Sans', sans-serif; font-size: 14px;
+        font-weight: 500; color: var(--text-dark);
+    }
+    .wiz-nc-toggle-btn:hover { border-color: var(--primary-light, var(--primary)); }
+    .wiz-nc-toggle-btn.selected {
+        border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, white);
+        font-weight: 600; color: var(--primary);
+    }
+
+    /* ─── Home Health Check Tier Cards ─── */
+    .wiz-hc-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .wiz-hc-card {
+        padding: 18px 20px; border-radius: 12px;
+        border: 2px solid var(--neutral-warm); background: var(--white);
+        cursor: pointer; transition: all 0.2s;
+    }
+    .wiz-hc-card:hover { border-color: var(--primary-light, var(--primary)); }
+    .wiz-hc-card.selected {
+        border-color: #1a4d2e; background: color-mix(in srgb, #1a4d2e 4%, white);
+    }
+    .wiz-hc-header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    }
+    .wiz-hc-name {
+        font-family: 'Crimson Pro', serif; font-size: 18px; font-weight: 700; color: var(--primary);
+    }
+    .wiz-hc-price {
+        font-family: 'Work Sans', sans-serif; font-size: 18px; font-weight: 700; color: var(--secondary);
+    }
+    .wiz-hc-features {
+        list-style: none; padding: 0; margin: 0;
+        font-family: 'Work Sans', sans-serif; font-size: 13px;
+    }
+    .wiz-hc-features li {
+        padding: 3px 0; color: var(--text-mid); display: flex; align-items: baseline; gap: 6px;
+    }
+    .wiz-hc-features li::before { content: '✓'; color: var(--secondary); font-weight: 700; font-size: 12px; flex-shrink: 0; }
+    .wiz-hc-features li.inherited { color: var(--text-light); }
+    .wiz-hc-features li.inherited::before { content: '↳'; color: var(--text-light); }
+    .wiz-hc-inherited-label {
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+        color: var(--text-light); font-weight: 600; margin-top: 8px; margin-bottom: 2px;
+        font-family: 'Work Sans', sans-serif;
+    }
+
+    @media (max-width: 500px) {
+        .wiz-cat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .wiz-cat-card { padding: 14px 10px 12px; }
+        .wiz-cat-icon { font-size: 24px; }
+        .wiz-cat-name { font-size: 12px; }
+        .wiz-hs-group { gap: 6px; }
+        .wiz-hs-btn { min-width: 0; padding: 10px 8px; font-size: 12px; }
+        .wiz-yb-group { gap: 6px; }
+        .wiz-yb-btn { min-width: 0; padding: 10px 8px; font-size: 12px; }
+    }
+    </style>
+  <script src="/config.js"></script>
+</head>
+<body>
+    <div id="site-header"></div>
+    <script src="shared/header.js" data-base=""></script>
+
+<!-- Hero Section -->
+    <section class="hero" id="home" data-section-id="hero" data-section-label="Hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 data-edit-id="hero-title">Protecting Your <span>Family's Future</span></h1>
+                <p class="hero-subtitle" data-edit-id="hero-subtitle">Professional Home Inspections in Roscoe, IL</p>
+                <p class="hero-description" data-edit-id="hero-description">
+                    With over a decade of experience, we provide thorough, honest home inspections backed by our commitment to family values, unwavering trust, and dedicated hard work.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#bundle" class="btn-primary" data-edit-id="hero-cta-primary" data-edit-link>Get Instant Quote</a>
+                    <a href="#services" class="btn-secondary" data-edit-id="hero-cta-secondary" data-edit-link>Our Services</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img class="hero-logo-img" src="images/HIG_Logo.avif" alt="Heartland Inspection Group" data-edit-id="hero-logo">
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services" data-section-id="services" data-section-label="Services Grid">
+        <div class="section-header">
+            <div class="section-label" data-edit-id="services-label">What We Offer</div>
+            <h2 class="section-title" data-edit-id="services-title">Comprehensive Home Inspection Services</h2>
+            <p class="section-description" data-edit-id="services-description">
+                From foundation to roof, we thoroughly examine every aspect of your potential home to give you complete peace of mind.
+            </p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-pre-purchase-title">Pre-Purchase Inspection</h3>
+                <p class="service-description" data-edit-id="svc-pre-purchase-desc">
+                    Complete evaluation of the home's condition before you buy. We identify issues that could affect your investment decision.
+                </p>
+                <a href="services/pre-purchase.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-pre-listing-title">Pre-Listing Inspection</h3>
+                <p class="service-description" data-edit-id="svc-pre-listing-desc">
+                    Get ahead of potential buyer concerns and price your home accurately with our detailed seller's inspection.
+                </p>
+                <a href="services/pre-listing.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-radon-title">Radon Testing</h3>
+                <p class="service-description" data-edit-id="svc-radon-desc">
+                    Protect your family from this invisible threat with professional radon level testing and mitigation recommendations.
+                </p>
+                <a href="services/radon-testing.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-wdo-title">WDO Inspection</h3>
+                <p class="service-description" data-edit-id="svc-wdo-desc">
+                    Comprehensive inspection for termites, carpenter ants, wood-boring beetles, and other organisms that damage wood structures.
+                </p>
+                <a href="services/wdo.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-sewer-title">Sewer Scope</h3>
+                <p class="service-description" data-edit-id="svc-sewer-desc">
+                    Video camera inspection of your sewer line to identify blockages, damage, or potential issues before they become costly repairs.
+                </p>
+                <a href="services/sewer-scope.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-mold-title">Mold/Air Sampling</h3>
+                <p class="service-description" data-edit-id="svc-mold-desc">
+                    Identify moisture problems and potential mold issues with air quality testing before they become expensive health hazards.
+                </p>
+                <a href="services/mold-air-sampling.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-thermal-title">Thermal Imaging</h3>
+                <p class="service-description" data-edit-id="svc-thermal-desc">
+                    Advanced infrared technology reveals hidden issues like moisture intrusion, insulation defects, and electrical hotspots.
+                </p>
+                <a href="services/thermal.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-water-title">Water Quality Testing</h3>
+                <p class="service-description" data-edit-id="svc-water-desc">
+                    Comprehensive testing for contaminants, bacteria, lead, and other water quality concerns to ensure your family's safety.
+                </p>
+                <a href="services/water-quality.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-newcon-title">New Construction</h3>
+                <p class="service-description" data-edit-id="svc-newcon-desc">
+                    Phase inspections from foundation to finish. Verify quality workmanship at every critical stage of your build.
+                </p>
+                <a href="services/new-construction.html" class="service-link">Learn More →</a>
+            </div>
+            <div class="service-card">
+                <h3 class="service-title" data-edit-id="svc-healthcheck-title">Home Health Check</h3>
+                <p class="service-description" data-edit-id="svc-healthcheck-desc">
+                    Annual preventive inspections to catch small problems before they become expensive emergencies. Three tiers available.
+                </p>
+                <a href="services/home-health-check.html" class="service-link">Learn More →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Wizard Section -->
+    <section class="wizard-section" id="bundle" data-section-id="wizard" data-section-label="Booking Wizard">
+        <div class="wizard-outer">
+            <div class="section-header">
+                <div class="section-label">Book Your Inspection</div>
+                <h2 class="section-title">Schedule in Minutes</h2>
+                <p class="section-description">
+                    Build your package, pick a date, and submit your request — all in one place.
+                </p>
+            </div>
+
+            <div class="wizard-container" id="bookingWizard">
+                <!-- Step Progress Bar -->
+                <div class="wizard-progress">
+                    <div class="wizard-step-indicator active" data-step="0">
+                        <div class="wizard-step-circle"><span>1</span></div>
+                        <span class="wizard-step-label">Services</span>
+                    </div>
+                    <div class="wizard-step-line" data-after="0"></div>
+                    <div class="wizard-step-indicator" data-step="1">
+                        <div class="wizard-step-circle"><span>2</span></div>
+                        <span class="wizard-step-label">Schedule</span>
+                    </div>
+                    <div class="wizard-step-line" data-after="1"></div>
+                    <div class="wizard-step-indicator" data-step="2">
+                        <div class="wizard-step-circle"><span>3</span></div>
+                        <span class="wizard-step-label">Your Info</span>
+                    </div>
+                    <div class="wizard-step-line" data-after="2"></div>
+                    <div class="wizard-step-indicator" data-step="3">
+                        <div class="wizard-step-circle"><span>4</span></div>
+                        <span class="wizard-step-label">Review</span>
+                    </div>
+                </div>
+
+                <!-- Step Title Area -->
+                <div class="wizard-step-header" id="wizardStepHeader">
+                    <h3 class="wizard-step-title">Build Your Inspection Package</h3>
+                    <p class="wizard-step-desc">Choose your inspection type and configure your options.</p>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- STEP 0: Inspection Type + Pricing -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="wizard-panel" id="wizardStep0">
+                    <div class="wizard-panel-inner">
+                        <!-- Inspection Category Cards -->
+                        <div class="wiz-field-group">
+                            <label class="wiz-label">Inspection Type</label>
+                            <div class="wiz-cat-grid" id="wizCatGrid"></div>
+                        </div>
+
+                        <!-- Dynamic Expansion Panel (rendered by JS based on selected category) -->
+                        <div class="wiz-expansion" id="wizExpansion">
+                            <div class="wiz-expansion-inner" id="wizExpansionInner"></div>
+                        </div>
+
+                        <!-- Price Summary Card (adapts to category) -->
+                        <div class="wiz-price-summary" id="wizPriceSummary">
+                            <div id="wizPriceBreakdown"></div>
+                            <div class="wiz-price-total">
+                                <span>Estimated Total</span>
+                                <span id="wizTotal">$0</span>
+                            </div>
+                            <div class="wiz-savings-badge" id="wizSavingsBadge" style="display:none;">
+                                You're saving <span id="wizSavingsAmt">$0</span>!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- STEP 1: Calendar & Time Selection -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="wizard-panel" id="wizardStep1" style="display:none;">
+                    <div class="wizard-panel-inner">
+                        <div class="wiz-calendar">
+                            <div class="wiz-cal-header">
+                                <button type="button" class="wiz-cal-nav" id="wizCalPrev">‹</button>
+                                <span class="wiz-cal-title" id="wizCalTitle">February 2026</span>
+                                <button type="button" class="wiz-cal-nav" id="wizCalNext">›</button>
+                            </div>
+                            <div class="wiz-cal-weekdays">
+                                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                            </div>
+                            <div class="wiz-cal-days" id="wizCalDays"></div>
+                            <div class="wiz-cal-legend">
+                                <div class="wiz-legend-item"><span class="wiz-legend-dot available"></span> Available</div>
+                                <div class="wiz-legend-item"><span class="wiz-legend-dot booked"></span> Booked</div>
+                                <div class="wiz-legend-item"><span class="wiz-legend-dot closed"></span> Closed / Unavailable</div>
+                            </div>
+                        </div>
+
+                        <!-- Time Slots (shown after date click) -->
+                        <div class="wiz-timeslots" id="wizTimeslots" style="display:none;">
+                            <h4 class="wiz-timeslot-title" id="wizTimeslotTitle">Available Times</h4>
+                            <div class="wiz-timeslot-grid" id="wizTimeslotGrid"></div>
+                        </div>
+
+                        <div class="wiz-cal-note">
+                            📅 For bookings more than 4 weeks out, please call, text, or email us to confirm availability.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- STEP 2: Customer Information -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="wizard-panel" id="wizardStep2" style="display:none;">
+                    <div class="wizard-panel-inner">
+                        <p class="wiz-info-intro">Please provide your contact details and the property address for the inspection.</p>
+                        <div class="wiz-form-grid">
+                            <div class="wiz-field-group wiz-half">
+                                <label for="wizFirstName" class="wiz-label">First Name <span class="wiz-req">*</span></label>
+                                <input type="text" id="wizFirstName" class="wiz-input" placeholder="John">
+                                <span class="wiz-error" id="errFirstName"></span>
+                            </div>
+                            <div class="wiz-field-group wiz-half">
+                                <label for="wizLastName" class="wiz-label">Last Name <span class="wiz-req">*</span></label>
+                                <input type="text" id="wizLastName" class="wiz-input" placeholder="Smith">
+                                <span class="wiz-error" id="errLastName"></span>
+                            </div>
+                            <div class="wiz-field-group wiz-half">
+                                <label for="wizPhone" class="wiz-label">Phone Number <span class="wiz-req">*</span></label>
+                                <input type="tel" id="wizPhone" class="wiz-input" placeholder="(815) 555-0123">
+                                <span class="wiz-error" id="errPhone"></span>
+                            </div>
+                            <div class="wiz-field-group wiz-half">
+                                <label for="wizEmail" class="wiz-label">Email Address <span class="wiz-req">*</span></label>
+                                <input type="email" id="wizEmail" class="wiz-input" placeholder="john@example.com">
+                                <span class="wiz-error" id="errEmail"></span>
+                            </div>
+                            <div class="wiz-field-group">
+                                <label for="wizCurrentAddress" class="wiz-label">Current Address <span class="wiz-req">*</span></label>
+                                <input type="text" id="wizCurrentAddress" class="wiz-input" placeholder="456 Oak Ave, Rockford, IL 61101">
+                                <span class="wiz-error" id="errCurrentAddress"></span>
+                            </div>
+
+                            <!-- Agent / Inspection Divider -->
+                            <div style="grid-column:1/-1;border-top:2px solid var(--neutral-warm);margin:8px 0 4px;"></div>
+
+                            <div class="wiz-field-group wiz-half">
+                                <label for="wizAgentName" class="wiz-label">Agent Name</label>
+                                <input type="text" id="wizAgentName" class="wiz-input" placeholder="Jane Doe">
+                            </div>
+                            <div class="wiz-field-group wiz-half">
+                                <label for="wizAgentPhone" class="wiz-label">Agent Phone</label>
+                                <input type="tel" id="wizAgentPhone" class="wiz-input" placeholder="(815) 555-0456">
+                            </div>
+                            <div class="wiz-field-group">
+                                <label for="wizAddress" class="wiz-label">Inspection Address <span class="wiz-req">*</span></label>
+                                <input type="text" id="wizAddress" class="wiz-input" placeholder="123 Main St, Roscoe, IL 61073">
+                                <span class="wiz-error" id="errAddress"></span>
+                                <!-- Property lookup loading spinner -->
+                                <div class="wiz-property-loading" id="wizPropertyLoading" style="display:none;">
+                                    <div class="wiz-property-spinner"></div>
+                                    <span>Looking up property details…</span>
+                                </div>
+                                <!-- Property info card (populated by Zillow API) -->
+                                <div class="wiz-property-card" id="wizPropertyCard" style="display:none;">
+                                    <div class="wiz-property-card-title">
+                                        <span>Property Details</span>
+                                    </div>
+                                    <div class="wiz-property-details" id="wizPropertyDetails"></div>
+                                </div>
+                            </div>
+                            <div class="wiz-field-group">
+                                <label for="wizCoupon" class="wiz-label">Coupon Code</label>
+                                <div style="display:flex;gap:10px;align-items:start;">
+                                    <input type="text" id="wizCoupon" class="wiz-input" placeholder="Enter code" style="flex:1;text-transform:uppercase;">
+                                    <button type="button" id="wizApplyCoupon" style="padding:12px 18px;border:2px solid var(--secondary);border-radius:10px;background:var(--white);color:var(--secondary);font-family:'Work Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">Apply</button>
+                                </div>
+                                <span class="wiz-error" id="errCoupon" style="color:var(--secondary);"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- STEP 3: Review & Submit -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="wizard-panel" id="wizardStep3" style="display:none;">
+                    <div class="wizard-panel-inner">
+                        <div class="wiz-review-section">
+                            <h4 class="wiz-review-heading">🔧 Services</h4>
+                            <div id="wizReviewServices"></div>
+                        </div>
+                        <div class="wiz-review-section">
+                            <h4 class="wiz-review-heading">📅 Appointment</h4>
+                            <div id="wizReviewAppointment"></div>
+                        </div>
+                        <div class="wiz-review-section">
+                            <h4 class="wiz-review-heading">👤 Contact Information</h4>
+                            <div id="wizReviewContact"></div>
+                        </div>
+                        <div class="wiz-review-note">
+                            ✅ By submitting, you're requesting an inspection. We'll confirm your appointment within 1 business day.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- SUCCESS STATE -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="wizard-panel wizard-success" id="wizardSuccess" style="display:none;">
+                    <div class="wiz-success-inner">
+                        <div class="wiz-success-icon">✓</div>
+                        <h3 class="wiz-success-title">Inspection Request Sent!</h3>
+                        <p class="wiz-success-text" id="wizSuccessText">We'll confirm your appointment within 1 business day.</p>
+                        <p class="wiz-success-email" id="wizSuccessEmail"></p>
+                        <button type="button" class="wiz-btn-reset" id="wizResetBtn">Book Another Inspection</button>
+                    </div>
+                </div>
+
+                <!-- Navigation Bar -->
+                <div class="wizard-nav" id="wizardNav">
+                    <button type="button" class="wiz-btn-back" id="wizBtnBack" style="visibility:hidden;">‹ Back</button>
+                    <button type="button" class="wiz-btn-next" id="wizBtnNext" disabled>Continue ›</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Heartland Promise Section -->
+    <section class="why-choose" id="about" data-section-id="promise" data-section-label="The Heartland Promise">
+        <div class="content-grid">
+            <div>
+                <div class="section-label" data-edit-id="promise-label">The Heartland Promise</div>
+                <h2 class="section-title" data-edit-id="promise-title">The Heartland Promise</h2>
+                <p class="section-description" data-edit-id="promise-description">
+                    We're a local, family-owned business that understands the importance of home to your family's well-being. Serving Roscoe, Illinois and the surrounding 50-mile radius of northern Illinois and southern Wisconsin.
+                </p>
+                <div class="feature-list">
+
+                    <div class="feature-item">
+                        <div class="feature-icon" data-edit-id="feature-1-icon">📱</div>
+                        <div class="feature-content">
+                            <h3 data-edit-id="feature-1-title">No Homework After the Inspection</h3>
+                            <p data-edit-id="feature-1-desc">We won't leave you waiting around for days. Within 24 hours, you'll get an easy-to-read digital report sent straight to your phone. It's organized so you can quickly see what needs fixing and skip the fluff. From Rockford to Janesville, we deliver!</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon" data-edit-id="feature-2-icon">🛡️</div>
+                        <div class="feature-content">
+                            <h3 data-edit-id="feature-2-title">A Safety Net for Your First 90 Days</h3>
+                            <p data-edit-id="feature-2-desc">Moving is expensive enough without surprises. If something like your AC or a major appliance was working fine during our check but quits shortly after you move in, you've got a $3,000 warranty to help cover the bill.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon" data-edit-id="feature-3-icon">👨‍👩‍👧‍👦</div>
+                        <div class="feature-content">
+                            <h3 data-edit-id="feature-3-title">The "Everyone is Family" Standard</h3>
+                            <p data-edit-id="feature-3-desc">We look at every house as if our own family were moving in. If we wouldn't let our own kids or grandkids sleep there without fixing a specific issue, we're going to make sure you know exactly what it is and why it's a problem.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon" data-edit-id="feature-4-icon">💲</div>
+                        <div class="feature-content">
+                            <h3 data-edit-id="feature-4-title">The Price You See is the Price You Pay</h3>
+                            <p data-edit-id="feature-4-desc">Nobody likes hidden fees. When you use our online tool, the price it gives you is the final number. We don't do on-site "up-selling" or surprise charges—just fair, honest pricing from the start.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon" data-edit-id="feature-5-icon">💬</div>
+                        <div class="feature-content">
+                            <h3 data-edit-id="feature-5-title">We Talk Like Real People, Not Manuals</h3>
+                            <p data-edit-id="feature-5-desc">At the end of every inspection, we'll walk you through the house and explain everything in plain English. No technical jargon—just a clear conversation about what we found and what your next steps should be.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="image-showcase">
+                <div class="showcase-main">
+                    <svg class="service-map-svg" viewBox="-10 -10 520 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <!-- IL/WI state border -->
+                        <path d="M0 215 Q125 213 250 215 Q375 217 500 215" class="map-state-line"/>
+                        <text x="30" y="200" fill="rgba(255,255,255,0.18)" font-size="12" font-family="Work Sans, sans-serif" font-weight="600" letter-spacing="4">WISCONSIN</text>
+                        <text x="30" y="238" fill="rgba(255,255,255,0.18)" font-size="12" font-family="Work Sans, sans-serif" font-weight="600" letter-spacing="4">ILLINOIS</text>
+
+                        <!-- Subtle road hints (two major corridors) -->
+                        <path d="M180 76 Q230 150 246 212 L235 269 L340 340" class="map-road-subtle"/>
+                        <path d="M40 263 L235 269 L430 258" class="map-road-subtle"/>
+
+                        <!-- Outer glow ring -->
+                        <circle cx="250" cy="235" r="175" class="map-radius-glow"/>
+
+                        <!-- 50-mile radius circle -->
+                        <circle cx="250" cy="235" r="175" class="map-radius-fill"/>
+                        <circle cx="250" cy="235" r="175" class="map-radius-circle"/>
+
+                        <!-- Connector lines from Roscoe to each city -->
+                        <line x1="250" y1="235" x2="235" y2="269" class="connector-line"/>
+                        <line x1="250" y1="235" x2="246" y2="212" class="connector-line"/>
+                        <line x1="250" y1="235" x2="248" y2="170" class="connector-line"/>
+                        <line x1="250" y1="235" x2="180" y2="76" class="connector-line"/>
+                        <line x1="250" y1="235" x2="295" y2="352" class="connector-line"/>
+                        <line x1="250" y1="235" x2="141" y2="263" class="connector-line"/>
+                        <line x1="250" y1="235" x2="164" y2="372" class="connector-line"/>
+                        <line x1="250" y1="235" x2="139" y2="190" class="connector-line"/>
+                        <line x1="250" y1="235" x2="353" y2="192" class="connector-line"/>
+                        <line x1="250" y1="235" x2="276" y2="272" class="connector-line"/>
+
+                        <!-- Nearby cities (geographically corrected positions) -->
+                        <circle cx="235" cy="269" r="5" class="map-city-dot"/>
+                        <text x="235" y="289" text-anchor="middle" class="map-city-label-major">Rockford</text>
+
+                        <circle cx="246" cy="212" r="3.5" class="map-city-dot"/>
+                        <text x="222" y="210" text-anchor="end" class="map-city-label">Beloit</text>
+
+                        <circle cx="248" cy="170" r="3" class="map-city-dot"/>
+                        <text x="226" y="168" text-anchor="end" class="map-city-label">Janesville</text>
+
+                        <circle cx="180" cy="76" r="3" class="map-city-dot"/>
+                        <text x="180" y="67" text-anchor="middle" class="map-city-label-major">Madison</text>
+
+                        <circle cx="295" cy="352" r="3" class="map-city-dot"/>
+                        <text x="295" y="370" text-anchor="middle" class="map-city-label">DeKalb</text>
+
+                        <circle cx="141" cy="263" r="3" class="map-city-dot"/>
+                        <text x="141" y="281" text-anchor="middle" class="map-city-label">Freeport</text>
+
+                        <circle cx="139" cy="190" r="3" class="map-city-dot"/>
+                        <text x="139" y="183" text-anchor="middle" class="map-city-label">Monroe</text>
+
+                        <circle cx="353" cy="192" r="3" class="map-city-dot"/>
+                        <text x="353" y="183" text-anchor="middle" class="map-city-label">Lake Geneva</text>
+
+                        <circle cx="276" cy="272" r="3" class="map-city-dot"/>
+                        <text x="300" y="274" class="map-city-label">Belvidere</text>
+
+                        <circle cx="164" cy="372" r="3" class="map-city-dot"/>
+                        <text x="164" y="390" text-anchor="middle" class="map-city-label">Dixon</text>
+
+                        <!-- HOME BASE — Roscoe, IL -->
+                        <circle cx="250" cy="235" r="20" class="map-home-ring"/>
+                        <circle cx="250" cy="235" r="8" class="map-home-dot"/>
+                        <text x="250" y="229" text-anchor="end" dx="-16" class="map-home-label">Roscoe, IL</text>
+
+                        <!-- Badge -->
+                        <rect x="145" y="440" width="210" height="38" rx="19" fill="rgba(0,0,0,0.3)"/>
+                        <rect x="146" y="441" width="208" height="36" rx="18" fill="none" stroke="var(--secondary)" stroke-width="1" opacity="0.4"/>
+                        <text x="250" y="464" text-anchor="middle" class="map-badge" fill="white" font-size="13" font-weight="600" letter-spacing="0.5">📍 Proudly Serving 50+ Miles</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ask a Question / Contact Form -->
+    <section class="contact-form-section" id="contact" data-section-id="contact" data-section-label="Contact Form">
+        <div class="contact-form-container">
+            <div class="section-header">
+                <p class="section-label" data-edit-id="contact-label">Get in Touch</p>
+                <h2 class="section-title" data-edit-id="contact-title">Have a Question? Let's Talk.</h2>
+                <p class="section-description" data-edit-id="contact-description">Whether you need to schedule an inspection, ask about our services, or just have a question about your home — we're here to help.</p>
+            </div>
+            <div class="contact-form-grid">
+            <div class="contact-form-card">
+                <h3 style="margin-bottom:6px;color:var(--primary);font-family:'Crimson Pro',serif;font-size:24px;" data-edit-id="form-card-title">
+                    Send Us a Message
+                </h3>
+                <p style="margin-bottom:25px;color:var(--text-light);font-size:15px;" data-edit-id="form-card-desc">
+                    Have a question or want to request a specific time? Fill out the form and we'll get back to you within 24 hours.
+                </p>
+
+                <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="contactForm">
+                    <input type="hidden" name="form-name" value="contact">
+                    <p style="display:none"><label>Don't fill this out: <input name="bot-field"></label></p>
+
+                    <div class="form-group">
+                        <label for="formName">Full Name</label>
+                        <input type="text" id="formName" name="name" placeholder="e.g. John Smith" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formEmail">Email Address</label>
+                        <input type="email" id="formEmail" name="email" placeholder="john@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formPhone">Phone Number</label>
+                        <input type="tel" id="formPhone" name="phone" placeholder="(815) 555-1234">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formTopic">What Can We Help With?</label>
+                        <select id="formTopic" name="topic" required>
+                            <option value="" disabled selected>Select a topic…</option>
+                            <option value="schedule">Schedule an Inspection</option>
+                            <option value="pricing">Pricing Question</option>
+                            <option value="services">Service Question</option>
+                            <option value="report">Report Question</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formMessage">Your Message</label>
+                        <textarea id="formMessage" name="message" placeholder="Tell us a bit about what you need — property address, preferred dates, or any questions you have…" required></textarea>
+                    </div>
+
+                    <button type="submit" class="form-submit-btn">Send Message</button>
+
+                    <div id="formSuccess" style="display:none; margin-top:20px; padding:16px; background:rgba(26,77,46,0.08); border-radius:10px; border-left:4px solid var(--primary); color:var(--primary); font-weight:600;">
+                        ✓ Message sent! We'll be in touch within 24 hours.
+                    </div>
+                    <div id="formError" style="display:none; margin-top:20px; padding:16px; background:rgba(200,90,59,0.08); border-radius:10px; border-left:4px solid var(--accent); color:var(--accent); font-weight:600;">
+                        Something went wrong. Please call us at <a href="tel:8153298583" style="color:var(--accent);text-decoration:underline;">(815) 329-8583</a>.
+                    </div>
+                </form>
+            </div>                <div class="contact-info-sidebar">
+                    <div class="contact-info-card">
+                        <h3 data-edit-id="contact-info-title">Reach Us Directly</h3>
+                        <div class="contact-info-item">
+                            <span class="contact-info-icon">📞</span>
+                            <span data-edit-id="contact-info-phone"><strong>(815) 329-8583</strong><br>Mon–Sat, 7AM – 7PM</span>
+                        </div>
+                        <div class="contact-info-item">
+                            <span class="contact-info-icon">✉️</span>
+                            <span data-edit-id="contact-info-email"><strong><a href="mailto:info@heartlandinspectiongroup.com" style="color: inherit; text-decoration: none;">info@heartlandinspectiongroup.com</a></strong><br>Typically reply within 24 hours</span>
+                        </div>
+                        <div class="contact-info-item">
+                            <span class="contact-info-icon">📍</span>
+                            <span data-edit-id="contact-info-address"><strong>Roscoe, IL 61073</strong><br>Serving a 50-mile radius</span>
+                        </div>
+                        <div class="contact-info-item" style="margin-top: 10px;">
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <a href="https://www.facebook.com/heartlandinspectiongroup/" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 50%; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                                <a href="https://www.instagram.com/heartlandinspectiongroup/" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 50%; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                                <a href="https://www.youtube.com/@heartlandinspectiongroup" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 50%; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-answers-card">
+                        <h3 data-edit-id="quick-answers-title">Quick Answers</h3>
+                        <div class="quick-answer-item">
+                            <strong data-edit-id="qa-1-question">How long does an inspection take?</strong>
+                            <span data-edit-id="qa-1-answer">2–4 hours depending on the size and age of the home.</span>
+                        </div>
+                        <div class="quick-answer-item">
+                            <strong data-edit-id="qa-2-question">When will I get my report?</strong>
+                            <span data-edit-id="qa-2-answer">Within 24 hours of your inspection, delivered digitally.</span>
+                        </div>
+                        <div class="quick-answer-item">
+                            <strong data-edit-id="qa-3-question">Can I attend the inspection?</strong>
+                            <span data-edit-id="qa-3-answer">Absolutely — we encourage it. Walk through with us and ask questions.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="schedule" data-section-id="cta" data-section-label="Call to Action">
+        <div class="cta-content">
+            <h2 data-edit-id="cta-title">Ready to Protect Your Investment?</h2>
+            <p data-edit-id="cta-description">
+                Schedule your inspection today and get the peace of mind you deserve. We're available Monday through Saturday and offer flexible scheduling to accommodate your needs.
+            </p>
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <a href="tel:8153298583" class="btn-primary">Call (815) 329-8583</a>
+                <a href="mailto:info@heartlandinspectiongroup.com" class="btn-secondary" style="color: white; border-color: white;">E-mail Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+
+    <div id="site-footer"></div>
+    <script src="shared/footer.js" data-base=""></script>
+
+
+    <!-- Load config from Supabase -->
+    <script>
+    (function(){
+      var SUPABASE_URL = window.SUPABASE_URL = 'https://fusravedbksupcsjfzda.supabase.co';
+      var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+      fetch(SUPABASE_URL + '/rest/v1/config_json?select=config', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(rows){
+        if(rows && rows.length && rows[0].config){
+          window.HEARTLAND_CONFIG = rows[0].config;
+        } else { console.error('Config fetch: empty response'); }
+      })
+      .catch(function(err){ console.error('Config fetch error:', err); })
+      .finally(function(){ window.dispatchEvent(new Event('heartland-config-ready')); });
+    })();
+    </script>
+    <!-- Address Autocomplete (Nominatim via Netlify proxy) -->
+    <script>
+    (function() {
+        'use strict';
+
+        var STATE_ABBR = {
+            'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA',
+            'Colorado':'CO','Connecticut':'CT','Delaware':'DE','Florida':'FL','Georgia':'GA',
+            'Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA',
+            'Kansas':'KS','Kentucky':'KY','Louisiana':'LA','Maine':'ME','Maryland':'MD',
+            'Massachusetts':'MA','Michigan':'MI','Minnesota':'MN','Mississippi':'MS','Missouri':'MO',
+            'Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH','New Jersey':'NJ',
+            'New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND','Ohio':'OH',
+            'Oklahoma':'OK','Oregon':'OR','Pennsylvania':'PA','Rhode Island':'RI','South Carolina':'SC',
+            'South Dakota':'SD','Tennessee':'TN','Texas':'TX','Utah':'UT','Vermont':'VT',
+            'Virginia':'VA','Washington':'WA','West Virginia':'WV','Wisconsin':'WI','Wyoming':'WY'
+        };
+
+        function formatAddress(addr) {
+            var house  = addr.house_number;
+            var street = addr.road;
+            var city   = addr.city || addr.town || addr.village || addr.hamlet || '';
+            var state  = STATE_ABBR[addr.state] || addr.state || '';
+            var zip    = (addr.postcode || '').substring(0, 5);
+            return house + ' ' + street + ', ' + city + ', ' + state + ' ' + zip;
+        }
+
+        var addressFields = ['wizAddress', 'wizCurrentAddress'];
+
+        addressFields.forEach(function(fieldId) {
+            var input = document.getElementById(fieldId);
+            if (!input) return;
+
+            var debounceTimer = null;
+            var abortCtrl = null;
+            var activeIndex = -1;
+
+            var dropdown = document.createElement('div');
+            dropdown.className = 'wiz-address-dropdown';
+            dropdown.style.display = 'none';
+            input.parentNode.style.position = 'relative';
+            input.parentNode.appendChild(dropdown);
+
+            function selectOption(formatted) {
+                input.value = formatted;
+                dropdown.style.display = 'none';
+                activeIndex = -1;
+                input.dispatchEvent(new Event('input'));
+                if (fieldId === 'wizAddress') {
+                    input.dispatchEvent(new CustomEvent('address-selected', { detail: { address: formatted } }));
+                }
+            }
+
+            function updateHighlight() {
+                var options = dropdown.querySelectorAll('.wiz-address-option');
+                options.forEach(function(opt, i) {
+                    opt.classList.toggle('active', i === activeIndex);
+                });
+                if (activeIndex >= 0 && options[activeIndex]) {
+                    options[activeIndex].scrollIntoView({ block: 'nearest' });
+                }
+            }
+
+            function fetchSuggestions(query) {
+                if (query.length < 5) { dropdown.style.display = 'none'; return; }
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function() {
+                    // Cancel any in-flight request
+                    if (abortCtrl) abortCtrl.abort();
+                    abortCtrl = new AbortController();
+
+                    // Show loading state
+                    dropdown.innerHTML = '<div class="wiz-address-loading">Searching...</div>';
+                    dropdown.style.display = '';
+                    activeIndex = -1;
+
+                    fetch('/api/address-autocomplete?q=' + encodeURIComponent(query), {
+                        signal: abortCtrl.signal
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(results) {
+                        if (!Array.isArray(results)) { dropdown.style.display = 'none'; return; }
+
+                        // Filter: must have house_number AND road
+                        var filtered = results.filter(function(r) {
+                            return r.address && r.address.house_number && r.address.road;
+                        });
+
+                        if (!filtered.length) { dropdown.style.display = 'none'; return; }
+
+                        dropdown.innerHTML = filtered.map(function(r) {
+                            var formatted = formatAddress(r.address);
+                            return '<div class="wiz-address-option" data-address="' + formatted.replace(/"/g, '&quot;') + '">' + formatted + '</div>';
+                        }).join('');
+                        dropdown.style.display = '';
+
+                        dropdown.querySelectorAll('.wiz-address-option').forEach(function(opt) {
+                            opt.addEventListener('mousedown', function(e) {
+                                e.preventDefault();
+                                selectOption(this.dataset.address);
+                            });
+                        });
+                    })
+                    .catch(function(err) {
+                        if (err.name !== 'AbortError') dropdown.style.display = 'none';
+                    });
+                }, 400);
+            }
+
+            input.addEventListener('input', function() { fetchSuggestions(this.value.trim()); });
+            input.addEventListener('blur', function() { setTimeout(function() { dropdown.style.display = 'none'; activeIndex = -1; }, 200); });
+            input.addEventListener('focus', function() { if (this.value.trim().length >= 5) fetchSuggestions(this.value.trim()); });
+
+            // Keyboard navigation
+            input.addEventListener('keydown', function(e) {
+                var options = dropdown.querySelectorAll('.wiz-address-option');
+                if (!options.length || dropdown.style.display === 'none') return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = Math.min(activeIndex + 1, options.length - 1);
+                    updateHighlight();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    updateHighlight();
+                } else if (e.key === 'Enter' && activeIndex >= 0) {
+                    e.preventDefault();
+                    selectOption(options[activeIndex].dataset.address);
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                    activeIndex = -1;
+                }
+            });
+        });
+    })();
+    </script>
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPERTY LOOKUP & SERVICE RECOMMENDATIONS  -->
+    <!-- ═══════════════════════════════════════════ -->
+    <script>
+    (function() {
+        'use strict';
+
+        // State: cached property data so we don't re-fetch the same address
+        var lastLookupAddress = '';
+        var propertyData = null;
+
+        var wizAddress = document.getElementById('wizAddress');
+        if (!wizAddress) return;
+
+        // ─── PROPERTY LOOKUP ────────────────────────────────
+        wizAddress.addEventListener('address-selected', function(e) {
+            var address = (e.detail && e.detail.address) || '';
+            if (!address || address === lastLookupAddress) return;
+            lastLookupAddress = address;
+
+            var loadingEl = document.getElementById('wizPropertyLoading');
+            var cardEl = document.getElementById('wizPropertyCard');
+            var detailsEl = document.getElementById('wizPropertyDetails');
+
+            // Show spinner, hide card
+            if (loadingEl) loadingEl.style.display = '';
+            if (cardEl) cardEl.style.display = 'none';
+
+            fetch('/api/property-details?address=' + encodeURIComponent(address))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (loadingEl) loadingEl.style.display = 'none';
+                propertyData = data;
+
+                if (!data.found) {
+                    // No data — silently degrade, clear any prior state
+                    clearPropertyUI();
+                    return;
+                }
+
+                // ─── Populate property info card ───
+                var html = '';
+                if (data.yearBuilt) {
+                    html += '<div class="wiz-property-detail"><span class="wiz-property-detail-label">Year Built</span><span class="wiz-property-detail-value">' + data.yearBuilt + '</span></div>';
+                }
+                if (data.livingAreaSqft) {
+                    html += '<div class="wiz-property-detail"><span class="wiz-property-detail-label">Living Area</span><span class="wiz-property-detail-value">' + data.livingAreaSqft.toLocaleString() + ' sqft</span></div>';
+                }
+                if (data.bedrooms) {
+                    html += '<div class="wiz-property-detail"><span class="wiz-property-detail-label">Bedrooms</span><span class="wiz-property-detail-value">' + data.bedrooms + '</span></div>';
+                }
+                if (data.bathrooms) {
+                    html += '<div class="wiz-property-detail"><span class="wiz-property-detail-label">Bathrooms</span><span class="wiz-property-detail-value">' + data.bathrooms + '</span></div>';
+                }
+                if (data.propertyType) {
+                    html += '<div class="wiz-property-detail"><span class="wiz-property-detail-label">Type</span><span class="wiz-property-detail-value">' + data.propertyType + '</span></div>';
+                }
+                if (data.hasBasement === true) {
+                    html += '<div class="wiz-property-detail"><span class="wiz-property-detail-label">Basement</span><span class="wiz-property-detail-value">Yes</span></div>';
+                }
+
+                if (html && detailsEl && cardEl) {
+                    detailsEl.innerHTML = html;
+                    cardEl.style.display = '';
+                }
+
+                // ─── Auto-select home size tier ───
+                autoSelectHomeSize(data.livingAreaSqft);
+
+                // ─── Auto-select year built tier ───
+                autoSelectYearBuilt(data.yearBuilt);
+
+                // ─── Apply service recommendations ───
+                applyRecommendations(data);
+
+                // Recalc for tax (address now known)
+                recalcPrice();
+            })
+            .catch(function(err) {
+                console.warn('Property lookup failed:', err);
+                if (loadingEl) loadingEl.style.display = 'none';
+                clearPropertyUI();
+                recalcPrice(); // still recalc for tax
+            });
+        });
+
+        // ─── AUTO-SELECT HOME SIZE ───────────────────────────
+        function autoSelectHomeSize(sqft) {
+            if (!sqft) return;
+            var CFG = window.HEARTLAND_CONFIG;
+            if (!CFG) return;
+
+            // Use explicit ranges if configured; otherwise derive from pricing tier labels
+            var tierRanges = CFG.homeSizeTierRanges;
+            if (!tierRanges || !tierRanges.length) {
+                var tiers = (CFG.pricing && CFG.pricing.homeSizeTiers) ? CFG.pricing.homeSizeTiers : [];
+                tierRanges = tiers.map(function(tier) {
+                    var label = (tier.label || '').replace(/,/g, '');
+                    var plusMatch = label.match(/(\d+)\+/);
+                    if (plusMatch) return { min: parseInt(plusMatch[1]), max: Infinity };
+                    var rangeMatch = label.match(/(\d+)\s*[–—\-]\s*(\d+)/);
+                    if (rangeMatch) return { min: parseInt(rangeMatch[1]), max: parseInt(rangeMatch[2]) };
+                    return null;
+                }).filter(Boolean);
+            }
+
+            var hsGroup = document.getElementById('wizHomeSizeGroup');
+            var autoHint = document.getElementById('wizHomeSizeAuto');
+            if (!hsGroup) return;
+
+            for (var i = 0; i < tierRanges.length; i++) {
+                if (sqft >= tierRanges[i].min && sqft <= tierRanges[i].max) {
+                    var btn = hsGroup.querySelector('[data-hs-idx="' + i + '"]');
+                    if (btn) {
+                        btn.click();
+                        if (autoHint) {
+                            autoHint.textContent = 'Auto-selected based on property data (' + sqft.toLocaleString() + ' sqft)';
+                            autoHint.style.display = '';
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+
+        // ─── AUTO-SELECT YEAR BUILT ──────────────────────────
+        function autoSelectYearBuilt(yearBuilt) {
+            if (!yearBuilt) return;
+            var CFG = window.HEARTLAND_CONFIG;
+            if (!CFG || !CFG.yearBuiltSurcharges) return;
+            var surcharges = CFG.yearBuiltSurcharges;
+            var ybGroup = document.getElementById('wizYearBuiltGroup');
+            var ybHint = document.getElementById('wizYBAutoHint');
+            if (!ybGroup) return;
+
+            for (var i = 0; i < surcharges.length; i++) {
+                var yb = surcharges[i];
+                var minOk = (yb.minYear === null || yearBuilt >= yb.minYear);
+                var maxOk = (yb.maxYear === null || yearBuilt <= yb.maxYear);
+                if (minOk && maxOk) {
+                    var btn = ybGroup.querySelector('[data-yb-idx="' + i + '"]');
+                    if (btn) {
+                        btn.click();
+                        if (ybHint) {
+                            ybHint.textContent = 'Auto-selected based on property data (built ' + yearBuilt + ')';
+                            ybHint.style.display = '';
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+
+        // ─── DATA-DRIVEN RULE EVALUATOR (global for both IIFEs) ────
+        window.evaluateRule = function(rule, data) {
+            var fieldVal = data[rule.field];
+            if (fieldVal === undefined || fieldVal === null) return false;
+            var op = rule.operator;
+            var target = rule.value;
+            if (op === 'lt') return Number(fieldVal) < Number(target);
+            if (op === 'lte') return Number(fieldVal) <= Number(target);
+            if (op === 'gt') return Number(fieldVal) > Number(target);
+            if (op === 'gte') return Number(fieldVal) >= Number(target);
+            if (op === 'eq') return String(fieldVal) === target;
+            if (op === 'regex') {
+                try { return new RegExp(target, 'i').test(String(fieldVal)); } catch(e) { return false; }
+            }
+            return false;
+        }
+
+        // ─── FALLBACK RECOMMENDATIONS (keyword-based) ────────
+        function buildFallbackRecommendations(addons, data) {
+            var recs = {};
+            if (!addons || !addons.length || !data) return recs;
+            var yr = data.yearBuilt ? parseInt(data.yearBuilt) : null;
+            addons.forEach(function(svc) {
+                var name = (svc.name || '').toLowerCase();
+                var id = svc.id;
+                var reason = null;
+                if (/radon/.test(name) && yr && yr < 2000) {
+                    reason = 'Recommended for homes built before 2000.';
+                } else if (/wdo|wood.destroy/.test(name)) {
+                    reason = 'Recommended for all inspections.';
+                } else if (/sewer/.test(name) && yr && yr < 1985) {
+                    reason = 'Recommended for older homes with aging sewer lines.';
+                } else if (/mold/.test(name) && data.hasBasement) {
+                    reason = 'Recommended for homes with basements.';
+                }
+                if (reason) recs[id] = { id: id, reason: reason, priority: 1 };
+            });
+            return recs;
+        }
+
+        // ─── APPLY SERVICE RECOMMENDATIONS ──────────────────
+        function applyRecommendations(data) {
+            var CFG = window.HEARTLAND_CONFIG;
+            if (!CFG) return;
+
+            var addons = (CFG.pricing && CFG.pricing.addonServices) ? CFG.pricing.addonServices : [];
+
+            // Use configured rules if present, otherwise fall back to keyword-based defaults
+            var recommendations = {};
+            if (CFG.serviceRecommendations && CFG.serviceRecommendations.length) {
+                var rules = CFG.serviceRecommendations;
+                for (var r = 0; r < rules.length; r++) {
+                    var rule = rules[r];
+                    try {
+                        if (evaluateRule(rule, data)) {
+                            var recKey = rule.addonId || rule.id;
+                            if (!recommendations[recKey] || rule.priority > recommendations[recKey].priority) {
+                                recommendations[recKey] = rule;
+                            }
+                        }
+                    } catch(e) { /* skip broken rules */ }
+                }
+            } else {
+                recommendations = buildFallbackRecommendations(addons, data);
+            }
+
+            // Clear previous recommendations
+            document.querySelectorAll('.wiz-recommend-badge').forEach(function(el) { el.remove(); });
+            document.querySelectorAll('.wiz-recommend-reason').forEach(function(el) { el.remove(); });
+            document.querySelectorAll('.wiz-addon-item.recommended').forEach(function(el) { el.classList.remove('recommended'); });
+
+            // Apply recommendation badges to matching add-on items
+            var addonContainer = document.getElementById('wizAddonContainer');
+            if (!addonContainer) return;
+
+            var addonItems = addonContainer.querySelectorAll('.wiz-addon-item');
+            addonItems.forEach(function(item) {
+                var idx = parseInt(item.dataset.addonIdx);
+                if (isNaN(idx) || !addons[idx]) return;
+
+                var svcId = addons[idx].id;
+                if (!recommendations[svcId]) return;
+
+                var rec = recommendations[svcId];
+                item.classList.add('recommended');
+
+                // Auto-select the recommended add-on
+                if (!item.classList.contains('selected')) {
+                    item.querySelector('.wiz-checkbox-row').click();
+                }
+
+                // Add badge to the service name
+                var nameEl = item.querySelector('.wiz-addon-name');
+                if (nameEl) {
+                    var badge = document.createElement('span');
+                    badge.className = 'wiz-recommend-badge';
+                    badge.textContent = 'Recommended';
+                    nameEl.appendChild(badge);
+
+                    // Add reason text below the name
+                    var reasonEl = document.createElement('span');
+                    reasonEl.className = 'wiz-recommend-reason';
+                    reasonEl.textContent = rec.reason;
+                    nameEl.appendChild(reasonEl);
+                }
+            });
+        }
+
+        // ─── CLEAR PROPERTY UI ───────────────────────────────
+        function clearPropertyUI() {
+            var cardEl = document.getElementById('wizPropertyCard');
+            var detailsEl = document.getElementById('wizPropertyDetails');
+            var autoHint = document.getElementById('wizHomeSizeAuto');
+            if (cardEl) cardEl.style.display = 'none';
+            if (detailsEl) detailsEl.innerHTML = '';
+            if (autoHint) autoHint.style.display = 'none';
+
+            // Clear recommendation badges
+            document.querySelectorAll('.wiz-recommend-badge').forEach(function(el) { el.remove(); });
+            document.querySelectorAll('.wiz-recommend-reason').forEach(function(el) { el.remove(); });
+            document.querySelectorAll('.wiz-addon-item.recommended').forEach(function(el) { el.classList.remove('recommended'); });
+
+            propertyData = null;
+        }
+
+        // ─── INCLUDE PROPERTY DATA IN SUBMIT PAYLOAD ─────────
+        // Expose a getter so the wizard engine can include property data
+        window._heartlandPropertyData = function() { return propertyData; };
+    })();
+    </script>
+    <script>
+
+        // ════════════════════════════════════════════════════════════
+        // BOOKING WIZARD ENGINE — reads from HEARTLAND_CONFIG
+        // ════════════════════════════════════════════════════════════
+        (function() {
+            'use strict';
+
+            function initWizard() {
+            var CFG = (typeof HEARTLAND_CONFIG !== 'undefined') ? HEARTLAND_CONFIG : null;
+            var P = CFG && CFG.pricing ? CFG.pricing : null;
+            if (!P) { console.warn('Booking Wizard: HEARTLAND_CONFIG.pricing not found'); return; }
+
+            // New table data from config
+            var categories = CFG.inspectionCategories || [];
+            var yearBuiltSurcharges = CFG.yearBuiltSurcharges || [];
+            var ncItems = CFG.newConstructionItems || [];
+            var hcTiers = CFG.healthCheckTiers || [];
+
+            // ─── STATE ─────────────────────────────────
+            var currentStep = 0;
+            var totalSteps = 4;
+            var wizInitialized = false;
+            var selectedCategory = null;
+            var selectedHomeSizeIndex = -1;
+            var selectedYearBuiltIndex = -1;
+            var selectedAddonIndices = [];
+            var selectedNCItems = [];
+            var ncBundleSelected = false;
+            var selectedHCTier = null;
+            var selectedDate = null;
+            var selectedTime = null;
+            var subItemsMap = {};
+            var wizCalMonth, wizCalYear;
+            var busyEvents = []; // Spectora iCal busy blocks
+
+            // ─── STATE TAX ──────────────────────────────
+            var STATE_TAX_RATES = {AL:4.00,AK:0,AZ:5.60,AR:6.50,CA:7.25,CO:2.90,CT:6.35,DE:0,FL:6.00,GA:4.00,HI:4.00,ID:6.00,IL:6.25,IN:7.00,IA:6.00,KS:6.50,KY:6.00,LA:4.45,ME:5.50,MD:6.00,MA:6.25,MI:6.00,MN:6.875,MS:7.00,MO:4.225,MT:0,NE:5.50,NV:6.85,NH:0,NJ:6.625,NM:4.875,NY:4.00,NC:4.75,ND:5.00,OH:5.75,OK:4.50,OR:0,PA:6.00,RI:7.00,SC:6.00,SD:4.20,TN:7.00,TX:6.25,UT:6.10,VT:6.00,VA:5.30,WA:6.50,WV:6.00,WI:5.00,WY:4.00,DC:6.00};
+            function detectStateFromAddress(addr) {
+                if (!addr) return null;
+                var m = addr.match(/,\s*([A-Z]{2})\s*\d{5}/);
+                return m ? m[1] : null;
+            }
+
+            // ─── FETCH BUSY EVENTS FROM OUTLOOK ────────
+            var busyEvents = [];
+            (function fetchBusyEvents() {
+                var weeks = CFG.PUBLIC_WEEKS_AHEAD || 4;
+                fetch('/.netlify/functions/get-availability?weeks=' + weeks)
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (!data.busy || !data.busy.length) return;
+                        busyEvents = data.busy.map(function(e) {
+                            return { start: new Date(e.start), end: new Date(e.end) };
+                        });
+                        // Re-render calendar if it's already showing
+                        if (selectedDate) renderTimeslots();
+                        var calGrid = document.getElementById('wizCalGrid');
+                        if (calGrid) renderCalendar();
+                        console.log('[wizard] Loaded', busyEvents.length, 'busy events from Outlook');
+                    })
+                    .catch(function(err) {
+                        console.warn('[wizard] Could not load availability:', err.message);
+                    });
+            })();
+
+            // ─── DOM REFS ──────────────────────────────
+            var wizard = document.getElementById('bookingWizard');
+            var panels = [
+                document.getElementById('wizardStep0'),
+                document.getElementById('wizardStep1'),
+                document.getElementById('wizardStep2'),
+                document.getElementById('wizardStep3')
+            ];
+            var successPanel = document.getElementById('wizardSuccess');
+            var navBar = document.getElementById('wizardNav');
+            var btnBack = document.getElementById('wizBtnBack');
+            var btnNext = document.getElementById('wizBtnNext');
+            var stepHeader = document.getElementById('wizardStepHeader');
+
+            var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+            // ─── STEP METADATA ─────────────────────────
+            var stepMeta = [
+                { title: 'Build Your Inspection Package', desc: 'Choose your inspection type and configure your options.' },
+                { title: 'Choose Your Date & Time', desc: 'Pick a date and time that works for you.' },
+                { title: 'Your Information', desc: 'We\'ll use this to confirm your appointment.' },
+                { title: 'Review & Submit', desc: 'Confirm everything looks correct before submitting.' }
+            ];
+
+            // ─── TIME HELPERS ──────────────────────────
+            function parseTimeStr(str) {
+                var m = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+                if (!m) return null;
+                var h = parseInt(m[1], 10), min = parseInt(m[2], 10), ap = m[3].toUpperCase();
+                if (ap === 'PM' && h !== 12) h += 12;
+                if (ap === 'AM' && h === 12) h = 0;
+                return { hour: h, minute: min };
+            }
+
+            function formatTime(h, m) {
+                var ap = h >= 12 ? 'PM' : 'AM';
+                return (h % 12 || 12) + ':' + (m < 10 ? '0' + m : m) + ' ' + ap;
+            }
+
+            function getWorkWindows(entry) {
+                if (!entry) return [];
+                if (Array.isArray(entry) && entry.length === 2 && typeof entry[0] === 'string') {
+                    var s = parseTimeStr(entry[0]), e = parseTimeStr(entry[1]);
+                    return (s && e) ? [{ sH: s.hour, sM: s.minute, eH: e.hour, eM: e.minute }] : [];
+                }
+                if (Array.isArray(entry) && Array.isArray(entry[0])) {
+                    return entry.map(function(w) {
+                        var s = parseTimeStr(w[0]), e = parseTimeStr(w[1]);
+                        return (s && e) ? { sH: s.hour, sM: s.minute, eH: e.hour, eM: e.minute } : null;
+                    }).filter(Boolean);
+                }
+                return [];
+            }
+
+            function getDateStr(d) {
+                return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+            }
+
+            function getSlotsForDate(dateStr) {
+                var d = new Date(dateStr + 'T12:00:00');
+                var dow = d.getDay();
+                var ov = CFG.dateOverrides ? CFG.dateOverrides[dateStr] : undefined;
+                var entry = (ov !== undefined) ? ov : (CFG.schedule ? CFG.schedule[dow] : null);
+                var windows = getWorkWindows(entry);
+                if (!windows.length) return [];
+                var dur = (CFG.INSPECTION_DURATION_HOURS || 2.5) * 60;
+                var step = CFG.SLOT_STEP_MINUTES || 60;
+                var slots = [];
+                windows.forEach(function(w) {
+                    var startMin = w.sH * 60 + w.sM, endMin = w.eH * 60 + w.eM;
+                    for (var t = startMin; t + dur <= endMin; t += step) {
+                        slots.push({ time: formatTime(Math.floor(t/60), t%60), minutes: t });
+                    }
+                });
+
+                // Filter out slots that overlap with busy events (Outlook)
+                if (busyEvents.length) {
+                    var tz = CFG.TIMEZONE || 'America/Chicago';
+                    var fmt = new Intl.DateTimeFormat('en-US', {
+                        timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit',
+                        hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+                    });
+
+                    var bufferMs = (CFG.BUFFER_MINUTES || 0) * 60000;
+
+                    slots = slots.filter(function(slot) {
+                        // Build the slot time string in the config timezone and find its true UTC value
+                        var slotH = Math.floor(slot.minutes / 60);
+                        var slotM = slot.minutes % 60;
+                        var naiveStr = dateStr + 'T' + String(slotH).padStart(2,'0') + ':' + String(slotM).padStart(2,'0') + ':00';
+
+                        // Find UTC offset for this date+time in the target timezone
+                        var naiveUtc = new Date(naiveStr + 'Z');
+                        var parts = fmt.formatToParts(naiveUtc);
+                        var p = {};
+                        parts.forEach(function(x) { p[x.type] = x.value; });
+                        var localMs = Date.UTC(+p.year, +p.month-1, +p.day, +(p.hour==='24'?0:p.hour), +p.minute, +p.second);
+                        var offsetMs = localMs - naiveUtc.getTime();
+                        var slotStartUtc = naiveUtc.getTime() - offsetMs;
+                        var slotEndUtc   = slotStartUtc + dur * 60000;
+
+                        for (var i = 0; i < busyEvents.length; i++) {
+                            // Expand busy window by buffer on both sides
+                            var bStart = busyEvents[i].start.getTime() - bufferMs;
+                            var bEnd   = busyEvents[i].end.getTime()   + bufferMs;
+                            if (slotStartUtc < bEnd && slotEndUtc > bStart) {
+                                return false; // Blocked
+                            }
+                        }
+                        return true;
+                    });
+                }
+
+                // Filter out slots within the minimum advance booking window
+                var minAdvanceHrs = (CFG.MIN_ADVANCE_HOURS !== undefined) ? CFG.MIN_ADVANCE_HOURS : 24;
+                if (minAdvanceHrs > 0) {
+                    var now = new Date();
+                    var cutoff = now.getTime() + (minAdvanceHrs * 3600000);
+                    var tz = CFG.TIMEZONE || 'America/Chicago';
+                    slots = slots.filter(function(slot) {
+                        // Build a Date for this slot in the config timezone
+                        var dtStr = dateStr + 'T' + String(Math.floor(slot.minutes/60)).padStart(2,'0') + ':' + String(slot.minutes%60).padStart(2,'0') + ':00';
+                        // Use Intl to find the UTC offset for this date/time in the target timezone
+                        var fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+                        var refUtc = new Date(dtStr + 'Z');
+                        var parts = fmt.formatToParts(refUtc);
+                        var pObj = {};
+                        parts.forEach(function(p){ pObj[p.type] = p.value; });
+                        var localOfRef = Date.UTC(+pObj.year, +pObj.month-1, +pObj.day, +(pObj.hour === '24' ? 0 : pObj.hour), +pObj.minute, +pObj.second);
+                        var offsetMs = localOfRef - refUtc.getTime();
+                        // The actual UTC time of this slot
+                        var slotUtc = refUtc.getTime() - offsetMs;
+                        return slotUtc > cutoff;
+                    });
+                }
+
+                return slots;
+            }
+
+            // ════════════════════════════════════════════
+            // STEP 0: Category cards + expansion panels
+            // ════════════════════════════════════════════
+            (function buildStep0() {
+                var catGrid = document.getElementById('wizCatGrid');
+                var expansion = document.getElementById('wizExpansion');
+                var expansionInner = document.getElementById('wizExpansionInner');
+
+                // Build category cards from config
+                categories.forEach(function(cat) {
+                    var card = document.createElement('div');
+                    card.className = 'wiz-cat-card';
+                    card.dataset.catId = cat.id;
+                    card.innerHTML =
+                        '<span class="wiz-cat-icon">' + (cat.icon || '') + '</span>' +
+                        '<span class="wiz-cat-name">' + cat.name + '</span>' +
+                        '<span class="wiz-cat-tagline">' + (cat.tagline || '') + '</span>' +
+                        '<span class="wiz-cat-check">✓</span>';
+                    card.addEventListener('click', function() {
+                        if (selectedCategory === cat.id) return;
+                        selectedCategory = cat.id;
+                        catGrid.querySelectorAll('.wiz-cat-card').forEach(function(c) {
+                            c.classList.toggle('selected', c.dataset.catId === cat.id);
+                        });
+                        resetCategoryState();
+                        renderExpansionPanel(cat);
+                        recalcPrice();
+                        validateStep();
+                    });
+                    catGrid.appendChild(card);
+                });
+
+                function resetCategoryState() {
+                    selectedHomeSizeIndex = -1;
+                    selectedYearBuiltIndex = -1;
+                    selectedAddonIndices = [];
+                    selectedNCItems = [];
+                    ncBundleSelected = false;
+                    selectedHCTier = null;
+                    subItemsMap = {};
+                }
+
+                // ─── AUTO-RECOMMEND ADD-ONS FROM WIZARD SELECTIONS ────
+                function applyWizardRecommendations() {
+                    var addons = P.addonServices || [];
+                    if (!addons.length) return;
+
+                    // Build pseudo property data from wizard selections
+                    var data = {};
+
+                    // Derive year from selected year-built bracket
+                    if (selectedYearBuiltIndex >= 0 && yearBuiltSurcharges[selectedYearBuiltIndex]) {
+                        var yb = yearBuiltSurcharges[selectedYearBuiltIndex];
+                        if (yb.minYear !== null && yb.minYear !== undefined) {
+                            data.yearBuilt = yb.minYear;
+                        } else if (yb.maxYear !== null && yb.maxYear !== undefined) {
+                            data.yearBuilt = yb.maxYear - 1;
+                        }
+                    }
+
+                    // Merge with propertyData if available
+                    if (typeof window._heartlandPropertyData === 'function') {
+                        var propData = window._heartlandPropertyData();
+                        if (propData && propData.found) {
+                            if (propData.hasBasement !== undefined) data.hasBasement = propData.hasBasement;
+                            if (propData.propertyType) data.propertyType = propData.propertyType;
+                        }
+                    }
+
+                    // Use configured rules if present, otherwise fall back to keyword-based defaults
+                    var recommendations = {};
+                    if (CFG.serviceRecommendations && CFG.serviceRecommendations.length) {
+                        var rules = CFG.serviceRecommendations;
+                        for (var r = 0; r < rules.length; r++) {
+                            var rule = rules[r];
+                            try {
+                                if (window.evaluateRule(rule, data)) {
+                                    var recKey = rule.addonId || rule.id;
+                                    if (!recommendations[recKey] || rule.priority > recommendations[recKey].priority) {
+                                        recommendations[recKey] = rule;
+                                    }
+                                }
+                            } catch(e) { /* skip */ }
+                        }
+                    } else {
+                        recommendations = buildFallbackRecommendations(addons, data);
+                    }
+
+                    // Clear previous wizard-driven recommendations
+                    document.querySelectorAll('.wiz-recommend-badge').forEach(function(el) { el.remove(); });
+                    document.querySelectorAll('.wiz-recommend-reason').forEach(function(el) { el.remove(); });
+                    document.querySelectorAll('.wiz-addon-item.recommended').forEach(function(el) { el.classList.remove('recommended'); });
+
+                    var addonContainer = document.getElementById('wizAddonContainer');
+                    if (!addonContainer) return;
+
+                    var addonItems = addonContainer.querySelectorAll('.wiz-addon-item');
+                    addonItems.forEach(function(item) {
+                        var idx = parseInt(item.dataset.addonIdx);
+                        if (isNaN(idx) || !addons[idx]) return;
+
+                        var svcId = addons[idx].id;
+                        if (!recommendations[svcId]) return;
+
+                        var rec = recommendations[svcId];
+                        item.classList.add('recommended');
+
+                        // Auto-select if not already selected
+                        if (!item.classList.contains('selected')) {
+                            item.querySelector('.wiz-checkbox-row').click();
+                        }
+
+                        var nameEl = item.querySelector('.wiz-addon-name');
+                        if (nameEl) {
+                            var badge = document.createElement('span');
+                            badge.className = 'wiz-recommend-badge';
+                            badge.textContent = 'Recommended';
+                            nameEl.appendChild(badge);
+
+                            var reasonEl = document.createElement('span');
+                            reasonEl.className = 'wiz-recommend-reason';
+                            reasonEl.textContent = rec.reason;
+                            nameEl.appendChild(reasonEl);
+                        }
+                    });
+                }
+
+                function renderExpansionPanel(cat) {
+                    expansionInner.innerHTML = '';
+                    expansion.classList.remove('open');
+
+                    if (cat.id === 'pre-purchase' || cat.id === 'pre-listing') {
+                        renderHomeSizePanel(cat);
+                    } else if (cat.id === 'new-construction') {
+                        renderNCPanel();
+                    } else if (cat.id === 'home-health-check') {
+                        renderHCPanel();
+                    }
+
+                    // Trigger expansion open after a frame to enable animation
+                    requestAnimationFrame(function() { expansion.classList.add('open'); });
+                }
+
+                // ─── PRE-PURCHASE / PRE-LISTING PANEL ────────
+                function renderHomeSizePanel(cat) {
+                    var html = '';
+
+                    // Home size buttons
+                    html += '<div class="wiz-field-group">';
+                    html += '<label class="wiz-label">Home Size</label>';
+                    html += '<div class="wiz-hs-group" id="wizHomeSizeGroup">';
+                    (P.homeSizeTiers || []).forEach(function(tier, i) {
+                        html += '<button type="button" class="wiz-hs-btn" data-hs-idx="' + i + '">';
+                        html += '<span class="wiz-hs-label">' + tier.label + '</span>';
+                        html += '<span class="wiz-hs-price">$' + tier.price + '</span>';
+                        html += '</button>';
+                    });
+                    html += '</div>';
+                    html += '<span class="wiz-homesize-auto" id="wizHomeSizeAuto" style="display:none;"></span>';
+                    html += '</div>';
+
+                    // Year built selector
+                    if (cat.hasYearBuilt && yearBuiltSurcharges.length) {
+                        html += '<div class="wiz-field-group">';
+                        html += '<label class="wiz-label">Year Built</label>';
+                        html += '<div class="wiz-yb-group" id="wizYearBuiltGroup">';
+                        yearBuiltSurcharges.forEach(function(yb, i) {
+                            var surchargeText = yb.surcharge > 0 ? '+$' + yb.surcharge : 'No surcharge';
+                            html += '<button type="button" class="wiz-yb-btn" data-yb-idx="' + i + '">';
+                            html += '<span class="wiz-yb-label">' + yb.label + '</span>';
+                            html += '<span class="wiz-yb-surcharge">' + surchargeText + '</span>';
+                            html += '</button>';
+                        });
+                        html += '</div>';
+                        html += '<span class="wiz-autofill-hint" id="wizYBAutoHint" style="display:none;"></span>';
+                        html += '</div>';
+                    }
+
+                    // Add-on services
+                    if (cat.hasAddons) {
+                        html += '<div class="wiz-field-group">';
+                        html += '<label class="wiz-label">Add-on Services</label>';
+                        var discTiers = P.discountTiers || [];
+                        var firstDisc = null;
+                        for (var t = 0; t < discTiers.length; t++) { if (discTiers[t].pct > 0) { firstDisc = discTiers[t]; break; } }
+                        if (firstDisc && cat.hasDiscounting) {
+                            html += '<p class="wiz-hint" id="wizDiscountHint">Bundle &amp; save \u2014 ' + firstDisc.pct + '% off with ' + firstDisc.services + '+ services</p>';
+                        }
+                        html += '<div id="wizAddonContainer"></div>';
+                        html += '</div>';
+                    }
+
+                    expansionInner.innerHTML = html;
+
+                    // Wire up home size buttons
+                    var hsGroup = document.getElementById('wizHomeSizeGroup');
+                    if (hsGroup) {
+                        hsGroup.querySelectorAll('.wiz-hs-btn').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                selectedHomeSizeIndex = parseInt(this.dataset.hsIdx);
+                                hsGroup.querySelectorAll('.wiz-hs-btn').forEach(function(b) {
+                                    b.classList.toggle('selected', parseInt(b.dataset.hsIdx) === selectedHomeSizeIndex);
+                                });
+                                recalcPrice();
+                                validateStep();
+                                applyWizardRecommendations();
+                            });
+                        });
+                    }
+
+                    // Wire up year built buttons
+                    var ybGroup = document.getElementById('wizYearBuiltGroup');
+                    if (ybGroup) {
+                        ybGroup.querySelectorAll('.wiz-yb-btn').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                selectedYearBuiltIndex = parseInt(this.dataset.ybIdx);
+                                ybGroup.querySelectorAll('.wiz-yb-btn').forEach(function(b) {
+                                    b.classList.toggle('selected', parseInt(b.dataset.ybIdx) === selectedYearBuiltIndex);
+                                });
+                                recalcPrice();
+                                validateStep();
+                                applyWizardRecommendations();
+                            });
+                        });
+                    }
+
+                    // Build add-on checkboxes
+                    if (cat.hasAddons) {
+                        var addonContainer = document.getElementById('wizAddonContainer');
+                        if (addonContainer) buildAddonCheckboxes(addonContainer);
+                    }
+                }
+
+                function buildAddonCheckboxes(container) {
+                    (P.addonServices || []).forEach(function(svc, i) {
+                        var wrapper = document.createElement('div');
+                        wrapper.className = 'wiz-addon-item';
+                        wrapper.dataset.addonIdx = i;
+
+                        var mainRow = document.createElement('div');
+                        mainRow.className = 'wiz-checkbox-row';
+                        mainRow.innerHTML =
+                            '<div class="wiz-check-box"><svg class="wiz-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+                            '<div class="wiz-addon-info"><span class="wiz-addon-name">' + svc.name +
+                            (svc.subtext ? ' <span class="wiz-addon-subtext">' + svc.subtext + '</span>' : '') +
+                            '</span></div>' +
+                            '<span class="wiz-addon-price">$' + svc.price + '</span>';
+
+                        mainRow.addEventListener('click', function() {
+                            var idx = selectedAddonIndices.indexOf(i);
+                            if (idx === -1) { selectedAddonIndices.push(i); wrapper.classList.add('selected'); }
+                            else { selectedAddonIndices.splice(idx, 1); wrapper.classList.remove('selected'); }
+                            var subs = wrapper.querySelectorAll('.wiz-sub-item');
+                            subs.forEach(function(sub) {
+                                sub.style.display = wrapper.classList.contains('selected') ? 'flex' : 'none';
+                                if (!wrapper.classList.contains('selected')) {
+                                    var sid = sub.dataset.subId;
+                                    if (subItemsMap[sid]) {
+                                        subItemsMap[sid].qty = subItemsMap[sid].min;
+                                        sub.querySelector('.wiz-qty-val').textContent = subItemsMap[sid].qty;
+                                        sub.querySelector('.wiz-sub-total').textContent = '$' + (subItemsMap[sid].qty * subItemsMap[sid].price);
+                                    }
+                                }
+                            });
+                            recalcPrice(); validateStep();
+                        });
+                        wrapper.appendChild(mainRow);
+
+                        // Sub-items
+                        if (svc.subItems && svc.subItems.length) {
+                            svc.subItems.forEach(function(sub) {
+                                subItemsMap[sub.id] = { parentIdx: i, price: sub.price, min: sub.minQty || 0, max: sub.maxQty || 99, qty: sub.minQty || 0 };
+                                var subEl = document.createElement('div');
+                                subEl.className = 'wiz-sub-item';
+                                subEl.dataset.subId = sub.id;
+                                subEl.style.display = 'none';
+                                subEl.innerHTML =
+                                    '<span class="wiz-sub-name">' + sub.name + '</span>' +
+                                    '<span class="wiz-sub-price-each">$' + sub.price + ' ea</span>' +
+                                    '<div class="wiz-qty-controls">' +
+                                        '<button type="button" class="wiz-qty-btn wiz-qty-minus" data-sub="' + sub.id + '">\u2212</button>' +
+                                        '<span class="wiz-qty-val">' + (sub.minQty || 0) + '</span>' +
+                                        '<button type="button" class="wiz-qty-btn wiz-qty-plus" data-sub="' + sub.id + '">+</button>' +
+                                    '</div>' +
+                                    '<span class="wiz-sub-total">$0</span>';
+                                subEl.addEventListener('click', function(e) {
+                                    var btn = e.target.closest('.wiz-qty-btn');
+                                    if (!btn) return;
+                                    e.stopPropagation();
+                                    var sid = btn.dataset.sub, info = subItemsMap[sid];
+                                    if (btn.classList.contains('wiz-qty-plus') && info.qty < info.max) info.qty++;
+                                    if (btn.classList.contains('wiz-qty-minus') && info.qty > info.min) info.qty--;
+                                    subEl.querySelector('.wiz-qty-val').textContent = info.qty;
+                                    subEl.querySelector('.wiz-sub-total').textContent = '$' + (info.qty * info.price);
+                                    recalcPrice();
+                                });
+                                wrapper.appendChild(subEl);
+                            });
+                        }
+                        container.appendChild(wrapper);
+                    });
+                }
+
+                // ─── NEW CONSTRUCTION PANEL ──────────────────
+                function renderNCPanel() {
+                    var phases = ncItems.filter(function(it) { return !it.isBundle; });
+                    var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+
+                    var html = '<div class="wiz-field-group">';
+                    html += '<label class="wiz-label">Select Inspection Phases</label>';
+
+                    // Toggle: Individual vs Bundle
+                    html += '<div class="wiz-nc-toggle">';
+                    html += '<button type="button" class="wiz-nc-toggle-btn selected" id="wizNCIndividual">Individual Phases</button>';
+                    if (bundle) html += '<button type="button" class="wiz-nc-toggle-btn" id="wizNCBundle">Foundation to Finish Bundle</button>';
+                    html += '</div>';
+
+                    // Individual phases
+                    html += '<div id="wizNCPhases">';
+                    phases.forEach(function(item) {
+                        html += '<div class="wiz-addon-item" data-nc-id="' + item.id + '">';
+                        html += '<div class="wiz-checkbox-row">';
+                        html += '<div class="wiz-check-box"><svg class="wiz-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>';
+                        html += '<div class="wiz-addon-info"><span class="wiz-addon-name">' + item.name + '</span></div>';
+                        html += '<span class="wiz-addon-price">$' + item.price + '</span>';
+                        html += '</div></div>';
+                    });
+                    html += '</div>';
+
+                    // Bundle info
+                    if (bundle) {
+                        var savings = 0;
+                        phases.forEach(function(p) { savings += Number(p.price); });
+                        savings = savings - Number(bundle.price);
+                        html += '<div id="wizNCBundleInfo" style="display:none;">';
+                        html += '<div class="wiz-radio-item selected" style="border-color:var(--secondary);background:color-mix(in srgb, var(--secondary) 4%, white);cursor:default;">';
+                        html += '<div class="wiz-radio-info">';
+                        html += '<span class="wiz-radio-name">' + bundle.name + '</span>';
+                        html += '<span class="wiz-radio-desc">All 3 phases included \u2014 save $' + savings + '</span>';
+                        html += '</div>';
+                        html += '<span class="wiz-radio-price" style="color:var(--secondary);">$' + bundle.price + '</span>';
+                        html += '</div></div>';
+                    }
+
+                    html += '</div>';
+                    expansionInner.innerHTML = html;
+
+                    // Wire individual phase checkboxes
+                    var phasesContainer = document.getElementById('wizNCPhases');
+                    phasesContainer.querySelectorAll('.wiz-addon-item').forEach(function(el) {
+                        el.querySelector('.wiz-checkbox-row').addEventListener('click', function() {
+                            var id = parseInt(el.dataset.ncId);
+                            var idx = selectedNCItems.indexOf(id);
+                            if (idx === -1) { selectedNCItems.push(id); el.classList.add('selected'); }
+                            else { selectedNCItems.splice(idx, 1); el.classList.remove('selected'); }
+                            recalcPrice(); validateStep();
+                        });
+                    });
+
+                    // Wire toggle buttons
+                    var indBtn = document.getElementById('wizNCIndividual');
+                    var bundleBtn = document.getElementById('wizNCBundle');
+                    var bundleInfo = document.getElementById('wizNCBundleInfo');
+
+                    if (indBtn) indBtn.addEventListener('click', function() {
+                        ncBundleSelected = false;
+                        indBtn.classList.add('selected'); if (bundleBtn) bundleBtn.classList.remove('selected');
+                        phasesContainer.style.display = ''; if (bundleInfo) bundleInfo.style.display = 'none';
+                        recalcPrice(); validateStep();
+                    });
+                    if (bundleBtn) bundleBtn.addEventListener('click', function() {
+                        ncBundleSelected = true;
+                        bundleBtn.classList.add('selected'); indBtn.classList.remove('selected');
+                        phasesContainer.style.display = 'none'; if (bundleInfo) bundleInfo.style.display = '';
+                        recalcPrice(); validateStep();
+                    });
+                }
+
+                // ─── HOME HEALTH CHECK PANEL ─────────────────
+                function renderHCPanel() {
+                    var html = '<div class="wiz-field-group">';
+                    html += '<label class="wiz-label">Choose Your Plan</label>';
+                    html += '<div class="wiz-hc-grid">';
+
+                    hcTiers.forEach(function(tier) {
+                        // Collect inherited features
+                        var inheritedFeatures = [];
+                        if (tier.inheritsFrom && tier.inheritsFrom.length) {
+                            tier.inheritsFrom.forEach(function(inheritId) {
+                                var parent = hcTiers.filter(function(t) { return t.id === inheritId; })[0];
+                                if (parent) {
+                                    inheritedFeatures.push({ name: parent.name, features: parent.includes || [] });
+                                }
+                            });
+                        }
+
+                        html += '<div class="wiz-hc-card" data-hc-id="' + tier.id + '">';
+                        html += '<div class="wiz-hc-header">';
+                        html += '<span class="wiz-hc-name">' + tier.name + '</span>';
+                        html += '<span class="wiz-hc-price">$' + tier.price + '</span>';
+                        html += '</div>';
+
+                        // Show inherited features first
+                        inheritedFeatures.forEach(function(group) {
+                            html += '<div class="wiz-hc-inherited-label">Includes ' + group.name + '</div>';
+                            html += '<ul class="wiz-hc-features">';
+                            group.features.forEach(function(f) {
+                                html += '<li class="inherited">' + f + '</li>';
+                            });
+                            html += '</ul>';
+                        });
+
+                        // Own features
+                        if (tier.includes && tier.includes.length) {
+                            if (inheritedFeatures.length) html += '<div class="wiz-hc-inherited-label">Plus</div>';
+                            html += '<ul class="wiz-hc-features">';
+                            (tier.includes || []).forEach(function(f) { html += '<li>' + f + '</li>'; });
+                            html += '</ul>';
+                        }
+
+                        html += '</div>';
+                    });
+
+                    html += '</div></div>';
+                    expansionInner.innerHTML = html;
+
+                    // Wire tier cards
+                    expansionInner.querySelectorAll('.wiz-hc-card').forEach(function(card) {
+                        card.addEventListener('click', function() {
+                            selectedHCTier = parseInt(card.dataset.hcId);
+                            expansionInner.querySelectorAll('.wiz-hc-card').forEach(function(c) {
+                                c.classList.toggle('selected', parseInt(c.dataset.hcId) === selectedHCTier);
+                            });
+                            recalcPrice(); validateStep();
+                        });
+                    });
+                }
+            })();
+
+            // ─── PRICE RECALCULATION (category-aware) ────
+            function recalcPrice() {
+                var total = 0;
+                var breakdownHtml = '';
+                var discountAmt = 0;
+                var cat = categories.filter(function(c) { return c.id === selectedCategory; })[0];
+
+                if (!cat) {
+                    document.getElementById('wizPriceBreakdown').innerHTML = '<div class="wiz-price-row"><span>Select an inspection type above</span><span>$0</span></div>';
+                    document.getElementById('wizTotal').textContent = '$0';
+                    document.getElementById('wizSavingsBadge').style.display = 'none';
+                    return;
+                }
+
+                if (cat.id === 'pre-purchase' || cat.id === 'pre-listing') {
+                    // Base price from home size tier
+                    var tier = (selectedHomeSizeIndex >= 0 && P.homeSizeTiers[selectedHomeSizeIndex]) ? P.homeSizeTiers[selectedHomeSizeIndex] : null;
+                    var basePrice = tier ? tier.price : 0;
+                    breakdownHtml += '<div class="wiz-price-row"><span>Base Inspection' + (tier ? ' (' + tier.label + ')' : '') + '</span><span>$' + basePrice + '</span></div>';
+                    total += basePrice;
+
+                    // Year built surcharge
+                    if (selectedYearBuiltIndex >= 0 && yearBuiltSurcharges[selectedYearBuiltIndex]) {
+                        var yb = yearBuiltSurcharges[selectedYearBuiltIndex];
+                        if (yb.surcharge > 0) {
+                            breakdownHtml += '<div class="wiz-price-row"><span>Older Home Surcharge (' + yb.label + ')</span><span>+$' + yb.surcharge + '</span></div>';
+                            total += Number(yb.surcharge);
+                        }
+                    }
+
+                    // Add-ons
+                    var addonTotal = 0;
+                    selectedAddonIndices.forEach(function(i) { addonTotal += P.addonServices[i].price; });
+                    if (addonTotal > 0) {
+                        breakdownHtml += '<div class="wiz-price-row"><span>Add-ons (' + selectedAddonIndices.length + ')</span><span>+$' + addonTotal + '</span></div>';
+                        total += addonTotal;
+                    }
+
+                    // Sub-item total
+                    var subTotal = 0;
+                    for (var sid in subItemsMap) {
+                        var info = subItemsMap[sid];
+                        if (selectedAddonIndices.indexOf(info.parentIdx) !== -1 && info.qty > 0) {
+                            subTotal += info.qty * info.price;
+                        }
+                    }
+                    if (subTotal > 0) {
+                        breakdownHtml += '<div class="wiz-price-row"><span>Additional Items</span><span>+$' + subTotal + '</span></div>';
+                        total += subTotal;
+                    }
+
+                    // Bundle discount (only for categories with discounting)
+                    if (cat.hasDiscounting) {
+                        var mainCount = 1 + selectedAddonIndices.length; // base inspection + addons
+                        var discountPct = 0;
+                        var maxPct = P.maxDiscountPct || 50;
+                        var dTiers = P.discountTiers || [];
+                        for (var i = dTiers.length - 1; i >= 0; i--) {
+                            if (mainCount >= dTiers[i].services) { discountPct = dTiers[i].pct; break; }
+                        }
+                        if (discountPct > maxPct) discountPct = maxPct;
+                        discountAmt = Math.round(total * discountPct / 100);
+                        if (discountAmt > 0) {
+                            breakdownHtml += '<div class="wiz-price-row wiz-discount-row"><span>Bundle Discount (' + discountPct + '%)</span><span>-$' + discountAmt + '</span></div>';
+                            total -= discountAmt;
+                        }
+
+                        // Update discount hint
+                        var hintEl = document.getElementById('wizDiscountHint');
+                        if (hintEl && dTiers.length) {
+                            if (discountPct > 0) {
+                                hintEl.textContent = 'Bundle & save \u2014 ' + discountPct + '% off with ' + mainCount + '+ services';
+                            } else {
+                                var nextTier = null;
+                                for (var t = 0; t < dTiers.length; t++) { if (dTiers[t].pct > 0 && dTiers[t].services > mainCount) { nextTier = dTiers[t]; break; } }
+                                if (!nextTier) { for (var t = 0; t < dTiers.length; t++) { if (dTiers[t].pct > 0) { nextTier = dTiers[t]; break; } } }
+                                if (nextTier) hintEl.textContent = 'Bundle & save \u2014 ' + nextTier.pct + '% off with ' + nextTier.services + '+ services';
+                            }
+                        }
+                    }
+                }
+                else if (cat.id === 'new-construction') {
+                    if (ncBundleSelected) {
+                        var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+                        if (bundle) {
+                            total = Number(bundle.price);
+                            breakdownHtml += '<div class="wiz-price-row"><span>' + bundle.name + '</span><span>$' + bundle.price + '</span></div>';
+                        }
+                    } else {
+                        selectedNCItems.forEach(function(itemId) {
+                            var item = ncItems.filter(function(it) { return it.id === itemId; })[0];
+                            if (item) {
+                                total += Number(item.price);
+                                breakdownHtml += '<div class="wiz-price-row"><span>' + item.name + '</span><span>$' + item.price + '</span></div>';
+                            }
+                        });
+                    }
+                }
+                else if (cat.id === 'home-health-check') {
+                    var tier = hcTiers.filter(function(t) { return t.id === selectedHCTier; })[0];
+                    if (tier) {
+                        total = Number(tier.price);
+                        breakdownHtml += '<div class="wiz-price-row"><span>' + tier.name + '</span><span>$' + tier.price + '</span></div>';
+                    }
+                }
+
+                // State tax
+                var taxAmt = 0;
+                var taxState = null;
+                var taxRate = 0;
+                if (CFG.INCLUDE_STATE_TAX && total > 0) {
+                    var addrEl = document.getElementById('wizAddress');
+                    if (addrEl) taxState = detectStateFromAddress(addrEl.value);
+                    if (taxState && STATE_TAX_RATES[taxState] !== undefined) {
+                        taxRate = STATE_TAX_RATES[taxState];
+                        taxAmt = Math.round(total * taxRate / 100);
+                        if (taxAmt > 0) {
+                            breakdownHtml += '<div class="wiz-price-row"><span>State Tax (' + taxState + ' ' + taxRate + '%)</span><span>+$' + taxAmt + '</span></div>';
+                            total += taxAmt;
+                        }
+                    }
+                }
+
+                if (!breakdownHtml) {
+                    breakdownHtml = '<div class="wiz-price-row"><span>Configure your options above</span><span>$0</span></div>';
+                }
+
+                document.getElementById('wizPriceBreakdown').innerHTML = breakdownHtml;
+                document.getElementById('wizTotal').textContent = '$' + total;
+
+                var badge = document.getElementById('wizSavingsBadge');
+                if (discountAmt > 0) {
+                    badge.style.display = '';
+                    document.getElementById('wizSavingsAmt').textContent = '$' + discountAmt;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            // ════════════════════════════════════════════
+            // STEP 1: Calendar
+            // ════════════════════════════════════════════
+            (function buildStep1() {
+                var today = new Date();
+                wizCalMonth = today.getMonth();
+                wizCalYear = today.getFullYear();
+
+                document.getElementById('wizCalPrev').addEventListener('click', function() {
+                    if (wizCalMonth === 0) { wizCalMonth = 11; wizCalYear--; } else wizCalMonth--;
+                    renderCalendar();
+                });
+                document.getElementById('wizCalNext').addEventListener('click', function() {
+                    if (wizCalMonth === 11) { wizCalMonth = 0; wizCalYear++; } else wizCalMonth++;
+                    renderCalendar();
+                });
+            })();
+
+            function renderCalendar() {
+                var today = new Date();
+                var todayStr = getDateStr(today);
+                var maxDate = new Date(today);
+                maxDate.setDate(maxDate.getDate() + (CFG.PUBLIC_WEEKS_AHEAD || 4) * 7);
+
+                var daysInMonth = new Date(wizCalYear, wizCalMonth + 1, 0).getDate();
+                var firstDay = new Date(wizCalYear, wizCalMonth, 1).getDay();
+
+                document.getElementById('wizCalTitle').textContent = MONTH_NAMES[wizCalMonth] + ' ' + wizCalYear;
+
+                // Nav button visibility
+                var canPrev = wizCalYear > today.getFullYear() || (wizCalYear === today.getFullYear() && wizCalMonth > today.getMonth());
+                var canNext = wizCalYear < maxDate.getFullYear() || (wizCalYear === maxDate.getFullYear() && wizCalMonth < maxDate.getMonth());
+                document.getElementById('wizCalPrev').style.opacity = canPrev ? '1' : '0.3';
+                document.getElementById('wizCalPrev').style.pointerEvents = canPrev ? 'auto' : 'none';
+                document.getElementById('wizCalNext').style.opacity = canNext ? '1' : '0.3';
+                document.getElementById('wizCalNext').style.pointerEvents = canNext ? 'auto' : 'none';
+
+                var html = '';
+                for (var i = 0; i < firstDay; i++) html += '<div class="wiz-cal-cell empty"></div>';
+
+                for (var d = 1; d <= daysInMonth; d++) {
+                    var dateStr = wizCalYear + '-' + String(wizCalMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                    var dateObj = new Date(wizCalYear, wizCalMonth, d);
+                    var isPast = dateObj < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    var isBeyond = dateObj > maxDate;
+                    var slots = getSlotsForDate(dateStr);
+                    var isAvailable = slots.length > 0 && !isPast && !isBeyond;
+                    var isSelected = selectedDate === dateStr;
+                    var isToday = dateStr === todayStr;
+
+                    // Check if day has work windows but all slots are booked
+                    var isBooked = false;
+                    if (!isAvailable && !isPast && !isBeyond) {
+                        var dow = dateObj.getDay();
+                        var ov = CFG.dateOverrides ? CFG.dateOverrides[dateStr] : undefined;
+                        var entry = (ov !== undefined) ? ov : (CFG.schedule ? CFG.schedule[dow] : null);
+                        var windows = getWorkWindows(entry);
+                        if (windows.length > 0) isBooked = true; // Had hours but no slots left
+                    }
+
+                    var cls = 'wiz-cal-cell';
+                    if (isSelected) cls += ' selected';
+                    else if (isAvailable) cls += ' available';
+                    else if (isBooked) cls += ' booked';
+                    else cls += ' disabled';
+                    if (isToday) cls += ' today';
+
+                    html += '<div class="' + cls + '" ' + (isAvailable ? 'data-date="' + dateStr + '"' : '') + '>';
+                    html += '<span>' + d + '</span>';
+                    if (isAvailable && !isSelected) html += '<div class="wiz-cal-dot"></div>';
+                    html += '</div>';
+                }
+
+                document.getElementById('wizCalDays').innerHTML = html;
+
+                // Click handlers
+                document.querySelectorAll('.wiz-cal-cell[data-date]').forEach(function(cell) {
+                    cell.addEventListener('click', function() {
+                        selectedDate = this.dataset.date;
+                        selectedTime = null;
+                        renderCalendar();
+                        renderTimeslots();
+                        validateStep();
+                    });
+                });
+
+                // Re-render timeslots if date was already selected
+                if (selectedDate) renderTimeslots();
+            }
+
+            function renderTimeslots() {
+                var container = document.getElementById('wizTimeslots');
+                var grid = document.getElementById('wizTimeslotGrid');
+                var title = document.getElementById('wizTimeslotTitle');
+
+                if (!selectedDate) { container.style.display = 'none'; return; }
+
+                var slots = getSlotsForDate(selectedDate);
+                var dateObj = new Date(selectedDate + 'T12:00:00');
+                var opts = { weekday: 'long', month: 'long', day: 'numeric' };
+                title.textContent = 'Available Times — ' + dateObj.toLocaleDateString('en-US', opts);
+
+                if (!slots.length) {
+                    grid.innerHTML = '<p class="wiz-no-slots">No available time slots for this date.</p>';
+                } else {
+                    grid.innerHTML = slots.map(function(slot) {
+                        var cls = 'wiz-time-btn' + (selectedTime === slot.time ? ' selected' : '');
+                        return '<button type="button" class="' + cls + '" data-time="' + slot.time + '">' + slot.time + '</button>';
+                    }).join('');
+
+                    grid.querySelectorAll('.wiz-time-btn').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            selectedTime = this.dataset.time;
+                            grid.querySelectorAll('.wiz-time-btn').forEach(function(b) { b.classList.remove('selected'); });
+                            this.classList.add('selected');
+                            validateStep();
+                        });
+                    });
+                }
+
+                container.style.display = '';
+            }
+
+            // ════════════════════════════════════════════
+            // STEP 2: Phone auto-format
+            // ════════════════════════════════════════════
+            (function() {
+                var ph = document.getElementById('wizPhone');
+                if (!ph) return;
+                function formatPhone(el) {
+                    var d = el.value.replace(/\D/g, '').substring(0, 10);
+                    var f = '';
+                    if (d.length > 0) f = '(' + d.substring(0,3);
+                    if (d.length >= 3) f += ') ';
+                    if (d.length > 3) f += d.substring(3,6);
+                    if (d.length >= 6) f += '-' + d.substring(6,10);
+                    el.value = f;
+                }
+                ph.addEventListener('input', function() { formatPhone(this); });
+                var agentPh = document.getElementById('wizAgentPhone');
+                if (agentPh) agentPh.addEventListener('input', function() { formatPhone(this); });
+            })();
+
+            // ════════════════════════════════════════════
+            // COUPON CODE LOGIC
+            // ════════════════════════════════════════════
+            var appliedCoupon = null;
+            (function() {
+                var btn = document.getElementById('wizApplyCoupon');
+                var inp = document.getElementById('wizCoupon');
+                var errEl = document.getElementById('errCoupon');
+                if (!btn || !inp) return;
+
+                btn.addEventListener('click', function() {
+                    var code = inp.value.trim().toUpperCase();
+                    errEl.textContent = '';
+                    if (!code) { errEl.style.color = 'var(--red, #e03328)'; errEl.textContent = 'Enter a coupon code'; return; }
+
+                    var coupons = (typeof HEARTLAND_CONFIG !== 'undefined' && HEARTLAND_CONFIG.coupons) ? HEARTLAND_CONFIG.coupons : [];
+                    var match = null;
+                    for (var i = 0; i < coupons.length; i++) {
+                        if (coupons[i].code.toUpperCase() === code && coupons[i].active !== false) { match = coupons[i]; break; }
+                    }
+                    if (match) {
+                        appliedCoupon = match;
+                        errEl.style.color = 'var(--secondary)';
+                        if (match.type === 'percent') {
+                            errEl.textContent = '✓ ' + match.code + ' applied — ' + match.value + '% off!';
+                        } else {
+                            errEl.textContent = '✓ ' + match.code + ' applied — $' + match.value + ' off!';
+                        }
+                        btn.textContent = '✓ Applied';
+                        btn.style.background = 'var(--secondary)';
+                        btn.style.color = 'var(--white)';
+                        btn.style.borderColor = 'var(--secondary)';
+                        recalcPrice();
+                    } else {
+                        appliedCoupon = null;
+                        errEl.style.color = 'var(--red, #e03328)';
+                        errEl.textContent = 'Invalid or expired coupon code';
+                        btn.textContent = 'Apply';
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        btn.style.borderColor = '';
+                        recalcPrice();
+                    }
+                });
+
+                inp.addEventListener('input', function() {
+                    if (appliedCoupon) {
+                        appliedCoupon = null;
+                        errEl.textContent = '';
+                        btn.textContent = 'Apply';
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        btn.style.borderColor = '';
+                        recalcPrice();
+                    }
+                });
+            })();
+
+            // ════════════════════════════════════════════
+            // STEP 3: Build review summary
+            // ════════════════════════════════════════════
+            function buildReview() {
+                var cat = categories.filter(function(c) { return c.id === selectedCategory; })[0];
+                var svcHtml = '';
+                var total = 0;
+
+                if (cat) {
+                    svcHtml += '<div class="wiz-review-row"><span>Inspection Type</span><span>' + cat.name + '</span></div>';
+                }
+
+                if (selectedCategory === 'pre-purchase' || selectedCategory === 'pre-listing') {
+                    var tier = (selectedHomeSizeIndex >= 0 && P.homeSizeTiers[selectedHomeSizeIndex]) ? P.homeSizeTiers[selectedHomeSizeIndex] : null;
+                    var basePrice = tier ? tier.price : 0;
+
+                    svcHtml += '<div class="wiz-review-row"><span>Home Size</span><span>' + (tier ? tier.label : '\u2014') + '</span></div>';
+                    svcHtml += '<div class="wiz-review-row"><span>Base Price</span><span>$' + basePrice + '</span></div>';
+                    total += basePrice;
+
+                    // Year built surcharge
+                    if (selectedYearBuiltIndex >= 0 && yearBuiltSurcharges[selectedYearBuiltIndex]) {
+                        var yb = yearBuiltSurcharges[selectedYearBuiltIndex];
+                        svcHtml += '<div class="wiz-review-row"><span>Year Built</span><span>' + yb.label + '</span></div>';
+                        if (yb.surcharge > 0) {
+                            svcHtml += '<div class="wiz-review-row"><span>Older Home Surcharge</span><span>+$' + yb.surcharge + '</span></div>';
+                            total += Number(yb.surcharge);
+                        }
+                    }
+
+                    var addonTotal = 0;
+                    selectedAddonIndices.forEach(function(i) {
+                        var svc = P.addonServices[i];
+                        addonTotal += svc.price;
+                        svcHtml += '<div class="wiz-review-row"><span>' + svc.name + '</span><span>$' + svc.price + '</span></div>';
+                    });
+                    total += addonTotal;
+
+                    var subTotal = 0;
+                    for (var sid in subItemsMap) {
+                        var info = subItemsMap[sid];
+                        if (selectedAddonIndices.indexOf(info.parentIdx) !== -1 && info.qty > 0) {
+                            var st = info.qty * info.price;
+                            subTotal += st;
+                            var subName = sid;
+                            (P.addonServices || []).forEach(function(as) {
+                                (as.subItems || []).forEach(function(si) { if (si.id === sid) subName = si.name + ' \u00d7' + info.qty; });
+                            });
+                            svcHtml += '<div class="wiz-review-row"><span>' + subName + '</span><span>$' + st + '</span></div>';
+                        }
+                    }
+                    total += subTotal;
+
+                    // Discount
+                    if (cat && cat.hasDiscounting) {
+                        var mainCount = 1 + selectedAddonIndices.length;
+                        var discountPct = 0;
+                        var maxPct = P.maxDiscountPct || 50;
+                        var dTiers = P.discountTiers || [];
+                        for (var i = dTiers.length - 1; i >= 0; i--) { if (mainCount >= dTiers[i].services) { discountPct = dTiers[i].pct; break; } }
+                        if (discountPct > maxPct) discountPct = maxPct;
+                        var discountAmt = Math.round(total * discountPct / 100);
+                        if (discountAmt > 0) {
+                            svcHtml += '<div class="wiz-review-row discount"><span>Bundle Discount (' + discountPct + '%)</span><span>-$' + discountAmt + '</span></div>';
+                            total -= discountAmt;
+                        }
+                    }
+                }
+                else if (selectedCategory === 'new-construction') {
+                    if (ncBundleSelected) {
+                        var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+                        if (bundle) { total = Number(bundle.price); svcHtml += '<div class="wiz-review-row"><span>' + bundle.name + '</span><span>$' + bundle.price + '</span></div>'; }
+                    } else {
+                        selectedNCItems.forEach(function(itemId) {
+                            var item = ncItems.filter(function(it) { return it.id === itemId; })[0];
+                            if (item) { total += Number(item.price); svcHtml += '<div class="wiz-review-row"><span>' + item.name + '</span><span>$' + item.price + '</span></div>'; }
+                        });
+                    }
+                }
+                else if (selectedCategory === 'home-health-check') {
+                    var hcTier = hcTiers.filter(function(t) { return t.id === selectedHCTier; })[0];
+                    if (hcTier) { total = Number(hcTier.price); svcHtml += '<div class="wiz-review-row"><span>' + hcTier.name + '</span><span>$' + hcTier.price + '</span></div>'; }
+                }
+
+                // State tax
+                if (CFG.INCLUDE_STATE_TAX && total > 0) {
+                    var addrEl = document.getElementById('wizAddress');
+                    var rvTaxState = addrEl ? detectStateFromAddress(addrEl.value) : null;
+                    if (rvTaxState && STATE_TAX_RATES[rvTaxState] !== undefined && STATE_TAX_RATES[rvTaxState] > 0) {
+                        var rvTaxRate = STATE_TAX_RATES[rvTaxState];
+                        var rvTaxAmt = Math.round(total * rvTaxRate / 100);
+                        svcHtml += '<div class="wiz-review-row"><span>State Tax (' + rvTaxState + ' ' + rvTaxRate + '%)</span><span>+$' + rvTaxAmt + '</span></div>';
+                        total += rvTaxAmt;
+                    }
+                }
+
+                svcHtml += '<div class="wiz-review-row total"><span>Estimated Total</span><span>$' + total + '</span></div>';
+                document.getElementById('wizReviewServices').innerHTML = svcHtml;
+
+                // Appointment review
+                var dateDisplay = selectedDate ? new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '—';
+                document.getElementById('wizReviewAppointment').innerHTML =
+                    '<div class="wiz-review-row"><span>Date</span><span>' + dateDisplay + '</span></div>' +
+                    '<div class="wiz-review-row"><span>Time</span><span>' + (selectedTime || '—') + '</span></div>';
+
+                // Contact review
+                var fn = document.getElementById('wizFirstName').value;
+                var ln = document.getElementById('wizLastName').value;
+                var agentName = document.getElementById('wizAgentName').value.trim();
+                var agentPhone = document.getElementById('wizAgentPhone').value.trim();
+                var contactHtml =
+                    '<div class="wiz-review-row"><span>Name</span><span>' + fn + ' ' + ln + '</span></div>' +
+                    '<div class="wiz-review-row"><span>Phone</span><span>' + document.getElementById('wizPhone').value + '</span></div>' +
+                    '<div class="wiz-review-row"><span>Email</span><span>' + document.getElementById('wizEmail').value + '</span></div>' +
+                    '<div class="wiz-review-row"><span>Current Address</span><span>' + document.getElementById('wizCurrentAddress').value + '</span></div>';
+                if (agentName || agentPhone) {
+                    contactHtml += '<div class="wiz-review-row"><span>Agent</span><span>' + (agentName || '—') + (agentPhone ? ' · ' + agentPhone : '') + '</span></div>';
+                }
+                contactHtml += '<div class="wiz-review-row"><span>Inspection Address</span><span>' + document.getElementById('wizAddress').value + '</span></div>';
+                // Show property details in review if available
+                var propData = (typeof window._heartlandPropertyData === 'function') ? window._heartlandPropertyData() : null;
+                if (propData && propData.found) {
+                    var propParts = [];
+                    if (propData.yearBuilt) propParts.push('Built ' + propData.yearBuilt);
+                    if (propData.livingAreaSqft) propParts.push(propData.livingAreaSqft.toLocaleString() + ' sqft');
+                    if (propData.bedrooms) propParts.push(propData.bedrooms + ' bed');
+                    if (propData.bathrooms) propParts.push(propData.bathrooms + ' bath');
+                    if (propParts.length) {
+                        contactHtml += '<div class="wiz-review-row"><span>Property Info</span><span>' + propParts.join(' · ') + '</span></div>';
+                    }
+                }
+                if (appliedCoupon) {
+                    contactHtml += '<div class="wiz-review-row" style="color:var(--secondary);"><span>Coupon</span><span>' + appliedCoupon.code + '</span></div>';
+                }
+                document.getElementById('wizReviewContact').innerHTML = contactHtml;
+            }
+
+            // ════════════════════════════════════════════
+            // NAVIGATION ENGINE
+            // ════════════════════════════════════════════
+            function showStep(step) {
+                currentStep = step;
+                panels.forEach(function(p, i) { p.style.display = (i === step) ? '' : 'none'; });
+                successPanel.style.display = 'none';
+                navBar.style.display = '';
+
+                // Update progress indicators
+                wizard.querySelectorAll('.wizard-step-indicator').forEach(function(el) {
+                    var s = parseInt(el.dataset.step);
+                    el.classList.remove('active', 'complete');
+                    if (s === step) el.classList.add('active');
+                    else if (s < step) el.classList.add('complete');
+                    // Update circle content for complete steps
+                    var circle = el.querySelector('.wizard-step-circle span');
+                    circle.textContent = s < step ? '✓' : (s + 1);
+                });
+                wizard.querySelectorAll('.wizard-step-line').forEach(function(el) {
+                    var after = parseInt(el.dataset.after);
+                    el.classList.toggle('complete', after < step);
+                });
+
+                // Update header
+                document.querySelector('.wizard-step-title').textContent = stepMeta[step].title;
+                document.querySelector('.wizard-step-desc').textContent = stepMeta[step].desc;
+
+                // Back button
+                btnBack.style.visibility = step === 0 ? 'hidden' : 'visible';
+
+                // Next button text
+                if (step === totalSteps - 1) {
+                    btnNext.textContent = '✉ Send Inspection Request';
+                    btnNext.classList.add('wiz-btn-submit');
+                } else {
+                    btnNext.textContent = 'Continue ›';
+                    btnNext.classList.remove('wiz-btn-submit');
+                }
+
+                // Render calendar when entering step 1
+                if (step === 1) renderCalendar();
+
+                // Build review when entering step 3
+                if (step === 3) {
+                    try { buildReview(); } catch(e) { console.error('buildReview error:', e); }
+                }
+
+                validateStep();
+
+                // Scroll wizard into view (skip on initial page load)
+                if (wizInitialized) {
+                    wizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            function validateStep() {
+                var valid = false;
+                if (currentStep === 0) {
+                    if (!selectedCategory) { valid = false; }
+                    else if (selectedCategory === 'pre-purchase' || selectedCategory === 'pre-listing') {
+                        valid = selectedHomeSizeIndex >= 0;
+                    }
+                    else if (selectedCategory === 'new-construction') {
+                        valid = ncBundleSelected || selectedNCItems.length > 0;
+                    }
+                    else if (selectedCategory === 'home-health-check') {
+                        valid = selectedHCTier !== null;
+                    }
+                } else if (currentStep === 1) {
+                    valid = selectedDate !== null && selectedTime !== null;
+                } else if (currentStep === 2) {
+                    valid = document.getElementById('wizFirstName').value.trim() !== '' &&
+                            document.getElementById('wizLastName').value.trim() !== '' &&
+                            document.getElementById('wizPhone').value.trim() !== '' &&
+                            document.getElementById('wizEmail').value.trim() !== '' &&
+                            document.getElementById('wizCurrentAddress').value.trim() !== '' &&
+                            document.getElementById('wizAddress').value.trim() !== '';
+                } else if (currentStep === 3) {
+                    valid = true;
+                }
+                btnNext.disabled = !valid;
+            }
+
+            function validateStep2Fields() {
+                var fields = [
+                    { id: 'wizFirstName', err: 'errFirstName', msg: 'First name is required' },
+                    { id: 'wizLastName', err: 'errLastName', msg: 'Last name is required' },
+                    { id: 'wizPhone', err: 'errPhone', msg: 'Phone number is required' },
+                    { id: 'wizEmail', err: 'errEmail', msg: 'Email is required' },
+                    { id: 'wizCurrentAddress', err: 'errCurrentAddress', msg: 'Current address is required' },
+                    { id: 'wizAddress', err: 'errAddress', msg: 'Inspection address is required' }
+                ];
+                var ok = true;
+                fields.forEach(function(f) {
+                    var val = document.getElementById(f.id).value.trim();
+                    var errEl = document.getElementById(f.err);
+                    if (!val) { errEl.textContent = f.msg; ok = false; }
+                    else if (f.id === 'wizEmail' && !/\S+@\S+\.\S+/.test(val)) { errEl.textContent = 'Enter a valid email'; ok = false; }
+                    else { errEl.textContent = ''; }
+                });
+                return ok;
+            }
+
+            // Wire up live validation on step 2 inputs
+            ['wizFirstName','wizLastName','wizPhone','wizEmail','wizCurrentAddress','wizAddress'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.addEventListener('input', function() { validateStep(); });
+            });
+
+            // Navigation buttons
+            btnBack.addEventListener('click', function() {
+                if (currentStep > 0) showStep(currentStep - 1);
+            });
+
+            btnNext.addEventListener('click', function() {
+                if (currentStep === 2 && !validateStep2Fields()) return;
+                if (currentStep < totalSteps - 1) {
+                    showStep(currentStep + 1);
+                } else {
+                    // SUBMIT — show success
+                    handleSubmit();
+                }
+            });
+
+            function handleSubmit() {
+                // Disable submit button
+                btnNext.disabled = true;
+                btnNext.textContent = 'Sending\u2026';
+
+                var cat = categories.filter(function(c) { return c.id === selectedCategory; })[0];
+                var services = [];
+                var total = 0;
+                var discountAmt = 0;
+                var discountPct = 0;
+                var homeSizeLabel = 'N/A';
+                var yearBuiltLabel = '';
+
+                if (selectedCategory === 'pre-purchase' || selectedCategory === 'pre-listing') {
+                    var tier = (selectedHomeSizeIndex >= 0 && P.homeSizeTiers[selectedHomeSizeIndex]) ? P.homeSizeTiers[selectedHomeSizeIndex] : null;
+                    var basePrice = tier ? tier.price : 0;
+                    homeSizeLabel = tier ? tier.label : 'Unknown';
+                    services.push({ name: cat.name + ' (' + homeSizeLabel + ')', price: basePrice });
+                    total += basePrice;
+
+                    // Year built surcharge
+                    if (selectedYearBuiltIndex >= 0 && yearBuiltSurcharges[selectedYearBuiltIndex]) {
+                        var yb = yearBuiltSurcharges[selectedYearBuiltIndex];
+                        yearBuiltLabel = yb.label;
+                        if (yb.surcharge > 0) {
+                            services.push({ name: 'Older Home Surcharge (' + yb.label + ')', price: Number(yb.surcharge) });
+                            total += Number(yb.surcharge);
+                        }
+                    }
+
+                    selectedAddonIndices.forEach(function(i) {
+                        var svc = P.addonServices[i];
+                        services.push({ name: svc.name, price: svc.price });
+                        total += svc.price;
+                    });
+
+                    for (var sid in subItemsMap) {
+                        var info = subItemsMap[sid];
+                        if (selectedAddonIndices.indexOf(info.parentIdx) !== -1 && info.qty > 0) {
+                            var st = info.qty * info.price;
+                            var subName = sid;
+                            (P.addonServices || []).forEach(function(as) {
+                                (as.subItems || []).forEach(function(si) { if (si.id === sid) subName = si.name + ' \u00d7' + info.qty; });
+                            });
+                            services.push({ name: subName, price: st });
+                            total += st;
+                        }
+                    }
+
+                    if (cat && cat.hasDiscounting) {
+                        var mainCount = 1 + selectedAddonIndices.length;
+                        var maxPct = P.maxDiscountPct || 50;
+                        var dTiers = P.discountTiers || [];
+                        for (var i = dTiers.length - 1; i >= 0; i--) { if (mainCount >= dTiers[i].services) { discountPct = dTiers[i].pct; break; } }
+                        if (discountPct > maxPct) discountPct = maxPct;
+                        discountAmt = Math.round(total * discountPct / 100);
+                        total -= discountAmt;
+                    }
+                }
+                else if (selectedCategory === 'new-construction') {
+                    if (ncBundleSelected) {
+                        var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+                        if (bundle) { services.push({ name: bundle.name, price: Number(bundle.price) }); total = Number(bundle.price); }
+                    } else {
+                        selectedNCItems.forEach(function(itemId) {
+                            var item = ncItems.filter(function(it) { return it.id === itemId; })[0];
+                            if (item) { services.push({ name: item.name, price: Number(item.price) }); total += Number(item.price); }
+                        });
+                    }
+                }
+                else if (selectedCategory === 'home-health-check') {
+                    var hcTier = hcTiers.filter(function(t) { return t.id === selectedHCTier; })[0];
+                    if (hcTier) { services.push({ name: hcTier.name, price: Number(hcTier.price) }); total = Number(hcTier.price); }
+                }
+
+                // State tax
+                var submitTaxState = null;
+                var submitTaxRate = 0;
+                var submitTaxAmt = 0;
+                if (CFG.INCLUDE_STATE_TAX && total > 0) {
+                    var addrVal = document.getElementById('wizAddress').value.trim();
+                    submitTaxState = detectStateFromAddress(addrVal);
+                    if (submitTaxState && STATE_TAX_RATES[submitTaxState] !== undefined) {
+                        submitTaxRate = STATE_TAX_RATES[submitTaxState];
+                        submitTaxAmt = Math.round(total * submitTaxRate / 100);
+                        total += submitTaxAmt;
+                    }
+                }
+
+                var payload = {
+                    firstName: document.getElementById('wizFirstName').value.trim(),
+                    lastName: document.getElementById('wizLastName').value.trim(),
+                    phone: document.getElementById('wizPhone').value.trim(),
+                    email: document.getElementById('wizEmail').value.trim(),
+                    currentAddress: document.getElementById('wizCurrentAddress').value.trim(),
+                    agentName: document.getElementById('wizAgentName').value.trim(),
+                    agentPhone: document.getElementById('wizAgentPhone').value.trim(),
+                    address: document.getElementById('wizAddress').value.trim(),
+                    couponCode: appliedCoupon ? appliedCoupon.code : '',
+                    couponDiscount: 0,
+                    date: selectedDate,
+                    time: selectedTime,
+                    inspectionCategory: selectedCategory,
+                    inspectionCategoryName: cat ? cat.name : '',
+                    homeSize: homeSizeLabel,
+                    yearBuilt: yearBuiltLabel,
+                    services: services,
+                    total: total,
+                    discount: discountAmt,
+                    discountPct: discountPct,
+                    taxState: submitTaxState,
+                    taxRate: submitTaxRate,
+                    taxAmount: submitTaxAmt,
+                    propertyData: (typeof window._heartlandPropertyData === 'function') ? window._heartlandPropertyData() : null
+                };
+
+                // Apply coupon discount to total
+                if (appliedCoupon) {
+                    var couponAmt = 0;
+                    if (appliedCoupon.type === 'percent') {
+                        couponAmt = Math.round(payload.total * appliedCoupon.value / 100);
+                    } else {
+                        couponAmt = Math.min(appliedCoupon.value, payload.total);
+                    }
+                    payload.couponDiscount = couponAmt;
+                    payload.total = payload.total - couponAmt;
+                }
+
+                // ── Step 1: Write booking to Supabase FIRST to get an ID ──
+                var addrParts = (payload.address || '').split(',').map(function(s){ return s.trim(); });
+                var bkCity = addrParts.length >= 2 ? addrParts[addrParts.length - 2] : null;
+                var stateZipMatch = (payload.address || '').match(/,\s*([A-Z]{2})\s+(\d{5})/);
+                var bkState = stateZipMatch ? stateZipMatch[1] : null;
+                var bkZip = stateZipMatch ? stateZipMatch[2] : null;
+                var propData = payload.propertyData || {};
+                var booking = {
+                    agent_id: null,
+                    data_source: 'consumer_wizard',
+                    status: 'pending',
+                    client_name: (payload.firstName + ' ' + payload.lastName).trim(),
+                    client_email: payload.email || null,
+                    client_phone: payload.phone || null,
+                    property_address: payload.address,
+                    property_city: bkCity,
+                    property_state: bkState,
+                    property_zip: bkZip,
+                    year_built: propData.yearBuilt || null,
+                    sqft: propData.livingAreaSqft || null,
+                    home_size_tier: payload.homeSize !== 'N/A' ? payload.homeSize : null,
+                    base_price: payload.services.length ? payload.services[0].price : 0,
+                    services: payload.services,
+                    addons_total: payload.services.slice(1).reduce(function(s,v){ return s + (v.price || 0); }, 0),
+                    discount_pct: payload.discountPct,
+                    discount_amount: payload.discount,
+                    coupon_code: payload.couponCode || null,
+                    coupon_discount: payload.couponDiscount || 0,
+                    tax_state: payload.taxState,
+                    tax_rate: payload.taxRate,
+                    tax_amount: payload.taxAmount,
+                    final_total: payload.total,
+                    preferred_date: payload.date || null,
+                    preferred_time: payload.time || null,
+                    client_current_address: payload.currentAddress || null,
+                    notes: null
+                };
+
+                fetch('/.netlify/functions/consumer-submit-booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ booking: booking })
+                })
+                .then(function(r){ return r.json(); })
+                .then(function(bData){
+                    // Grab the booking ID so the calendar function can flag it on failure
+                    var bookingId = bData.booking_id || null;
+                    payload.booking_id = bookingId;
+
+                    // Audit log — fire and forget, never blocks booking flow
+                    fetch('/.netlify/functions/log-audit-event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'booking.created', category: 'scheduling', actor: 'client',
+                            details: { source: 'index_html', address: payload.address || null, client: payload.name || null } })
+                    }).catch(function(){});
+
+                    // ── Step 2: Create Outlook calendar event ──
+                    return fetch('/.netlify/functions/create-calendar-event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(function(res){ return res.json().then(function(d){ return { ok: res.ok, data: d }; }); })
+                    .then(function(result){
+                        if (!result.ok && !result.data.calendar_failed) {
+                            console.error('Calendar event creation failed:', result.data);
+                        }
+                        showSuccess();
+                    })
+                    .catch(function(err){
+                        console.error('Calendar event request failed:', err);
+                        showSuccess(); // Client always sees success
+                    });
+                })
+                .catch(function(err){
+                    console.error('Booking save error:', err);
+                    // Still try calendar even if Supabase write failed
+                    fetch('/.netlify/functions/create-calendar-event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).catch(function(){});
+                    showSuccess();
+                });
+
+                function showSuccess() {
+                    panels.forEach(function(p) { p.style.display = 'none'; });
+                    navBar.style.display = 'none';
+                    stepHeader.style.display = 'none';
+                    successPanel.style.display = '';
+
+                    // Mark all steps as complete
+                    wizard.querySelectorAll('.wizard-step-indicator').forEach(function(el) {
+                        el.classList.remove('active');
+                        el.classList.add('complete');
+                        el.querySelector('.wizard-step-circle span').textContent = '✓';
+                    });
+                    wizard.querySelectorAll('.wizard-step-line').forEach(function(el) {
+                        el.classList.add('complete');
+                    });
+
+                    var dateObj = selectedDate ? new Date(selectedDate + 'T12:00:00') : null;
+                    var dateText = dateObj ? dateObj.toLocaleDateString('en-US', { month:'long', day:'numeric' }) : '';
+                    document.getElementById('wizSuccessText').textContent =
+                        'We\'ll confirm your appointment at ' + selectedTime + ' on ' + dateText + ' within 1 business day.';
+                    document.getElementById('wizSuccessEmail').textContent =
+                        'A confirmation will be sent to ' + document.getElementById('wizEmail').value;
+
+                    wizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            // Reset button
+            document.getElementById('wizResetBtn').addEventListener('click', function() {
+                selectedCategory = null;
+                selectedHomeSizeIndex = -1;
+                selectedYearBuiltIndex = -1;
+                selectedAddonIndices = [];
+                selectedNCItems = [];
+                ncBundleSelected = false;
+                selectedHCTier = null;
+                selectedDate = null;
+                selectedTime = null;
+                subItemsMap = {};
+
+                // Reset category cards
+                document.querySelectorAll('.wiz-cat-card').forEach(function(c) { c.classList.remove('selected'); });
+                // Collapse expansion panel
+                var exp = document.getElementById('wizExpansion');
+                if (exp) exp.classList.remove('open');
+                var expInner = document.getElementById('wizExpansionInner');
+                if (expInner) expInner.innerHTML = '';
+
+                // Reset form fields
+                document.getElementById('wizFirstName').value = '';
+                document.getElementById('wizLastName').value = '';
+                document.getElementById('wizPhone').value = '';
+                document.getElementById('wizEmail').value = '';
+                document.getElementById('wizCurrentAddress').value = '';
+                document.getElementById('wizAgentName').value = '';
+                document.getElementById('wizAgentPhone').value = '';
+                document.getElementById('wizAddress').value = '';
+                document.getElementById('wizCoupon').value = '';
+                document.getElementById('errCoupon').textContent = '';
+                appliedCoupon = null;
+                var couponBtn = document.getElementById('wizApplyCoupon');
+                if (couponBtn) { couponBtn.textContent = 'Apply'; couponBtn.style.background = ''; couponBtn.style.color = ''; couponBtn.style.borderColor = ''; }
+                document.querySelectorAll('.wiz-error').forEach(function(el) { el.textContent = ''; });
+
+                // Clear property lookup state
+                var propCard = document.getElementById('wizPropertyCard');
+                var propDetails = document.getElementById('wizPropertyDetails');
+                var propLoading = document.getElementById('wizPropertyLoading');
+                if (propCard) propCard.style.display = 'none';
+                if (propDetails) propDetails.innerHTML = '';
+                if (propLoading) propLoading.style.display = 'none';
+                document.querySelectorAll('.wiz-recommend-badge').forEach(function(el) { el.remove(); });
+                document.querySelectorAll('.wiz-recommend-reason').forEach(function(el) { el.remove(); });
+                document.querySelectorAll('.wiz-addon-item.recommended').forEach(function(el) { el.classList.remove('recommended'); });
+
+                successPanel.style.display = 'none';
+                stepHeader.style.display = '';
+                recalcPrice();
+                showStep(0);
+            });
+
+            // ─── INIT ──────────────────────────────────
+            recalcPrice();
+            showStep(0);
+            wizInitialized = true;
+            } // end initWizard
+
+        // ========================
+        // Phone Number Auto-Format: (XXX) XXX-XXXX
+        // ========================
+        (function() {
+            var phoneInput = document.getElementById('formPhone');
+            if (!phoneInput) return;
+
+            phoneInput.addEventListener('input', function(e) {
+                var digits = this.value.replace(/\D/g, '').substring(0, 10);
+                var formatted = '';
+                if (digits.length > 0) formatted = '(' + digits.substring(0, 3);
+                if (digits.length >= 3) formatted += ') ';
+                if (digits.length > 3) formatted += digits.substring(3, 6);
+                if (digits.length >= 6) formatted += '-' + digits.substring(6, 10);
+                this.value = formatted;
+            });
+        })();
+
+        // ========================
+        // Contact Form Handler (Netlify Forms)
+        // ========================
+        (function() {
+            var form = document.getElementById('contactForm');
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                var btn = form.querySelector('.form-submit-btn');
+                var successEl = document.getElementById('formSuccess');
+                var errorEl = document.getElementById('formError');
+
+                // Hide previous messages
+                if (successEl) successEl.style.display = 'none';
+                if (errorEl) errorEl.style.display = 'none';
+
+                // Show loading state
+                var origText = btn.textContent;
+                btn.textContent = 'Sending…';
+                btn.disabled = true;
+
+                var formData = new FormData(form);
+
+                fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(formData).toString()
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        if (successEl) successEl.style.display = 'block';
+                        form.reset();
+                    } else {
+                        throw new Error('Form submission failed');
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Form error:', err);
+                    if (errorEl) errorEl.style.display = 'block';
+                })
+                .finally(function() {
+                    btn.textContent = origText;
+                    btn.disabled = false;
+                });
+            });
+        })();
+
+            // Wait for Supabase config, or run immediately if already loaded
+            if (typeof HEARTLAND_CONFIG !== 'undefined' && HEARTLAND_CONFIG.pricing) {
+                initWizard();
+            } else {
+                window.addEventListener('heartland-config-ready', initWizard, { once: true });
+            }
+        })();
+
+    </script>
+    <!-- Inline CMS Editor -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="shared/inline-editor.js" defer></script>
+</body>
+</html>

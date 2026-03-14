@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal | Heartland Inspection Group</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/brand.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      overflow-x: hidden;
+      background: #0d1a2e;
+      color: #e8edf2;
+      min-height: 100vh;
+    }
+
+    /* \u2500\u2500 HEADER \u2500\u2500 */
+    .cp-header {
+      background: linear-gradient(135deg, #121e30 0%, #1a2f52 100%);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .cp-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cp-header-brand img {
+      height: 36px;
+    }
+    .cp-header-brand-text {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .cp-header-client {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cp-header-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #27ae60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .cp-header-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* \u2500\u2500 LAYOUT \u2500\u2500 */
+    .cp-layout {
+      display: flex;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* \u2500\u2500 SIDEBAR \u2500\u2500 */
+    .cp-sidebar {
+      width: 220px;
+      background: #111d2e;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      padding: 24px 0;
+      flex-shrink: 0;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+    }
+    .cp-sidebar-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.3);
+      padding: 0 20px 8px;
+    }
+    .cp-tab-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 11px 20px;
+      background: none;
+      border: none;
+      border-left: 3px solid transparent;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cp-tab-btn:hover {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.9);
+    }
+    .cp-tab-btn.active {
+      background: rgba(39,174,96,0.12);
+      color: #27ae60;
+      border-left-color: #27ae60;
+      font-weight: 600;
+    }
+    .cp-tab-icon { font-size: 16px; flex-shrink: 0; }
+    .cp-badge {
+      margin-left: auto;
+      background: #e65100;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* \u2500\u2500 MAIN CONTENT \u2500\u2500 */
+    .cp-main {
+      flex: 1;
+      padding: 28px 32px;
+      overflow-y: auto;
+    }
+
+    /* \u2500\u2500 NOTIFICATION CENTER \u2500\u2500 */
+    .cp-notifications {
+      margin-bottom: 28px;
+    }
+    .cp-notification {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(245,147,33,0.1);
+      border: 1.5px solid rgba(245,147,33,0.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+    }
+    .cp-notification.cp-notif-info {
+      background: rgba(39,174,96,0.08);
+      border-color: rgba(39,174,96,0.25);
+    }
+    .cp-notification.cp-notif-urgent {
+      background: rgba(192,57,43,0.1);
+      border-color: rgba(192,57,43,0.3);
+    }
+    .cp-notification-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .cp-notification-body { flex: 1; }
+    .cp-notification-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .cp-notification-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.5;
+    }
+    .cp-notification-action {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      background: #f59321;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .cp-notification-action:hover { background: #e07d0a; }
+    .cp-notification-action.green { background: #27ae60; }
+    .cp-notification-action.green:hover { background: #1e8449; }
+
+    /* \u2500\u2500 TAB PANELS \u2500\u2500 */
+    .cp-tab-panel { display: none; }
+    .cp-tab-panel.active { display: block; }
+
+    /* \u2500\u2500 SECTION HEADER \u2500\u2500 */
+    .cp-section-header {
+      margin-bottom: 20px;
+    }
+    .cp-section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .cp-section-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 3px;
+    }
+
+    /* \u2500\u2500 CARDS \u2500\u2500 */
+    .cp-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .cp-card-header {
+      background: rgba(255,255,255,0.04);
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cp-card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .cp-card-body { padding: 20px; }
+    .cp-card-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .cp-card-label {
+      color: rgba(255,255,255,0.4);
+      min-width: 110px;
+      flex-shrink: 0;
+    }
+    .cp-card-value { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+    /* \u2500\u2500 STATUS PILLS \u2500\u2500 */
+    .cp-status {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cp-status-booked    { background: rgba(245,147,33,0.15); color: #f59321; }
+    .cp-status-progress  { background: rgba(21,81,109,0.3); color: #64b5d9; }
+    .cp-status-pending   { background: rgba(245,147,33,0.15); color: #f59321; }
+    .cp-status-complete  { background: rgba(39,174,96,0.15); color: #27ae60; }
+    .cp-status-cancelled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+
+    /* \u2500\u2500 BUTTONS \u2500\u2500 */
+    .cp-btn {
+      display: inline-block;
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+    }
+    .cp-btn-primary   { background: #27ae60; color: #fff; }
+    .cp-btn-primary:hover { background: #1e8449; }
+    .cp-btn-secondary { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1.5px solid rgba(255,255,255,0.15); }
+    .cp-btn-secondary:hover { background: rgba(255,255,255,0.15); }
+    .cp-btn-danger    { background: rgba(192,57,43,0.15); color: #e74c3c; border: 1.5px solid rgba(192,57,43,0.25); }
+    .cp-btn-danger:hover { background: rgba(192,57,43,0.25); }
+    .cp-btn-sm { padding: 6px 14px; font-size: 12px; }
+
+    /* \u2500\u2500 LOCKED REPORT \u2500\u2500 */
+    .cp-locked {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(192,57,43,0.1);
+      border: 1.5px solid rgba(192,57,43,0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+    .cp-locked-icon { font-size: 20px; }
+
+    /* \u2500\u2500 RESCHEDULE PICKER \u2500\u2500 */
+    .cp-reschedule-panel {
+      display: none;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(39,174,96,0.25);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 14px;
+    }
+    .cp-reschedule-panel.open { display: block; }
+    .cp-reschedule-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #27ae60;
+      margin-bottom: 14px;
+    }
+    .cp-date-input, .cp-time-select {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .cp-date-input:focus, .cp-time-select:focus {
+      outline: none;
+      border-color: #27ae60;
+    }
+    .cp-time-select option { background: #1a2a44; }
+
+    /* \u2500\u2500 EMPTY STATE \u2500\u2500 */
+    .cp-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255,255,255,0.35);
+    }
+    .cp-empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .cp-empty-text { font-size: 14px; }
+
+    /* \u2500\u2500 INVALID TOKEN \u2500\u2500 */
+    .cp-invalid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #121e30 0%, #1a2f52 100%);
+    }
+    .cp-invalid img { height: 56px; margin-bottom: 24px; }
+    .cp-invalid h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .cp-invalid p { font-size: 15px; color: rgba(255,255,255,0.55); max-width: 400px; line-height: 1.6; }
+
+    /* \u2500\u2500 LOADING \u2500\u2500 */
+    .cp-loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0d1a2e;
+    }
+    .cp-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #27ae60;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cp-loading-text { font-size: 14px; color: rgba(255,255,255,0.4); }
+
+    /* \u2500\u2500 DIVIDER \u2500\u2500 */
+    .cp-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 20px 0; }
+    .cp-release-toggle { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; }
+    .cp-release-label { font-size:13px; color:rgba(255,255,255,0.65); line-height:1.4; flex:1; }
+    .cp-release-label strong { color:rgba(255,255,255,0.9); }
+    .cp-release-btns { display:flex; border-radius:8px; overflow:hidden; border:1.5px solid rgba(255,255,255,0.12); flex-shrink:0; }
+    .cp-release-btn { padding:7px 16px; font-size:12px; font-weight:700; font-family:inherit; border:none; cursor:pointer; transition:all 0.15s; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
+    .cp-release-btn:first-child { border-right:1px solid rgba(255,255,255,0.1); }
+    .cp-release-btn.active-deny   { background:rgba(192,57,43,0.25); color:#e74c3c; }
+    .cp-release-btn.active-approve { background:rgba(39,174,96,0.25); color:#27ae60; }
+
+    /* \u2500\u2500 RESPONSIVE \u2500\u2500 */
+    @media (max-width: 768px) {
+      .cp-sidebar { display: none; }
+      .cp-main { padding: 20px 16px; }
+      .cp-header-brand-text { display: none; }
+      .cp-card-actions { flex-wrap: wrap; }
+      .cp-action-btn { min-width: 0; flex: 1 1 auto; }
+    }
+@media print {
+  /* When printing a signed agreement, hide everything except the view modal */
+  body > *:not(#cpViewAgrModal) { display:none !important; }
+  #cpViewAgrModal { position:static !important; background:none !important; padding:0 !important; overflow:visible !important; }
+  #cpViewAgrModal > div { border:none !important; border-radius:0 !important; max-width:100% !important; margin:0 !important; }
+  #cpViewAgrClose, button[onclick="window.print()"] { display:none !important; }
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+  </style>
+  <script src="/config.js"></script>
+  <script src="/shared/config-loader.js"></script>
+<style>
+/* ═══ HEARTLAND BRANDED MODALS & TOASTS (hw-*) ═══ */
+.hw-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; align-items:center; justify-content:center; padding:20px; }
+.hw-overlay.hw-active { display:flex; }
+.hw-modal { background:#fff; border-radius:16px; width:100%; max-width:420px; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.35); animation:hwModalIn 0.22s ease; }
+@keyframes hwModalIn { from { opacity:0; transform:translateY(18px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+.hw-modal-header { background:linear-gradient(135deg,#1a2a44 0%,#243652 100%); padding:26px 24px 20px; text-align:center; }
+.hw-modal-logo { width:120px; margin-bottom:12px; display:block; margin-left:auto; margin-right:auto; }
+.hw-modal-title { font-family:'Crimson Pro',Georgia,serif; font-size:20px; font-weight:700; color:#fff; margin:0; }
+.hw-modal-body { padding:24px 24px 6px; font-family:'Work Sans',sans-serif; font-size:15px; color:#333; line-height:1.55; text-align:center; }
+.hw-modal-footer { padding:16px 24px 24px; display:flex; flex-direction:column; gap:10px; }
+.hw-btn { width:100%; padding:13px; border:none; border-radius:10px; cursor:pointer; font-family:'Work Sans',sans-serif; font-size:15px; font-weight:700; transition:opacity 0.15s; }
+.hw-btn:hover { opacity:0.88; }
+.hw-btn-primary   { background:#1a2a44; color:#fff; }
+.hw-btn-danger    { background:#c0392b; color:#fff; }
+.hw-btn-secondary { background:#f0f2f5; color:#555; }
+.hw-toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(12px); padding:12px 22px; border-radius:10px; font-family:'Work Sans',sans-serif; font-size:14px; font-weight:600; box-shadow:0 4px 20px rgba(0,0,0,0.22); z-index:999999; opacity:0; transition:opacity 0.25s,transform 0.25s; pointer-events:none; white-space:nowrap; max-width:90vw; text-align:center; }
+.hw-toast.hw-toast-show { opacity:1; transform:translateX(-50%) translateY(0); }
+.hw-toast-error { background:#c0392b; color:#fff; }
+</style>
+</head>
+<body>
+<div class="hw-overlay" id="hwOverlay">
+  <div class="hw-modal" id="hwModal">
+    <div class="hw-modal-header">
+      <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group" class="hw-modal-logo">
+      <div class="hw-modal-title" id="hwModalTitle">Heartland Inspection Group</div>
+    </div>
+    <div class="hw-modal-body" id="hwModalBody"></div>
+    <div class="hw-modal-footer" id="hwModalFooter"></div>
+  </div>
+</div>
+<div class="hw-toast" id="hwToastNative"></div>
+
+<!-- Loading screen -->
+<div id="cpLoadingScreen" class="cp-loading-screen">
+  <div class="cp-spinner"></div>
+  <div class="cp-loading-text">Loading your portal&hellip;</div>
+</div>
+
+<!-- Invalid token screen -->
+<div id="cpInvalidScreen" class="cp-invalid" style="display:none;">
+  <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group">
+  <h1>Link Not Found</h1>
+  <p>This portal link is invalid or has expired. If you received this link by email, please contact us for a new one.</p>
+  <div style="margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <a href="tel:8153298583" style="color:#27ae60;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-decoration:none;">(815) 329-8583</a>
+    <a href="mailto:info@heartlandinspectiongroup.com" style="color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;">info@heartlandinspectiongroup.com</a>
+  </div>
+</div>
+
+<!-- Main portal (shown after load) -->
+<div id="cpPortal" style="display:none;">
+
+  <!-- Header -->
+  <div class="cp-header">
+    <div class="cp-header-brand">
+      <img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group">
+      <span class="cp-header-brand-text">Heartland Inspection Group</span>
+    </div>
+    <div class="cp-header-client">
+      <div class="cp-header-avatar" id="cpAvatar">?</div>
+      <span class="cp-header-name" id="cpClientName"></span>
+    </div>
+  </div>
+
+  <!-- Layout -->
+  <div class="cp-layout">
+
+    <!-- Sidebar -->
+    <nav class="cp-sidebar">
+      <div class="cp-sidebar-label">My Portal</div>
+      <button class="cp-tab-btn active" data-cp-tab="inspections">
+        <span class="cp-tab-icon">🏠</span> Inspections
+        <span class="cp-badge" id="cpBadgeInspections" style="display:none;"></span>
+      </button>
+      <button class="cp-tab-btn" data-cp-tab="reports">
+        <span class="cp-tab-icon">📄</span> Reports
+      </button>
+      <button class="cp-tab-btn" data-cp-tab="invoices">
+        <span class="cp-tab-icon">🧾</span> Invoices
+
+      </button>
+      <button class="cp-tab-btn" data-cp-tab="agreements">
+        <span class="cp-tab-icon">📋</span> Agreements
+        <span class="cp-badge" id="cpBadgeAgreements" style="display:none;"></span>
+      </button>
+    </nav>
+
+    <!-- Main -->
+    <main class="cp-main">
+
+      <!-- Notification Center -->
+      <div class="cp-notifications" id="cpNotifications"></div>
+
+      <!-- \u2500\u2500 INSPECTIONS TAB \u2500\u2500 -->
+      <div class="cp-tab-panel active" id="cpTab-inspections">
+        <div class="cp-section-header">
+          <div class="cp-section-title">Your Inspections</div>
+          <div class="cp-section-sub">All bookings and inspection history tied to your account.</div>
+        </div>
+        <div id="cpInspectionsList"></div>
+      </div>
+
+      <!-- \u2500\u2500 REPORTS TAB \u2500\u2500 -->
+      <div class="cp-tab-panel" id="cpTab-reports">
+        <div class="cp-section-header">
+          <div class="cp-section-title">Your Reports</div>
+          <div class="cp-section-sub">Inspection reports are available here once payment is confirmed.</div>
+        </div>
+        <div id="cpReportsList"></div>
+      </div>
+
+      <!-- \u2500\u2500 INVOICES TAB \u2500\u2500 -->
+      <div class="cp-tab-panel" id="cpTab-invoices">
+        <div class="cp-section-header">
+          <div class="cp-section-title">Your Invoices</div>
+          <div class="cp-section-sub">View and pay outstanding invoices.</div>
+        </div>
+        <div id="cpInvoicesList"></div>
+      </div>
+
+      <!-- \u2500\u2500 AGREEMENTS TAB \u2500\u2500 -->
+      <div class="cp-tab-panel" id="cpTab-agreements">
+        <div class="cp-section-header">
+          <div class="cp-section-title">Agreements</div>
+          <div class="cp-section-sub">Inspection agreements requiring your signature.</div>
+        </div>
+        <div id="cpAgreementsList"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var SUPABASE_URL  = 'https://fusravedbksupcsjfzda.supabase.co';
+  var SUPABASE_ANON = window.SUPABASE_ANON_KEY;
+  var SITE_URL      = 'https://quiet-mousse-ce00ef.netlify.app';
+
+  // Fetch HEARTLAND_CONFIG from Supabase so reschedule modal uses real schedule/duration/buffer
+  // config loaded via /shared/config-loader.js
+
+  var portalToken = null;
+  var clientData  = null;
+  var recordsData = [];
+  var siteUrl     = '';
+
+  // ── INIT ──────────────────────────────────────────
+  function init() {
+    var params = new URLSearchParams(window.location.search);
+    portalToken = params.get('token');
+    if (!portalToken) { showInvalid(); return; }
+    loadPortal();
+  }
+
+  async function loadPortal() {
+    try {
+      var res  = await fetch('/.netlify/functions/get-portal?token=' + portalToken);
+      var text = await res.text();
+      var data;
+      try { data = JSON.parse(text); } catch(e) { console.error('Portal parse error:', e); showInvalid(); return; }
+      if (!res.ok || !data.ok) { console.error('Portal error:', data); showInvalid(); return; }
+
+      clientData  = data.client;
+      recordsData    = Array.isArray(data.records)    ? data.records    : [];
+      signaturesData = Array.isArray(data.signatures) ? data.signatures : [];
+      siteUrl        = data.site_url || '';
+
+      renderPortal();
+    } catch(e) {
+      console.error('Portal load error:', e);
+      showInvalid();
+    }
+  }
+
+  function showInvalid() {
+    document.getElementById('cpLoadingScreen').style.display = 'none';
+    document.getElementById('cpInvalidScreen').style.display = 'flex';
+  }
+
+  function renderPortal() {
+    window._cpRecordsData = recordsData; // expose for modal
+    document.getElementById('cpLoadingScreen').style.display = 'none';
+    document.getElementById('cpPortal').style.display = 'block';
+
+    var name     = clientData.name || clientData.email || '';
+    var initials = name.trim().split(' ').map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase() || '?';
+    document.getElementById('cpAvatar').textContent     = initials;
+    document.getElementById('cpClientName').textContent = name.split(' ')[0] || '';
+
+    renderNotifications();
+    renderInspections();
+    renderReports();
+    renderInvoices();
+    renderAgreements();
+    wireTabButtons();
+  }
+
+  // ── IS PAID ─────────────────────────────────────
+  function isPaid(rec) {
+    return rec && rec.payment_status === 'paid';
+  }
+
+  // ── NOTIFICATIONS ─────────────────────────────────
+  function renderNotifications() {
+    var notes = [];
+
+    // Unpaid — any active record that hasn't been paid yet (pre-pay or post-inspection)
+    var unpaid = recordsData.filter(function(r) {
+      return !isPaid(r) && r.status !== 'cancelled' && (r.status === 'scheduled' || r.invoice_url);
+    });
+    if (unpaid.length === 1) {
+      var isPrePay = unpaid[0].status === 'scheduled';
+      var _pmtUrl = siteUrl + '/invoice.html?booking=' + esc(unpaid[0].booking_id || unpaid[0].id);
+      notes.push({
+        type: 'warning', icon: '\ud83e\uddfe',
+        title: isPrePay ? 'Pre-Pay Your Inspection' : 'Payment Due',
+        desc: isPrePay
+          ? 'Pre-pay for your inspection at ' + esc(unpaid[0].address || 'your property') + ' to streamline your inspection day.'
+          : 'Your invoice for ' + esc(unpaid[0].address || 'your property') + ' is outstanding.',
+        action: { label: isPrePay ? 'Pay Now' : 'Pay Invoice', href: _pmtUrl, green: true },
+      });
+    } else if (unpaid.length > 1) {
+      var _firstPmtUrl = siteUrl + '/invoice.html?booking=' + esc(unpaid[0].booking_id || unpaid[0].id);
+      notes.push({
+        type: 'warning', icon: '\ud83e\uddfe',
+        title: unpaid.length + ' Payments Outstanding',
+        desc: 'You have ' + unpaid.length + ' unpaid inspections. See your inspections below.',
+        action: { label: 'Pay Now', href: _firstPmtUrl, green: true },
+      });
+    }
+
+    // Unsigned agreements — flag scheduled records that have no signatures yet
+    var signedRecordIds = new Set(signaturesData.map(function(s){ return s.inspection_record_id; }));
+    var unsigned = recordsData.filter(function(r) {
+      return r.status === 'scheduled' && !signedRecordIds.has(r.id);
+    });
+    if (unsigned.length === 1) {
+      notes.push({
+        type: 'urgent', icon: '\ud83d\udccb',
+        title: 'Action Required \u2014 Sign Your Inspection Agreement',
+        desc: 'Your Inspection Agreement for ' + esc(unsigned[0].address || 'your inspection') + ' must be signed before your inspection can take place.',
+        action: { label: 'Go to Agreements', isTab: true, tab: 'agreements' },
+      });
+    } else if (unsigned.length > 1) {
+      notes.push({
+        type: 'urgent', icon: '\ud83d\udccb',
+        title: 'Action Required \u2014 Sign Your Inspection Agreements',
+        desc: 'You have ' + unsigned.length + ' unsigned inspection agreements that must be signed.',
+        action: { label: 'Go to Agreements', isTab: true, tab: 'agreements' },
+      });
+    }
+
+    // Reschedule pending
+    recordsData.filter(function(r){ return r.reschedule_requested; }).forEach(function(r) {
+      notes.push({
+        type: 'info', icon: '\u23f0',
+        title: 'Reschedule Under Review',
+        desc: 'Your reschedule request for ' + esc(r.address || 'your inspection') + ' is pending admin approval.',
+      });
+    });
+
+    if (!notes.length) {
+      document.getElementById('cpNotifications').style.display = 'none';
+      return;
+    }
+
+    var html = '';
+    notes.forEach(function(n) {
+      var cls = n.type === 'urgent' ? 'cp-notif-urgent' : n.type === 'info' ? 'cp-notif-info' : '';
+      html += '<div class="cp-notification ' + cls + '">';
+      html += '<div class="cp-notification-icon">' + n.icon + '</div>';
+      html += '<div class="cp-notification-body">';
+      html += '<div class="cp-notification-title">' + n.title + '</div>';
+      html += '<div class="cp-notification-desc">' + n.desc + '</div>';
+      if (n.action && n.action.isTab) {
+        html += '<button onclick="cpSwitchTab(\'' + n.action.tab + '\')" class="cp-notification-action" style="cursor:pointer;border:none;font-family:inherit;">' + n.action.label + ' \u2192</button>';
+      } else if (n.action && n.action.href) {
+        var greenCls = n.action.green ? ' green' : '';
+        html += '<a href="' + n.action.href + '" target="_blank" class="cp-notification-action' + greenCls + '" style="text-decoration:none;display:inline-block;">' + n.action.label + ' \u2192</a>';
+      }
+      html += '</div></div>';
+    });
+    document.getElementById('cpNotifications').innerHTML = html;
+  }
+
+  // ── INSPECTIONS ───────────────────────────────────
+  function renderInspections() {
+    var el = document.getElementById('cpInspectionsList');
+    if (!recordsData.length) {
+      el.innerHTML = emptyState('\ud83c\udfe0', 'No inspections on file yet.');
+      return;
+    }
+
+    var upcoming = [];
+    var past     = [];
+
+    recordsData.forEach(function(r) {
+      var state = getRecordState(r);
+      var card  = recordCard(r, state);
+      if (state === 'cancelled') {
+        past.push(card);
+      } else if (state === 'complete') {
+        past.push(card);
+      } else if (state === 'payment_pending') {
+        // Scheduled unpaid = upcoming (pre-pay). Only past if inspection date already passed.
+        var dateIsPast = r.inspection_date && new Date(r.inspection_date + 'T23:59:59') < new Date();
+        if (dateIsPast && r.status !== 'scheduled') {
+          past.push(card);
+        } else {
+          upcoming.push(card);
+        }
+      } else {
+        upcoming.push(card);
+      }
+    });
+
+    var sectionStyle = 'font-family:&quot;Barlow Condensed&quot;,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.35);margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;';
+
+    var html = '';
+
+    html += '<div style="margin-bottom:24px;">'
+      + '<div style="' + sectionStyle + '" onclick="cpToggleInspSection(\'upcoming\')">Upcoming Inspections (' + upcoming.length + ') <span id="cpInspChev-upcoming" style="transition:transform 0.2s;display:inline-block;">\u25bc</span></div>'
+      + '<div id="cpInsp-upcoming">'
+      + (upcoming.length ? upcoming.join('') : '<div style="font-size:13px;color:rgba(255,255,255,0.35);padding:12px 0;">No upcoming inspections.</div>')
+      + '</div></div>';
+
+    html += '<div>'
+      + '<div style="' + sectionStyle + '" onclick="cpToggleInspSection(\'past\')">Past Inspections (' + past.length + ') <span id="cpInspChev-past" style="transition:transform 0.2s;display:inline-block;transform:rotate(-90deg);">\u25bc</span></div>'
+      + '<div id="cpInsp-past" style="display:none;">'
+      + (past.length ? past.join('') : '<div style="font-size:13px;color:rgba(255,255,255,0.35);padding:12px 0;">No past inspections.</div>')
+      + '</div></div>';
+
+    el.innerHTML = html;
+    wireRecordActions();
+  }
+
+  window.cpToggleInspSection = function(key) {
+    var el   = document.getElementById('cpInsp-' + key);
+    var chev = document.getElementById('cpInspChev-' + key);
+    if (!el) return;
+    var open = el.style.display !== 'none';
+    el.style.display = open ? 'none' : 'block';
+    if (chev) chev.style.transform = open ? 'rotate(-90deg)' : '';
+  };
+
+  function getRecordState(r) {
+    var s = r.status || '';
+    if (s === 'cancelled') return 'cancelled';
+    if (s === 'submitted' || s === 'delivered' || s === 'approved') {
+      return isPaid(r) ? 'complete' : 'payment_pending';
+    }
+    if (s === 'in_progress' || s === 'review') return 'in_progress';
+    // scheduled — show Pay Now if unpaid so client can pre-pay before inspection
+    if (s === 'scheduled') {
+      return isPaid(r) ? 'booked' : 'payment_pending';
+    }
+    return 'booked';
+  }
+
+  function recordCard(r, state) {
+    var stateLabel = {
+      booked:          'Confirmed',
+      in_progress:     'Inspection In Progress',
+      payment_pending: 'Payment Required',
+      complete:        'Complete',
+      cancelled:       'Cancelled',
+    }[state] || state;
+
+    var statusCls = {
+      booked:          'cp-status-booked',
+      in_progress:     'cp-status-progress',
+      payment_pending: 'cp-status-pending',
+      complete:        'cp-status-complete',
+      cancelled:       'cp-status-cancelled',
+    }[state] || '';
+
+    var address = r.address || 'Unknown Property';
+    var dateStr = r.inspection_date ? fmtDate(r.inspection_date) : '';
+    var timeStr = r.inspection_time || '';
+
+    var html = '<div class="cp-card" data-record-id="' + esc(r.id) + '">';
+
+    html += '<div class="cp-card-header">';
+    html += '<div class="cp-card-title">' + esc(address) + '</div>';
+    html += '<span class="cp-status ' + statusCls + '">' + stateLabel + '</span>';
+    html += '</div>';
+
+    html += '<div class="cp-card-body">';
+
+    if (dateStr) {
+      html += '<div class="cp-card-row"><span class="cp-card-label">Date</span><span class="cp-card-value">' + esc(dateStr) + (timeStr ? ' at ' + esc(timeStr) : '') + '</span></div>';
+    }
+    if (r.tier || r.category) {
+      html += '<div class="cp-card-row"><span class="cp-card-label">Service</span><span class="cp-card-value">' + esc(categoryLabel(r.category)) + (r.tier ? ' \u2014 ' + esc(r.tier) : '') + '</span></div>';
+    }
+    if (r.inspector_name) {
+      html += '<div class="cp-card-row"><span class="cp-card-label">Inspector</span><span class="cp-card-value">' + esc(r.inspector_name) + '</span></div>';
+    }
+
+    if (state === 'in_progress') {
+      html += '<hr class="cp-divider">';
+      html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;">';
+      html += '<span style="font-size:28px;flex-shrink:0;">\u23f3</span>';
+      html += '<div><div style="font-family:&quot;Barlow Condensed&quot;,sans-serif;font-size:15px;font-weight:700;color:#64b5d9;">Your Report Is Being Prepared</div><div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">Your inspector is finishing up. You\'ll be notified when it\'s ready.</div></div>';
+      html += '</div>';
+    }
+
+    if (state === 'payment_pending') {
+      html += '<hr class="cp-divider">';
+      var totalAmt = Number(r.final_total || 0);
+      var pmtUrl = siteUrl + '/invoice.html?booking=' + esc(r.booking_id || r.id);
+      html += '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">';
+      if (totalAmt > 0) {
+        html += '<span style="font-size:13px;color:rgba(255,255,255,0.5);">Invoice total: <strong style="color:#f59321;">$' + totalAmt.toFixed(0) + '</strong></span>';
+      } else {
+        html += '<span style="font-size:13px;color:rgba(255,255,255,0.5);">Pre-pay to streamline your inspection day.</span>';
+      }
+      html += '<a href="' + pmtUrl + '" target="_blank" class="cp-btn cp-btn-primary cp-btn-sm">Pay Now \u2192</a>';
+      html += '</div>';
+      if (r.status === 'scheduled') {
+        var paAllSigned = window._cpAgrAllSigned && window._cpAgrAllSigned[r.id];
+        html += '<button id="cpSignAgrBtn-' + esc(r.id) + '" class="cp-btn cp-btn-secondary cp-btn-sm" onclick="window.openAgreementsModal(\'' + esc(r.id) + '\', \'' + esc(r.cust_email || '') + '\')"' + (paAllSigned ? ' style="display:none;"' : '') + '>\ud83d\udccb Sign Agreements</button>';
+      }
+      if (r.status !== 'scheduled') {
+        html += '<div class="cp-locked" style="margin-top:12px;"><span class="cp-locked-icon">\ud83d\udd12</span><span>Your report will be available here once payment is confirmed.</span></div>';
+      }
+    }
+
+    if (state === 'complete') {
+      html += '<hr class="cp-divider">';
+      html += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+      if (r.report_url)  html += '<a href="' + esc(r.report_url)  + '" target="_blank" class="cp-btn cp-btn-primary cp-btn-sm">\ud83d\udcc4 View Report</a>';
+      if (r.invoice_url) html += '<a href="' + esc(fixInvoiceUrl(r.invoice_url)) + '" target="_blank" class="cp-btn cp-btn-secondary cp-btn-sm">\ud83e\uddfe View Invoice</a>';
+      html += '</div>';
+    }
+
+    // Reschedule / cancel actions — gated by payment status
+    var canSelfServe = (state === 'payment_pending') && !isPaid(r);
+    var isPaidRecord = isPaid(r);
+    var showCallNotice = isPaidRecord && (state === 'booked' || state === 'payment_pending' || state === 'in_progress') && state !== 'cancelled' && state !== 'complete';
+
+    if (canSelfServe || showCallNotice) {
+      html += '<hr class="cp-divider">';
+    }
+
+    if (showCallNotice) {
+      html += '<div style="background:rgba(21,81,109,0.18);border:1.5px solid rgba(21,81,109,0.35);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;">';
+      html += '<span style="font-size:20px;">📞</span>';
+      html += '<div>';
+      html += '<div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:2px;">Need to reschedule or cancel?</div>';
+      html += '<div style="font-size:13px;color:rgba(255,255,255,0.55);">Give us a call and we\'ll take care of you: <a href="tel:8153298583" style="color:#27ae60;font-weight:700;text-decoration:none;">(815) 329-8583</a></div>';
+      html += '</div></div>';
+    }
+
+    if (canSelfServe) {
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">';
+      if (r.reschedule_requested) {
+        html += '<div style="background:rgba(245,147,33,0.1);border:1.5px solid rgba(245,147,33,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.7);width:100%;box-sizing:border-box;">⏰ Reschedule pending confirmation — we\'ll be in touch shortly.</div>';
+      } else {
+        html += '<button class="cp-btn cp-btn-secondary cp-btn-sm" data-action="open-reschedule-modal" data-record="' + esc(r.id) + '" data-booking="' + esc(r.booking_id || '') + '">⏰ Request Reschedule</button>';
+        html += '<button class="cp-btn cp-btn-danger cp-btn-sm" data-action="cancel" data-record="' + esc(r.id) + '" data-booking="' + esc(r.booking_id || '') + '">Cancel Booking</button>';
+      }
+      html += '</div>';
+    }
+
+    if (state === 'booked') {
+      var bkAllSigned = window._cpAgrAllSigned && window._cpAgrAllSigned[r.id];
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">';
+      html += '<button id="cpSignAgrBtn-' + esc(r.id) + '" class="cp-btn cp-btn-primary cp-btn-sm" onclick="window.openAgreementsModal(\'' + esc(r.id) + '\', \'' + esc(r.cust_email || '') + '\')" style="background:#27ae60;border-color:#27ae60;' + (bkAllSigned ? 'display:none;' : '') + '">📋 Sign Agreements</button>';
+      html += '</div>';
+    }
+
+    // Agent report release toggle — show on all non-cancelled records with an agent assigned
+    if (r.agent_id && r.agent_name && state !== 'cancelled') {
+      var isApproved = r.agent_report_release === true;
+      var reportTypeLabel = categoryLabel(r.category);
+      html += '<hr class="cp-divider">';
+      html += '<div class="cp-release-toggle">';
+      html += '<div class="cp-release-label">Share your <strong>' + esc(reportTypeLabel) + '</strong> report with <strong>' + esc(r.agent_name) + '</strong>?</div>';
+      html += '<div class="cp-release-btns">';
+      html += '<button class="cp-release-btn' + (!isApproved ? ' active-deny' : '') + '" data-action="release-deny" data-record="' + esc(r.id) + '">Deny</button>';
+      html += '<button class="cp-release-btn' + (isApproved ? ' active-approve' : '') + '" data-action="release-approve" data-record="' + esc(r.id) + '">Approve</button>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    html += '</div></div>';
+    return html;
+  }
+
+  // ── REPORTS ───────────────────────────────────────
+  function renderReports() {
+    var el        = document.getElementById('cpReportsList');
+    var available = recordsData.filter(function(r) { return r.report_url && isPaid(r); });
+
+    if (!available.length) {
+      el.innerHTML = emptyState('\ud83d\udcc4', 'No reports available yet. Reports appear here once your inspection is complete and payment is confirmed.');
+      return;
+    }
+
+    var html = '';
+    available.forEach(function(r) {
+      html += '<div class="cp-card">';
+      html += '<div class="cp-card-header">';
+      html += '<div class="cp-card-title">' + esc(r.address || 'Property') + '</div>';
+      html += '<span class="cp-status cp-status-complete">Complete</span>';
+      html += '</div>';
+      html += '<div class="cp-card-body">';
+      if (r.inspection_date) html += '<div class="cp-card-row"><span class="cp-card-label">Inspected</span><span class="cp-card-value">' + fmtDate(r.inspection_date) + '</span></div>';
+      html += '<div class="cp-card-row"><span class="cp-card-label">Service</span><span class="cp-card-value">' + esc(categoryLabel(r.category)) + (r.tier ? ' \u2014 ' + esc(r.tier) : '') + '</span></div>';
+      html += '<hr class="cp-divider">';
+      html += '<a href="' + esc(r.report_url) + '" target="_blank" class="cp-btn cp-btn-primary cp-btn-sm">\ud83d\udcc4 Open Report</a>';
+      html += '</div></div>';
+    });
+    el.innerHTML = html;
+  }
+
+  // ── INVOICES ─────────────────────────────────────
+  function renderInvoices() {
+    var el = document.getElementById('cpInvoicesList');
+
+    // Only show records that have an invoice (submitted or later)
+    var invoiced = recordsData.filter(function(r) { return r.invoice_url && r.status !== 'cancelled'; });
+
+    if (!invoiced.length) {
+      el.innerHTML = emptyState('\ud83e\uddfe', 'No invoices on file yet.');
+      return;
+    }
+
+    var outstanding = [];
+    var paid        = [];
+
+    invoiced.forEach(function(r) {
+      var total = Number(r.final_total || 0).toFixed(2);
+
+      var html = '<div class="cp-card">';
+      html += '<div class="cp-card-header">';
+      html += '<div class="cp-card-title">' + esc(r.address || 'Property') + '</div>';
+      html += '<span class="cp-status ' + (isPaid(r) ? 'cp-status-complete' : 'cp-status-pending') + '">' + (isPaid(r) ? 'Paid' : 'Unpaid') + '</span>';
+      html += '</div>';
+      html += '<div class="cp-card-body">';
+      if (r.inspection_date) html += '<div class="cp-card-row"><span class="cp-card-label">Date</span><span class="cp-card-value">' + fmtDate(r.inspection_date) + '</span></div>';
+      html += '<div class="cp-card-row"><span class="cp-card-label">Total</span><span class="cp-card-value" style="font-weight:700;color:' + (isPaid(r) ? '#27ae60' : '#f59321') + ';">$' + total + '</span></div>';
+      html += '<hr class="cp-divider">';
+      if (isPaid(r)) {
+        html += '<a href="' + esc(fixInvoiceUrl(r.invoice_url)) + '" target="_blank" class="cp-btn cp-btn-secondary cp-btn-sm">\ud83e\uddfe View Receipt</a>';
+      } else {
+        html += '<div style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:10px;">Go to the Inspections tab to pay this invoice.</div>';
+        html += '<a href="' + esc(fixInvoiceUrl(r.invoice_url)) + '" target="_blank" class="cp-btn cp-btn-secondary cp-btn-sm">\ud83e\uddfe View Invoice</a>';
+      }
+      html += '</div></div>';
+
+      if (isPaid(r)) { paid.push(html); } else { outstanding.push(html); }
+    });
+
+    var sectionStyle = 'font-family:&quot;Barlow Condensed&quot;,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.35);margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;';
+
+    var html = '';
+    html += '<div style="margin-bottom:24px;">'
+      + '<div style="' + sectionStyle + '" onclick="cpToggleInvSection(\'outstanding\')">Outstanding Invoices (' + outstanding.length + ') <span id="cpInvChev-outstanding" style="transition:transform 0.2s;display:inline-block;">\u25bc</span></div>'
+      + '<div id="cpInv-outstanding">'
+      + (outstanding.length ? outstanding.join('') : '<div style="font-size:13px;color:rgba(255,255,255,0.35);padding:12px 0;">No outstanding invoices.</div>')
+      + '</div></div>';
+
+    html += '<div>'
+      + '<div style="' + sectionStyle + '" onclick="cpToggleInvSection(\'paid\')">Past Invoices (' + paid.length + ') <span id="cpInvChev-paid" style="transition:transform 0.2s;display:inline-block;transform:rotate(-90deg);">\u25bc</span></div>'
+      + '<div id="cpInv-paid" style="display:none;">'
+      + (paid.length ? paid.join('') : '<div style="font-size:13px;color:rgba(255,255,255,0.35);padding:12px 0;">No paid invoices yet.</div>')
+      + '</div></div>';
+
+    el.innerHTML = html;
+  }
+
+  // ── AGREEMENTS ────────────────────────────────────
+  var signaturesData = [];
+
+  // Per-record allSigned map — populated by loadRecordAgreementSummary
+  // Used by renderInspections to hide Sign Agreements button when all are signed
+  window._cpAgrAllSigned = {};
+
+  function renderAgreements() {
+    var el = document.getElementById('cpAgreementsList');
+    if (!el) return;
+    if (!recordsData.length) {
+      el.innerHTML = emptyState('\ud83d\udccb', 'No agreements on file yet. Your inspection agreements will appear here once your inspection is confirmed.');
+      return;
+    }
+    var html = '';
+    recordsData.forEach(function(r) {
+      var date = r.inspection_date ? new Date(r.inspection_date + 'T12:00:00').toLocaleDateString('en-US',{ month:'short', day:'numeric', year:'numeric' }) : 'TBD';
+      html += '<div class="cp-card" style="margin-bottom:16px;">';
+      html += '<div class="cp-card-header">';
+      html += '<div class="cp-card-title">' + esc(r.address || 'Property') + '</div>';
+      html += '<span style="font-size:12px;color:rgba(255,255,255,0.5);">' + esc(date) + '</span>';
+      html += '</div>';
+      html += '<div class="cp-card-body">';
+      html += '<p style="font-size:13px;color:rgba(255,255,255,0.55);margin:0 0 14px;">All agreements must be signed before your inspector arrives.</p>';
+      html += '<div id="cpAgreementsFor-' + esc(r.id) + '" style="margin-bottom:14px;"><div style="color:rgba(255,255,255,0.3);font-size:13px;padding:10px 0;">Loading...</div></div>';
+
+      html += '<button class="cp-btn cp-btn-primary" onclick="window.openAgreementsModal(\'' + esc(r.id) + '\', \'' + esc(r.cust_email || (clientData && clientData.email) || '') + '\')">';
+      html += '\ud83d\udccb View &amp; Sign Agreements</button>';
+      html += '</div></div>';
+    });
+    el.innerHTML = html;
+    recordsData.forEach(loadRecordAgreementSummary);
+
+
+  }
+
+  function loadRecordAgreementSummary(r) {
+    fetch('/.netlify/functions/get-agreements?token=' + encodeURIComponent(portalToken) + '&record_id=' + encodeURIComponent(r.id))
+      .then(function(res){ return res.json(); })
+      .then(function(data) {
+        var el = document.getElementById('cpAgreementsFor-' + r.id);
+        if (!el) return;
+        if (!data.ok || !data.agreements || !data.agreements.length) {
+          el.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,0.4);margin:0;">No agreements required for this inspection.</p>';
+          return;
+        }
+        var html = '';
+        data.agreements.forEach(function(a) {
+          var badge = a.signed
+            ? '<span style="background:rgba(39,174,96,0.2);color:#27ae60;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">\u2713 SIGNED</span>'
+            : '<span style="background:rgba(245,147,33,0.2);color:#f59321;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">REQUIRED</span>';
+          html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);">';
+          html += '<span style="font-size:13px;color:rgba(255,255,255,0.8);">' + esc(a.name) + '</span>' + badge + '</div>';
+        });
+        var allSigned = data.agreements.every(function(a){ return a.signed; });
+        if (allSigned) html += '<p style="font-size:12px;color:#27ae60;margin:10px 0 0;">\u2713 All agreements signed</p>';
+        el.innerHTML = html;
+
+        // Store allSigned status and update Sign Agreements button visibility on inspection cards
+        window._cpAgrAllSigned[r.id] = allSigned;
+        var signBtn = document.getElementById('cpSignAgrBtn-' + r.id);
+        if (signBtn) signBtn.style.display = allSigned ? 'none' : '';
+      })
+      .catch(function(){});
+  }
+
+  // ── TAB WIRING ────────────────────────────────────
+  function wireTabButtons() {
+    document.querySelectorAll('.cp-tab-btn[data-cp-tab]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tab = this.getAttribute('data-cp-tab');
+        document.querySelectorAll('.cp-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+        document.querySelectorAll('.cp-tab-panel').forEach(function(p){ p.classList.remove('active'); });
+        this.classList.add('active');
+        var panel = document.getElementById('cpTab-' + tab);
+        if (panel) panel.classList.add('active');
+      });
+    });
+  }
+
+  window.cpToggleInvSection = function(key) {
+    var el   = document.getElementById('cpInv-' + key);
+    var chev = document.getElementById('cpInvChev-' + key);
+    if (!el) return;
+    var open = el.style.display !== 'none';
+    el.style.display = open ? 'none' : 'block';
+    if (chev) chev.style.transform = open ? 'rotate(-90deg)' : '';
+  };
+
+  window.cpSwitchTab = function(tab) {
+    document.querySelectorAll('.cp-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.cp-tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    var btn = document.querySelector('.cp-tab-btn[data-cp-tab="' + tab + '"]');
+    if (btn) btn.classList.add('active');
+    var panel = document.getElementById('cpTab-' + tab);
+    if (panel) panel.classList.add('active');
+  };
+
+  // ── RECORD ACTIONS (reschedule / cancel) ──────────────────────
+  function wireRecordActions() {
+    document.getElementById('cpInspectionsList').addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      var action    = btn.getAttribute('data-action');
+      var recordId  = btn.getAttribute('data-record');
+      var bookingId = btn.getAttribute('data-booking');
+
+      if (action === 'open-reschedule-modal') {
+        openRescheduleModal(recordId, bookingId);
+      }
+      if (action === 'cancel') {
+        cancelBooking(recordId, bookingId, btn);
+      }
+      if (action === 'release-approve' || action === 'release-deny') {
+        var val = action === 'release-approve';
+        setReportRelease(recordId, val, btn);
+      }
+    });
+  }
+
+  // ── AGENT REPORT RELEASE TOGGLE ─────────────────────────────────────────
+  function setReportRelease(recordId, val, btn) {
+    // Optimistically update button states
+    var card = btn.closest('[data-record-id="' + recordId + '"]');
+    if (card) {
+      card.querySelectorAll('.cp-release-btn').forEach(function(b) {
+        b.classList.remove('active-approve', 'active-deny');
+      });
+      btn.classList.add(val ? 'active-approve' : 'active-deny');
+      // Also update the other button's pair
+      var otherAction = val ? 'release-deny' : 'release-approve';
+      var other = card.querySelector('[data-action="' + otherAction + '"]');
+      if (other) other.classList.remove('active-approve', 'active-deny');
+    }
+
+    fetch('/.netlify/functions/set-report-release', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: portalToken, record_id: recordId, value: val })
+    }).then(function(res) {
+      if (res.ok) {
+        hwToast(val ? 'Report sharing approved.' : 'Report sharing denied.');
+        var rec = recordsData.find(function(r){ return r.id === recordId; });
+        if (rec) rec.agent_report_release = val;
+        // Audit log
+        fetch('/.netlify/functions/log-audit-event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            record_id: recordId,
+            action:    val ? 'report.release.authorized' : 'report.release.revoked',
+            category:  'agent',
+            actor:     'client',
+            details:   {}
+          })
+        }).catch(function(){});
+      } else {
+        hwToast('Error saving preference. Please try again.');
+        // Revert button states
+        if (card) {
+          card.querySelectorAll('.cp-release-btn').forEach(function(b) {
+            b.classList.remove('active-approve', 'active-deny');
+          });
+          var rec = recordsData.find(function(r){ return r.id === recordId; });
+          var current = rec ? rec.agent_report_release === true : false;
+          var approveBtn = card.querySelector('[data-action="release-approve"]');
+          var denyBtn    = card.querySelector('[data-action="release-deny"]');
+          if (approveBtn) approveBtn.classList.toggle('active-approve', current);
+          if (denyBtn)    denyBtn.classList.toggle('active-deny', !current);
+        }
+      }
+    }).catch(function() {
+      hwToast('Error saving preference. Please try again.');
+    });
+  }
+
+  // ── RESCHEDULE MODAL (live availability picker) ─────────────────────────
+  var _cpBusyEvents = [];
+  var _cpRsRecordId = null;
+  var _cpRsBookingId = null;
+  var _cpRsSelectedDate = null;
+  var _cpRsSelectedTime = null;
+  var _cpRsCalMonth = null;
+  var _cpRsCalYear  = null;
+
+  function openRescheduleModal(recordId, bookingId) {
+    _cpRsRecordId  = recordId;
+    _cpRsBookingId = bookingId;
+    _cpRsSelectedDate = null;
+    _cpRsSelectedTime = null;
+    var now = new Date();
+    _cpRsCalMonth = now.getMonth();
+    _cpRsCalYear  = now.getFullYear();
+
+    // Build modal if not present
+    var existing = document.getElementById('cpRescheduleModal');
+    if (!existing) _cpBuildRescheduleModal();
+
+    // Show modal
+    document.getElementById('cpRescheduleModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Fetch availability then render calendar
+    _cpFetchAvailability();
+  }
+
+  function _cpBuildRescheduleModal() {
+    var modal = document.createElement('div');
+    modal.id = 'cpRescheduleModal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+    modal.innerHTML = [
+      '<div style="background:#1a2530;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.6);">',
+        // Header
+        '<div style="background:linear-gradient(135deg,#15516d,#1a2a44);border-radius:16px 16px 0 0;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;">',
+          '<div>',
+            '<div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Request Reschedule</div>',
+            '<div style="font-size:18px;font-weight:700;color:#fff;font-family:&quot;Barlow Condensed&quot;,sans-serif;">Select New Date &amp; Time</div>',
+          '</div>',
+          '<button id="cpRsModalClose" style="background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:20px;width:36px;height:36px;border-radius:8px;cursor:pointer;line-height:1;">×</button>',
+        '</div>',
+        // Body
+        '<div style="padding:24px 28px;">',
+          '<div id="cpRsLoadingMsg" style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);font-size:14px;">Loading availability…</div>',
+          // Calendar
+          '<div id="cpRsCalWrap" style="display:none;">',
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">',
+              '<button id="cpRsCalPrev" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px;">&#8249;</button>',
+              '<div id="cpRsCalTitle" style="font-size:15px;font-weight:700;color:#fff;font-family:&quot;Barlow Condensed&quot;,sans-serif;"></div>',
+              '<button id="cpRsCalNext" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px;">&#8250;</button>',
+            '</div>',
+            '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;">',
+              ['Su','Mo','Tu','We','Th','Fr','Sa'].map(function(d){
+                return '<div style="text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);padding:4px 0;">'+d+'</div>';
+              }).join(''),
+            '</div>',
+            '<div id="cpRsCalDays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;"></div>',
+            // Time slots
+            '<div id="cpRsTimesWrap" style="display:none;">',
+              '<div id="cpRsTimesTitle" style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;"></div>',
+              '<div id="cpRsTimesGrid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;"></div>',
+            '</div>',
+          '</div>',
+          // Action row
+          '<div id="cpRsActionRow" style="display:none;border-top:1px solid rgba(255,255,255,0.08);padding-top:18px;display:flex;gap:10px;justify-content:flex-end;">',
+            '<button id="cpRsCancelBtn" style="padding:10px 20px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>',
+            '<button id="cpRsSubmitBtn" style="padding:10px 24px;background:#27ae60;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;" disabled>Submit Request</button>',
+          '</div>',
+          '<div id="cpRsErrMsg" style="font-size:13px;color:#e74c3c;margin-top:10px;display:none;"></div>',
+        '</div>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(modal);
+
+    document.getElementById('cpRsModalClose').addEventListener('click', _cpCloseRescheduleModal);
+    document.getElementById('cpRsCancelBtn').addEventListener('click',  _cpCloseRescheduleModal);
+    modal.addEventListener('click', function(e){ if (e.target === modal) _cpCloseRescheduleModal(); });
+    document.getElementById('cpRsCalPrev').addEventListener('click', function(){
+      _cpRsCalMonth--;
+      if (_cpRsCalMonth < 0) { _cpRsCalMonth = 11; _cpRsCalYear--; }
+      _cpRenderRsCal();
+    });
+    document.getElementById('cpRsCalNext').addEventListener('click', function(){
+      _cpRsCalMonth++;
+      if (_cpRsCalMonth > 11) { _cpRsCalMonth = 0; _cpRsCalYear++; }
+      _cpRenderRsCal();
+    });
+    document.getElementById('cpRsSubmitBtn').addEventListener('click', _cpSubmitReschedule);
+  }
+
+  function _cpCloseRescheduleModal() {
+    var m = document.getElementById('cpRescheduleModal');
+    if (m) m.style.display = 'none';
+    document.body.style.overflow = '';
+    _cpRsSelectedDate = null;
+    _cpRsSelectedTime = null;
+  }
+
+  function _cpFetchAvailability() {
+    var loading = document.getElementById('cpRsLoadingMsg');
+    var calWrap = document.getElementById('cpRsCalWrap');
+    if (loading) loading.style.display = 'block';
+    if (calWrap) calWrap.style.display = 'none';
+    fetch('/.netlify/functions/get-availability?weeks=8')
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        _cpBusyEvents = (data.busy || []).map(function(e){
+          return { start: new Date(e.start), end: new Date(e.end) };
+        });
+        if (loading) loading.style.display = 'none';
+        if (calWrap) calWrap.style.display = 'block';
+        _cpRenderRsCal();
+      })
+      .catch(function() {
+        _cpBusyEvents = [];
+        if (loading) loading.style.display = 'none';
+        if (calWrap) calWrap.style.display = 'block';
+        _cpRenderRsCal();
+      });
+  }
+
+  function _cpGetAvailableSlots(dateStr) {
+    // Use HEARTLAND_CONFIG schedule if available
+    var CFG = (typeof HEARTLAND_CONFIG !== 'undefined') ? HEARTLAND_CONFIG : null;
+    var d = new Date(dateStr + 'T12:00:00');
+    var dow = d.getDay();
+    var schedule = CFG && CFG.schedule ? CFG.schedule : {1:['8:00 AM','5:00 PM'],2:['8:00 AM','5:00 PM'],3:['8:00 AM','5:00 PM'],4:['8:00 AM','5:00 PM'],5:['8:00 AM','5:00 PM']};
+    var ov = CFG && CFG.dateOverrides ? CFG.dateOverrides[dateStr] : undefined;
+    var entry = (ov !== undefined) ? ov : schedule[dow];
+    if (!entry) return [];
+
+    // Parse single window [start, end]
+    function parseT(str) {
+      var p = (str||'').trim().split(' ');
+      var hm = p[0].split(':');
+      var h = parseInt(hm[0],10), m = parseInt(hm[1]||'0',10);
+      var mer = p[1] ? p[1].toUpperCase() : null;
+      if (mer === 'PM' && h !== 12) h += 12;
+      if (mer === 'AM' && h === 12) h = 0;
+      return h*60+m;
+    }
+    var windows = (Array.isArray(entry) && typeof entry[0] === 'string') ? [entry] : (Array.isArray(entry) ? entry : []);
+    var dur = (CFG && CFG.INSPECTION_DURATION_HOURS ? CFG.INSPECTION_DURATION_HOURS : 2.5) * 60;
+    var step = (CFG && CFG.SLOT_STEP_MINUTES ? CFG.SLOT_STEP_MINUTES : 60);
+    var slots = [];
+    windows.forEach(function(w){
+      if (!Array.isArray(w) || w.length < 2) return;
+      var sMin = parseT(w[0]), eMin = parseT(w[1]);
+      for (var t = sMin; t + dur <= eMin; t += step) {
+        var hh = Math.floor(t/60), mm = t%60;
+        var ap = hh >= 12 ? 'PM' : 'AM';
+        var disp = (hh%12||12) + ':' + (mm<10?'0':'')+mm + ' ' + ap;
+        slots.push({ time: disp, minutes: t });
+      }
+    });
+
+    // Filter out busy slots
+    if (_cpBusyEvents.length) {
+      var tz = (CFG && CFG.TIMEZONE) || 'America/Chicago';
+      var fmt = new Intl.DateTimeFormat('en-US', {timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      var bufMs = (CFG && CFG.BUFFER_MINUTES ? CFG.BUFFER_MINUTES : 0) * 60000;
+      slots = slots.filter(function(slot){
+        var naiveStr = dateStr + 'T' + String(Math.floor(slot.minutes/60)).padStart(2,'0') + ':' + String(slot.minutes%60).padStart(2,'0') + ':00';
+        var naiveUtc = new Date(naiveStr + 'Z');
+        var parts = fmt.formatToParts(naiveUtc);
+        var p = {};
+        parts.forEach(function(x){ p[x.type] = x.value; });
+        var localMs = Date.UTC(+p.year,+p.month-1,+p.day,+(p.hour==='24'?0:p.hour),+p.minute,+p.second);
+        var offsetMs = localMs - naiveUtc.getTime();
+        var sUtc = naiveUtc.getTime() - offsetMs;
+        var eUtc = sUtc + dur * 60000;
+        for (var i=0;i<_cpBusyEvents.length;i++){
+          var bS = _cpBusyEvents[i].start.getTime()-bufMs, bE = _cpBusyEvents[i].end.getTime()+bufMs;
+          if (sUtc < bE && eUtc > bS) return false;
+        }
+        return true;
+      });
+    }
+
+    // Filter past + minimum advance (timezone-aware)
+    var minHrs = (CFG && CFG.MIN_ADVANCE_HOURS !== undefined) ? CFG.MIN_ADVANCE_HOURS : 24;
+    if (minHrs > 0) {
+      var cutoff = Date.now() + minHrs * 3600000;
+      var tzAdv = (CFG && CFG.TIMEZONE) || 'America/Chicago';
+      var fmtAdv = new Intl.DateTimeFormat('en-US', { timeZone: tzAdv, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+      slots = slots.filter(function(slot) {
+        var dtStr = dateStr + 'T' + String(Math.floor(slot.minutes/60)).padStart(2,'0') + ':' + String(slot.minutes%60).padStart(2,'0') + ':00';
+        var refUtc = new Date(dtStr + 'Z');
+        var parts = fmtAdv.formatToParts(refUtc);
+        var pObj = {};
+        parts.forEach(function(p) { pObj[p.type] = p.value; });
+        var localOfRef = Date.UTC(+pObj.year, +pObj.month-1, +pObj.day, +(pObj.hour === '24' ? 0 : pObj.hour), +pObj.minute, +pObj.second);
+        var offsetMs = localOfRef - refUtc.getTime();
+        var slotUtc = refUtc.getTime() - offsetMs;
+        return slotUtc > cutoff;
+      });
+    }
+    return slots;
+  }
+
+  var CP_MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function _cpRenderRsCal() {
+    var today = new Date();
+    var todayStr2 = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+    var maxDate = new Date(today); maxDate.setDate(maxDate.getDate() + 56); // 8 weeks
+    var daysInMonth = new Date(_cpRsCalYear, _cpRsCalMonth+1, 0).getDate();
+    var firstDay = new Date(_cpRsCalYear, _cpRsCalMonth, 1).getDay();
+    var title = document.getElementById('cpRsCalTitle');
+    if (title) title.textContent = CP_MONTH_NAMES[_cpRsCalMonth] + ' ' + _cpRsCalYear;
+    var prevBtn = document.getElementById('cpRsCalPrev');
+    var nextBtn = document.getElementById('cpRsCalNext');
+    var canPrev = _cpRsCalYear > today.getFullYear() || (_cpRsCalYear === today.getFullYear() && _cpRsCalMonth > today.getMonth());
+    var canNext = _cpRsCalYear < maxDate.getFullYear() || (_cpRsCalYear === maxDate.getFullYear() && _cpRsCalMonth <= maxDate.getMonth());
+    if (prevBtn) { prevBtn.style.opacity = canPrev ? '1' : '0.25'; prevBtn.style.pointerEvents = canPrev ? 'auto' : 'none'; }
+    if (nextBtn) { nextBtn.style.opacity = canNext ? '1' : '0.25'; nextBtn.style.pointerEvents = canNext ? 'auto' : 'none'; }
+
+    var html = '';
+    for (var i=0;i<firstDay;i++) html += '<div></div>';
+    for (var d=1;d<=daysInMonth;d++) {
+      var ds = _cpRsCalYear+'-'+String(_cpRsCalMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var dObj = new Date(_cpRsCalYear,_cpRsCalMonth,d);
+      var isPast = dObj < new Date(today.getFullYear(),today.getMonth(),today.getDate());
+      var isBeyond = dObj > maxDate;
+      var slots = _cpGetAvailableSlots(ds);
+      var isAvail = slots.length > 0 && !isPast && !isBeyond;
+      var isSel = _cpRsSelectedDate === ds;
+      var style = 'text-align:center;padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;cursor:';
+      if (isSel) style += 'pointer;background:#27ae60;color:#fff;';
+      else if (isAvail) style += 'pointer;background:rgba(39,174,96,0.12);color:#27ae60;border:1.5px solid rgba(39,174,96,0.25);';
+      else style += 'default;color:rgba(255,255,255,0.15);';
+      html += '<div style="'+style+'"'+(isAvail||isSel?' data-cprs-date="'+ds+'"':'')+'>'+d+'</div>';
+    }
+    var grid = document.getElementById('cpRsCalDays');
+    if (grid) grid.innerHTML = html;
+
+    // Wire day clicks
+    if (grid) {
+      grid.querySelectorAll('[data-cprs-date]').forEach(function(cell){
+        cell.addEventListener('click', function(){
+          _cpRsSelectedDate = this.getAttribute('data-cprs-date');
+          _cpRsSelectedTime = null;
+          _cpRenderRsCal();
+          _cpRenderRsSlots();
+          _cpUpdateRsSubmitBtn();
+        });
+      });
+    }
+    _cpRenderRsSlots();
+  }
+
+  function _cpRenderRsSlots() {
+    var wrap = document.getElementById('cpRsTimesWrap');
+    var grid = document.getElementById('cpRsTimesGrid');
+    var title = document.getElementById('cpRsTimesTitle');
+    var actionRow = document.getElementById('cpRsActionRow');
+    if (!_cpRsSelectedDate) { if(wrap) wrap.style.display = 'none'; return; }
+    var slots = _cpGetAvailableSlots(_cpRsSelectedDate);
+    var dObj = new Date(_cpRsSelectedDate+'T12:00:00');
+    if (title) title.textContent = dObj.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    if (!slots.length) {
+      if (grid) grid.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:13px;">No available slots for this date.</div>';
+    } else {
+      if (grid) grid.innerHTML = slots.map(function(s){
+        var sel = _cpRsSelectedTime === s.time;
+        return '<button data-cprs-time="'+s.time+'" style="padding:8px 14px;background:'+(sel?'#27ae60':'rgba(255,255,255,0.07)')+';border:1.5px solid '+(sel?'#27ae60':'rgba(255,255,255,0.12)')+';border-radius:8px;color:#fff;font-size:13px;font-weight:'+(sel?'700':'500')+';cursor:pointer;">'+s.time+'</button>';
+      }).join('');
+      if (grid) {
+        grid.querySelectorAll('[data-cprs-time]').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            _cpRsSelectedTime = this.getAttribute('data-cprs-time');
+            _cpRenderRsSlots();
+            _cpUpdateRsSubmitBtn();
+          });
+        });
+      }
+    }
+    if (wrap) wrap.style.display = 'block';
+    if (actionRow) actionRow.style.display = 'flex';
+    _cpUpdateRsSubmitBtn();
+  }
+
+  function _cpUpdateRsSubmitBtn() {
+    var btn = document.getElementById('cpRsSubmitBtn');
+    if (!btn) return;
+    var ready = !!_cpRsSelectedDate && !!_cpRsSelectedTime;
+    btn.disabled = !ready;
+    btn.style.opacity = ready ? '1' : '0.45';
+    if (ready) btn.textContent = 'Submit Request — ' + _cpRsSelectedTime;
+    else btn.textContent = 'Submit Request';
+  }
+
+  async function _cpSubmitReschedule() {
+    var btn = document.getElementById('cpRsSubmitBtn');
+    var errEl = document.getElementById('cpRsErrMsg');
+    if (!_cpRsSelectedDate || !_cpRsSelectedTime) return;
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+    if (errEl) errEl.style.display = 'none';
+    try {
+      var res = await fetch('/.netlify/functions/reschedule-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: portalToken,
+          booking_id: _cpRsBookingId,
+          new_date: _cpRsSelectedDate,
+          new_time: _cpRsSelectedTime,
+        }),
+      });
+      var d = await res.json();
+      if (d.success) {
+        _cpCloseRescheduleModal();
+        // Update local record to show pending confirmation
+        var rec = recordsData.find(function(x){ return x.id === _cpRsRecordId; });
+        if (rec) {
+          rec.status = 'cancelled'; // original is now cancelled
+          rec.reschedule_requested = true;
+        }
+        // Add the new pending booking info so UI shows "pending confirmation"
+        // Reload full portal data to get new inspection_record
+        hwToast('Reschedule request submitted! You\'ll hear from us shortly.');
+        setTimeout(function(){ window.location.reload(); }, 1800);
+      } else {
+        if (errEl) { errEl.textContent = d.error || 'Error submitting request.'; errEl.style.display = 'block'; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Request'; }
+      }
+    } catch(e) {
+      if (errEl) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = 'block'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit Request'; }
+    }
+  }
+
+  async function cancelBooking(recordId, bookingId, btn) {
+    if (!await hwConfirm('Cancel this inspection booking?<br><br>This will remove your calendar event and send you a cancellation confirmation. You can rebook by calling us at (815) 329-8583.', {title:'Cancel Booking', confirmLabel:'Yes, Cancel It', confirmColor:'#c0392b'})) return;
+    btn.disabled = true; btn.textContent = 'Cancelling…';
+    try {
+      var res = await fetch('/.netlify/functions/cancel-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: portalToken, booking_id: bookingId }),
+      });
+      var d = await res.json();
+      if (d.success) {
+        var r = recordsData.find(function(x){ return x.id === recordId; });
+        if (r) r.status = 'cancelled';
+        renderInspections();
+        renderNotifications();
+        hwToast('Booking cancelled. A confirmation has been sent to your email.');
+      } else {
+        hwAlert('Error: ' + (d.error || 'Could not cancel booking.'));
+        btn.disabled = false; btn.textContent = 'Cancel Booking';
+      }
+    } catch(e) {
+      hwAlert('Network error. Please try again.');
+      btn.disabled = false; btn.textContent = 'Cancel Booking';
+    }
+  }
+
+  // ── HELPERS ───────────────────────────────────────
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    return new Date(d + 'T12:00:00').toLocaleDateString('en-US', {
+      weekday: 'short', month: 'long', day: 'numeric', year: 'numeric'
+    });
+  }
+
+  // Ensure invoice links always point to the printable receipt page, not the payment page
+  function fixInvoiceUrl(url) {
+    if (!url) return '';
+    return url.replace(/invoice\.html(\?|$)/, 'invoice-receipt.html$1');
+  }
+
+  function todayStr() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function categoryLabel(cat) {
+    var labels = {
+      home_inspection:   'Home Inspection',
+      new_construction:  'New Construction',
+      home_health_check: 'Home Health Check',
+      addon:             'Add-On Service',
+      bundle_addon:      'Add-On Service',
+    };
+    return labels[cat] || cat || 'Inspection';
+  }
+
+  function emptyState(icon, text) {
+    return '<div class="cp-empty"><div class="cp-empty-icon">' + icon + '</div><div class="cp-empty-text">' + text + '</div></div>';
+  }
+
+  function showMsg(el, text, color) {
+    el.textContent = text;
+    el.style.color = color;
+    el.style.display = '';
+    setTimeout(function(){ el.style.display = 'none'; }, 5000);
+  }
+
+  // ── START ─────────────────────────────────────────
+  init();
+
+})();
+</script>
+
+<!-- ═══ AGREEMENTS MODAL ═══ -->
+<div id="cpAgreementsModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);overflow-y:auto;padding:20px;">
+  <div style="max-width:680px;margin:40px auto;background:#0d1a2e;border-radius:16px;border:1.5px solid rgba(255,255,255,0.1);overflow:hidden;">
+    <div style="background:rgba(255,255,255,0.05);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:1px;">INSPECTION AGREEMENTS</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:3px;" id="cpAgreementsAddress"></div>
+      </div>
+      <button onclick="window.closeAgreementsModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:26px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
+    </div>
+
+    <div id="cpAgreementsModalBody" style="padding:24px;">
+      <div style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">Loading agreements...</div>
+    </div>
+
+    <!-- Sign All footer -->
+    <div id="cpSignAllFooter" style="display:none;padding:20px 24px;background:rgba(0,0,0,0.2);border-top:1px solid rgba(255,255,255,0.08);">
+      <p style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);margin:0 0 16px;">Sign All Agreements</p>
+      <!-- Blanket acknowledgement checkbox -->
+      <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;cursor:pointer;">
+        <input type="checkbox" id="cpSignAllAck" style="width:16px;height:16px;flex-shrink:0;margin-top:2px;cursor:pointer;">
+        <span style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">I have read and agree to all inspection agreements listed above. I understand that my typed name and drawn signature constitute a legally binding electronic signature under the E-SIGN Act and UETA. <span style="color:#e74c3c;">*</span></span>
+      </label>
+      <!-- Typed name -->
+      <div style="margin-bottom:14px;">
+        <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Full Legal Name <span style="color:#e74c3c;">*</span></label>
+        <input type="text" id="cpSignAllName" placeholder="Type your full legal name" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-family:'Work Sans',sans-serif;font-size:14px;box-sizing:border-box;">
+      </div>
+      <!-- Draw signature -->
+      <div style="margin-bottom:14px;">
+        <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Draw Signature <span style="color:#e74c3c;">*</span></label>
+        <div style="position:relative;border:1.5px solid rgba(255,255,255,0.2);border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.05);">
+          <canvas id="cpSignAllCanvas" width="580" height="120" style="display:block;width:100%;height:120px;cursor:crosshair;touch-action:none;"></canvas>
+          <button onclick="window.clearSignAllCanvas()" style="position:absolute;top:8px;right:8px;padding:3px 10px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);border-radius:5px;color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;font-family:'Work Sans',sans-serif;">Clear</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button id="cpSignAllBtn" onclick="window.signAll()" style="padding:11px 28px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-family:'Work Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Sign All Agreements</button>
+      </div>
+      <div id="cpSignAllError" style="display:none;color:#e74c3c;font-size:12px;margin-top:8px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var _modalRecordId   = null;
+  var _modalEmail      = null;
+  var _modalAgreements = [];
+  var _modalToken      = null;
+
+  function getToken() {
+    return new URLSearchParams(window.location.search).get('token') || '';
+  }
+
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Open modal ───────────────────────────────────────────
+  window.openAgreementsModal = function(recordId, email) {
+    _modalRecordId = recordId;
+    _modalEmail    = email;
+    _modalToken    = getToken();
+
+    var modal = document.getElementById('cpAgreementsModal');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    // Find address from records
+    var records = (window._cpRecordsData || []);
+    var rec = records.find(function(r){ return r.id === recordId; });
+    document.getElementById('cpAgreementsAddress').textContent = rec ? (rec.address || '') : '';
+
+    document.getElementById('cpAgreementsModalBody').innerHTML =
+      '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">Loading agreements...</div>';
+    document.getElementById('cpSignAllFooter').style.display = 'none';
+
+    fetch('/.netlify/functions/get-agreements?token=' + encodeURIComponent(_modalToken) + '&record_id=' + encodeURIComponent(recordId))
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        if (!data.ok) throw new Error(data.error || 'Failed to load agreements');
+        _modalAgreements = data.agreements || [];
+        renderModalAgreements();
+      })
+      .catch(function(err) {
+        document.getElementById('cpAgreementsModalBody').innerHTML =
+          '<p style="color:#e74c3c;padding:20px;text-align:center;">Could not load agreements. Please try again.</p>';
+      });
+  };
+
+  window.closeAgreementsModal = function() {
+    document.getElementById('cpAgreementsModal').style.display = 'none';
+    document.getElementById('cpAgreementsModalBody').innerHTML = '';
+    document.getElementById('cpSignAllFooter').style.display = 'none';
+    document.body.style.overflow = '';
+    // Reload agreement summary cards
+    if (window._cpRefreshAgreements) window._cpRefreshAgreements();
+  };
+
+  // ── Render all agreements in modal ───────────────────────
+  function renderModalAgreements() {
+    var unsigned = _modalAgreements.filter(function(a){ return !a.signed; });
+    var signed   = _modalAgreements.filter(function(a){ return  a.signed; });
+
+    if (!_modalAgreements.length) {
+      document.getElementById('cpAgreementsModalBody').innerHTML =
+        '<p style="color:rgba(255,255,255,0.4);text-align:center;padding:30px;">No agreements required for this inspection.</p>';
+      return;
+    }
+
+    var html = '';
+
+    // Unsigned — expandable with sign form
+    unsigned.forEach(function(a, i) {
+      html += '<div class="cp-agr-card" id="cpAgrCard-' + esc(a.id) + '" style="margin-bottom:16px;border:1.5px solid rgba(245,147,33,0.3);border-radius:12px;overflow:hidden;">';
+      html += '<div class="cp-agr-header" onclick="window.toggleAgreement(\'' + esc(a.id) + '\')" style="padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:rgba(245,147,33,0.08);">';
+      html += '<div><div style="font-weight:700;color:#fff;font-size:14px;">' + esc(a.name) + '</div>';
+      html += '<span style="background:rgba(245,147,33,0.2);color:#f59321;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:4px;display:inline-block;">SIGNATURE REQUIRED</span></div>';
+      html += '<span class="cp-agr-chevron" id="cpAgrChevron-' + esc(a.id) + '" style="color:rgba(255,255,255,0.4);font-size:18px;transition:transform 0.2s;">&#9660;</span>';
+      html += '</div>';
+      html += '<div class="cp-agr-body" id="cpAgrBody-' + esc(a.id) + '" style="display:none;">';
+      html += '<div style="padding:20px;max-height:300px;overflow-y:auto;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;border-bottom:1px solid rgba(255,255,255,0.08);">' + (a.body || '') + '</div>';
+
+      // Checkboxes
+      if (a.checkboxes && a.checkboxes.length) {
+        html += '<div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);">';
+        a.checkboxes.forEach(function(cb) {
+          html += '<label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.75);">';
+          html += '<input type="checkbox" class="cp-agr-cb" data-waiver="' + esc(a.id) + '" data-key="' + esc(cb.key) + '" style="width:16px;height:16px;flex-shrink:0;margin-top:2px;cursor:pointer;">';
+          html += '<span>' + esc(cb.label) + (cb.required ? ' <span style="color:#e74c3c;">*</span>' : '') + '</span></label>';
+        });
+        html += '</div>';
+      }
+
+      // Sign form — type name + draw canvas
+      html += '<div style="padding:16px 20px;">';
+      html += '<div style="margin-bottom:12px;">';
+      html += '<label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Full Legal Name <span style="color:#e74c3c;">*</span></label>';
+      html += '<input type="text" id="cpAgrName-' + esc(a.id) + '" placeholder="Type your full legal name" style="width:100%;padding:10px 13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-family:&quot;Work Sans&quot;,sans-serif;font-size:13px;box-sizing:border-box;">';
+      html += '</div>';
+      html += '<div style="margin-bottom:14px;">';
+      html += '<label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Draw Signature <span style="color:#e74c3c;">*</span></label>';
+      html += '<div style="position:relative;border:1.5px solid rgba(255,255,255,0.2);border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.05);">';
+      html += '<canvas id="cpAgrCanvas-' + esc(a.id) + '" width="580" height="110" style="display:block;width:100%;height:110px;cursor:crosshair;touch-action:none;"></canvas>';
+      html += '<button onclick="window.clearAgrCanvas(\'' + esc(a.id) + '\')" style="position:absolute;top:6px;right:6px;padding:3px 10px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);border-radius:5px;color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;font-family:&quot;Work Sans&quot;,sans-serif;">Clear</button>';
+      html += '</div>';
+      html += '</div>';
+      html += '<div style="display:flex;justify-content:flex-end;">';
+      html += '<button onclick="window.signOne(\'' + esc(a.id) + '\')" id="cpAgrBtn-' + esc(a.id) + '" style="padding:10px 24px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-family:&quot;Work Sans&quot;,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Sign Agreement</button>';
+      html += '</div>';
+      html += '<div id="cpAgrErr-' + esc(a.id) + '" style="display:none;color:#e74c3c;font-size:12px;margin-top:8px;"></div>';
+      html += '</div></div></div>';
+    });
+
+    // Signed
+    signed.forEach(function(a) {
+      var dt = a.signed_at ? new Date(a.signed_at).toLocaleString('en-US',{ timeZone:'America/Chicago', dateStyle:'medium', timeStyle:'short' }) : '';
+      html += '<div style="margin-bottom:12px;border:1.5px solid rgba(39,174,96,0.3);border-radius:12px;overflow:hidden;">';
+      html += '<div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(39,174,96,0.06);flex-wrap:wrap;">';
+      html += '<div style="flex:1;min-width:0;"><div style="font-weight:700;color:#fff;font-size:14px;">' + esc(a.name) + '</div>';
+      html += '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">Signed by ' + esc(a.signed_name||'') + ' &bull; ' + esc(dt) + '</div></div>';
+      html += '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">';
+      html += '<span style="background:rgba(39,174,96,0.2);color:#27ae60;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;">&#10003; SIGNED</span>';
+      html += '<a href="/agreement-receipt.html?token=' + encodeURIComponent(_modalToken) + '&record_id=' + encodeURIComponent(_modalRecordId) + '&waiver_version_id=' + encodeURIComponent(a.id) + '" target="_blank" style="padding:5px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;cursor:pointer;font-family:&quot;Work Sans&quot;,sans-serif;text-decoration:none;display:inline-block;">&#128438; View / Print</a>';
+      html += '</div>';
+      html += '</div></div>';
+    });
+
+    document.getElementById('cpAgreementsModalBody').innerHTML = html;
+
+    // Init canvases for each unsigned agreement
+    unsigned.forEach(function(a) { initCanvas('cpAgrCanvas-' + a.id); });
+
+    // Show Sign All footer only if there are multiple unsigned
+    if (unsigned.length > 1) {
+      document.getElementById('cpSignAllFooter').style.display = '';
+      document.getElementById('cpSignAllName').value = '';
+      document.getElementById('cpSignAllError').style.display = 'none';
+      if (document.getElementById('cpSignAllAck')) document.getElementById('cpSignAllAck').checked = false;
+      setTimeout(function(){ initCanvas('cpSignAllCanvas'); }, 10);
+    } else {
+      document.getElementById('cpSignAllFooter').style.display = 'none';
+    }
+
+    // Auto-expand first unsigned
+    if (unsigned.length) toggleAgreement(unsigned[0].id);
+  }
+
+  // ── Toggle expand/collapse ───────────────────────────────
+  window.toggleAgreement = function(id) {
+    var body    = document.getElementById('cpAgrBody-' + id);
+    var chevron = document.getElementById('cpAgrChevron-' + id);
+    if (!body) return;
+    var open = body.style.display !== 'none';
+    body.style.display    = open ? 'none' : '';
+    if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+  };
+
+  // ── Canvas helpers ──────────────────────────────────────
+  function initCanvas(canvasId) {
+    var canvas = document.getElementById(canvasId);
+    if (!canvas || canvas._initialized) return;
+    canvas._initialized = true;
+    var ctx = canvas.getContext('2d');
+    var drawing = false;
+    var lastX = 0, lastY = 0;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    function getPos(e) {
+      var rect = canvas.getBoundingClientRect();
+      var scaleX = canvas.width  / rect.width;
+      var scaleY = canvas.height / rect.height;
+      var src = e.touches ? e.touches[0] : e;
+      return { x: (src.clientX - rect.left) * scaleX, y: (src.clientY - rect.top) * scaleY };
+    }
+    function start(e) { e.preventDefault(); drawing = true; var p = getPos(e); lastX = p.x; lastY = p.y; }
+    function draw(e)  {
+      if (!drawing) return; e.preventDefault();
+      var p = getPos(e);
+      ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
+      lastX = p.x; lastY = p.y;
+    }
+    function stop() { drawing = false; }
+    canvas.addEventListener('mousedown',  start); canvas.addEventListener('mousemove',  draw);
+    canvas.addEventListener('mouseup',    stop);  canvas.addEventListener('mouseleave', stop);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove',  draw,  { passive: false });
+    canvas.addEventListener('touchend',   stop);
+  }
+
+  function isCanvasBlank(canvasId) {
+    var canvas = document.getElementById(canvasId);
+    if (!canvas) return true;
+    var ctx = canvas.getContext('2d');
+    var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    for (var i = 3; i < data.length; i += 4) { if (data[i] > 0) return false; }
+    return true;
+  }
+
+  function getCanvasDataUrl(canvasId) {
+    var canvas = document.getElementById(canvasId);
+    if (!canvas) return null;
+    return canvas.toDataURL('image/png');
+  }
+
+  window.clearAgrCanvas = function(id) {
+    var canvas = document.getElementById('cpAgrCanvas-' + id);
+    if (!canvas) return;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  window.clearSignAllCanvas = function() {
+    var canvas = document.getElementById('cpSignAllCanvas');
+    if (!canvas) return;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  // ── Sign one agreement ───────────────────────────────────
+  window.signOne = async function(waiverVersionId) {
+    var nameEl = document.getElementById('cpAgrName-' + waiverVersionId);
+    var errEl  = document.getElementById('cpAgrErr-' + waiverVersionId);
+    var btn    = document.getElementById('cpAgrBtn-' + waiverVersionId);
+    var name   = (nameEl.value || '').trim();
+
+    errEl.style.display = 'none';
+    if (!name) { errEl.textContent = 'Please enter your full legal name.'; errEl.style.display = ''; return; }
+    if (isCanvasBlank('cpAgrCanvas-' + waiverVersionId)) {
+      errEl.textContent = 'Please draw your signature.';
+      errEl.style.display = '';
+      return;
+    }
+
+    // Collect checkboxes for this waiver
+    var cbs = {};
+    document.querySelectorAll('.cp-agr-cb[data-waiver="' + waiverVersionId + '"]').forEach(function(cb) {
+      cbs[cb.getAttribute('data-key')] = cb.checked;
+    });
+
+    // Validate required checkboxes
+    var waiver = _modalAgreements.find(function(a){ return a.id === waiverVersionId; });
+    var required = (waiver && waiver.checkboxes || []).filter(function(cb){ return cb.required; });
+    var missing  = required.filter(function(cb){ return !cbs[cb.key]; });
+    if (missing.length) {
+      errEl.textContent = 'Please check all required acknowledgements.';
+      errEl.style.display = '';
+      return;
+    }
+
+    var sigData = getCanvasDataUrl('cpAgrCanvas-' + waiverVersionId);
+    btn.textContent = 'Signing...'; btn.disabled = true;
+    try {
+      var res = await fetch('/.netlify/functions/sign-waiver', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          waiver_version_id:    waiverVersionId,
+          client_email:         _modalEmail,
+          inspection_record_id: _modalRecordId,
+          signed_name:          name,
+          signature_method:     'drawn',
+          signature_data:       sigData,
+          checkbox_responses:   cbs,
+        }),
+      });
+      var data = await res.json();
+      if (!res.ok && res.status !== 409) throw new Error(data.error || 'Sign failed');
+
+      var a = _modalAgreements.find(function(x){ return x.id === waiverVersionId; });
+      if (a) { a.signed = true; a.signed_name = name; a.signed_at = new Date().toISOString(); a.signature_data = sigData; a.signature_method = 'drawn'; }
+      renderModalAgreements();
+    } catch(err) {
+      errEl.textContent = err.message || 'An error occurred. Please try again.';
+      errEl.style.display = '';
+      btn.textContent = 'Sign Agreement'; btn.disabled = false;
+    }
+  };
+
+  // ── Sign All ─────────────────────────────────────────────
+  window.signAll = async function() {
+    var nameEl = document.getElementById('cpSignAllName');
+    var errEl  = document.getElementById('cpSignAllError');
+    var btn    = document.getElementById('cpSignAllBtn');
+    var ackCb  = document.getElementById('cpSignAllAck');
+    var name   = (nameEl.value || '').trim();
+
+    errEl.style.display = 'none';
+    if (!ackCb || !ackCb.checked) { errEl.textContent = 'Please check the acknowledgement checkbox.'; errEl.style.display = ''; return; }
+    if (!name) { errEl.textContent = 'Please enter your full legal name.'; errEl.style.display = ''; return; }
+    if (isCanvasBlank('cpSignAllCanvas')) { errEl.textContent = 'Please draw your signature.'; errEl.style.display = ''; return; }
+
+    var sigData = getCanvasDataUrl('cpSignAllCanvas');
+    var unsigned = _modalAgreements.filter(function(a){ return !a.signed; });
+    if (!unsigned.length) return;
+
+    btn.textContent = 'Signing all...'; btn.disabled = true;
+
+    var errors = [];
+    for (var i = 0; i < unsigned.length; i++) {
+      var a = unsigned[i];
+      try {
+        var cbs = {};
+        (a.checkboxes || []).forEach(function(cb){ cbs[cb.key] = true; });
+
+        var res = await fetch('/.netlify/functions/sign-waiver', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            waiver_version_id:    a.id,
+            client_email:         _modalEmail,
+            inspection_record_id: _modalRecordId,
+            signed_name:          name,
+            signature_method:     'drawn',
+            signature_data:       sigData,
+            checkbox_responses:   cbs,
+          }),
+        });
+        var data = await res.json();
+        if (!res.ok && res.status !== 409) throw new Error(data.error || 'Failed');
+        a.signed = true; a.signed_name = name; a.signed_at = new Date().toISOString(); a.signature_data = sigData; a.signature_method = 'drawn';
+      } catch(err) {
+        errors.push(a.name + ': ' + (err.message || 'error'));
+      }
+    }
+
+    btn.textContent = 'Sign All Agreements'; btn.disabled = false;
+
+    if (errors.length) {
+      errEl.textContent = 'Some agreements could not be signed: ' + errors.join('; ');
+      errEl.style.display = '';
+      renderModalAgreements();
+    } else {
+      // All signed — close modal
+      window.closeAgreementsModal();
+    }
+  };
+
+  // ── View signed agreement ───────────────────────────────
+  window.viewSignedAgreement = function(waiverVersionId) {
+    var a = _modalAgreements.find(function(x){ return x.id === waiverVersionId; });
+    if (!a) return;
+
+    var existing = document.getElementById('cpViewAgrModal');
+    if (existing) existing.remove();
+
+    var dt = a.signed_at ? new Date(a.signed_at).toLocaleString('en-US',{ timeZone:'America/Chicago', dateStyle:'long', timeStyle:'short' }) : '';
+
+    var modal = document.createElement('div');
+    modal.id = 'cpViewAgrModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.85);overflow-y:auto;padding:20px;display:block;';
+
+    var sigBlock = '';
+    sigBlock += '<div style="margin-top:32px;padding-top:20px;border-top:2px solid rgba(255,255,255,0.15);">';
+    sigBlock += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:12px;">Electronic Signature</div>';
+    sigBlock += '<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;">';
+    if (a.signature_data) {
+      sigBlock += '<div><div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:6px;">Drawn Signature</div>';
+      sigBlock += '<img src="' + a.signature_data + '" style="max-width:280px;height:80px;object-fit:contain;border:1px solid rgba(255,255,255,0.15);border-radius:6px;background:rgba(255,255,255,0.03);padding:4px;" alt="Signature"></div>';
+    }
+    sigBlock += '<div>';
+    sigBlock += '<div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:6px;">Signed By</div>';
+    sigBlock += '<div style="font-size:18px;font-style:italic;color:#fff;font-family:Georgia,serif;">' + (a.signed_name || '') + '</div>';
+    sigBlock += '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px;">' + dt + '</div>';
+    sigBlock += '</div></div></div>';
+
+    modal.innerHTML = '<div style="max-width:700px;margin:40px auto;background:#0d1a2e;border-radius:16px;border:1.5px solid rgba(255,255,255,0.1);overflow:hidden;">'
+      + '<div style="background:rgba(255,255,255,0.05);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,0.1);">'
+      + '<div style="font-family:&quot;Barlow Condensed&quot;,sans-serif;font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:1px;flex:1;min-width:0;">' + (a.name || '') + '</div>'
+      + '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+      + '<button onclick="window.print()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;">🖨 Print / PDF</button>'
+      + '<button id="cpViewAgrClose" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:26px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>'
+      + '</div>'
+      + '</div>'
+      + '<div style="padding:24px;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.8;">'
+      + (a.body || '')
+      + sigBlock
+      + '</div></div>';
+
+    document.body.appendChild(modal);
+    document.getElementById('cpViewAgrClose').addEventListener('click', function() { modal.remove(); });
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+  };
+
+  // Close on backdrop click
+  document.getElementById('cpAgreementsModal').addEventListener('click', function(e) {
+    if (e.target === this) window.closeAgreementsModal();
+  });
+
+  // Expose refresh hook for summary cards
+  window._cpRefreshAgreements = function() {
+    var records = window._cpRecordsData || [];
+    records.forEach(function(r) {
+      if (typeof window._cpLoadAgreementSummary === 'function') window._cpLoadAgreementSummary(r);
+    });
+  };
+
+})();
+</script>
+  <script>
+  (function(){
+    window.hwAlert=function(msg,opts){opts=opts||{};document.getElementById('hwModalTitle').textContent=opts.title||'Heartland Inspection Group';document.getElementById('hwModalBody').innerHTML='<p style="margin:0 0 4px;">'+msg+'</p>';var f=document.getElementById('hwModalFooter');f.innerHTML='';var b=document.createElement('button');b.className='hw-btn hw-btn-primary';b.textContent='OK';b.onclick=function(){document.getElementById('hwOverlay').classList.remove('hw-active');};f.appendChild(b);document.getElementById('hwOverlay').classList.add('hw-active');};
+    window.hwConfirm=function(msg,opts){return new Promise(function(resolve){opts=opts||{};document.getElementById('hwModalTitle').textContent=opts.title||'Are you sure?';document.getElementById('hwModalBody').innerHTML='<p style="margin:0 0 4px;">'+msg+'</p>';var f=document.getElementById('hwModalFooter');f.innerHTML='';var cb=document.createElement('button');cb.className='hw-btn hw-btn-danger';cb.textContent=opts.confirmLabel||'Confirm';cb.onclick=function(){document.getElementById('hwOverlay').classList.remove('hw-active');resolve(true);};var cx=document.createElement('button');cx.className='hw-btn hw-btn-secondary';cx.textContent='Cancel';cx.onclick=function(){document.getElementById('hwOverlay').classList.remove('hw-active');resolve(false);};f.appendChild(cb);f.appendChild(cx);document.getElementById('hwOverlay').classList.add('hw-active');});};
+    window.hwToast=function(msg,opts){var t=document.getElementById('hwToastNative');if(!t)return;opts=opts||{};t.textContent=msg;t.className='hw-toast'+(opts.type==='error'?' hw-toast-error':opts.type==='success'?' hw-toast-success':' hw-toast-info');void t.offsetWidth;t.classList.add('hw-toast-show');clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('hw-toast-show');},3500);};
+    window.hwConfirm=function(msg,opts){return new Promise(function(resolve){opts=opts||{};document.getElementById('hwModalTitle').textContent=opts.title||'Are you sure?';document.getElementById('hwModalBody').innerHTML='<p style="margin:0 0 4px;">'+msg+'</p>';var f=document.getElementById('hwModalFooter');f.innerHTML='';var cb=document.createElement('button');cb.className='hw-btn hw-btn-danger';cb.textContent=opts.confirmLabel||'Confirm';cb.onclick=function(){document.getElementById('hwOverlay').classList.remove('hw-active');resolve(true);};var cx=document.createElement('button');cx.className='hw-btn hw-btn-secondary';cx.textContent='Cancel';cx.onclick=function(){document.getElementById('hwOverlay').classList.remove('hw-active');resolve(false);};f.appendChild(cb);f.appendChild(cx);document.getElementById('hwOverlay').classList.add('hw-active');});};
+    document.getElementById('hwOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('hw-active');});
+  })();
+  </script>
+</body>
+</html>

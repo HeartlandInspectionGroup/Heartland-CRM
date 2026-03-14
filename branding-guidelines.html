@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heartland Home Inspections - Brand Guidelines</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        .cover {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a4d2e, #0f3420);
+            color: white;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .cover-logo {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 40px;
+        }
+
+        .cover h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .cover .tagline {
+            font-size: 24px;
+            color: #d4a574;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .cover .version {
+            margin-top: 60px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: #1a4d2e;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #d4a574;
+        }
+
+        h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a4d2e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .intro-section {
+            background: #f8f6f3;
+            padding: 60px;
+            border-radius: 10px;
+            margin: 40px 0;
+        }
+
+        .brand-values {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .value-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid #d4a574;
+        }
+
+        .value-card h4 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 24px;
+            color: #1a4d2e;
+            margin-bottom: 15px;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .color-swatch {
+            text-align: center;
+        }
+
+        .color-box {
+            height: 150px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .color-name {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .color-values {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .typography-sample {
+            margin: 30px 0;
+            padding: 30px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .font-display {
+            margin-bottom: 40px;
+        }
+
+        .font-name {
+            font-weight: 700;
+            font-size: 20px;
+            color: #1a4d2e;
+            margin-bottom: 15px;
+        }
+
+        .sample-crimson {
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .sample-work {
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .logo-variations {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin: 40px 0;
+        }
+
+        .logo-example {
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .logo-example.dark {
+            background: #1a4d2e;
+        }
+
+        .logo-example.light {
+            background: #f8f6f3;
+        }
+
+        .logo-example h4 {
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .dos-donts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 40px 0;
+        }
+
+        .do-box, .dont-box {
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .do-box {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+
+        .dont-box {
+            background: #ffebee;
+            border: 2px solid #f44336;
+        }
+
+        .do-box h4 {
+            color: #2e7d32;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .dont-box h4 {
+            color: #c62828;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .spacing-guide {
+            background: #f8f6f3;
+            padding: 40px;
+            border-radius: 10px;
+            margin: 40px 0;
+        }
+
+        .application-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .application-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .application-card h4 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 20px;
+            color: #1a4d2e;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #1a4d2e;
+            color: white;
+            font-weight: 600;
+        }
+
+        @media print {
+            .page {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cover Page -->
+    <div class="cover">
+        <svg class="cover-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="48" fill="none" stroke="#d4a574" stroke-width="0.8"/>
+            <path d="M30 44 L50 28 L70 44 L70 72 L30 72 Z" fill="#ffffff" stroke="#d4a574" stroke-width="0.8"/>
+            <rect x="43" y="55" width="6" height="17" fill="#d4a574"/>
+            <rect x="51" y="55" width="6" height="17" fill="#d4a574"/>
+            <path d="M35 50 L50 38 L65 50" stroke="#d4a574" stroke-width="1.5" fill="none"/>
+        </svg>
+        <h1>Brand Guidelines</h1>
+        <p class="tagline">Family · Trust · Hard Work</p>
+        <p class="version">Version 1.0 | February 2026</p>
+    </div>
+
+    <!-- Introduction -->
+    <div class="page">
+        <h2>Introduction</h2>
+        <div class="intro-section">
+            <p style="font-size: 20px; line-height: 1.8;">
+                <strong>Heartland Home Inspections</strong> is more than a service—it's a promise to families across Roscoe, Illinois and surrounding communities. Our brand represents trust, thoroughness, and the dedication that comes from treating every home inspection as if it were for our own family.
+            </p>
+            <p style="font-size: 18px; margin-top: 30px;">
+                These guidelines ensure our brand maintains consistency and professionalism across all touchpoints, from our website to business cards, vehicle wraps to social media presence.
+            </p>
+        </div>
+
+        <h3>Our Mission</h3>
+        <p>
+            To provide comprehensive, honest home inspections that empower families to make informed decisions about the biggest investment of their lives. We believe in thorough work, transparent communication, and building lasting relationships with our community.
+        </p>
+
+        <div class="brand-values">
+            <div class="value-card">
+                <h4>👨‍👩‍👧 Family</h4>
+                <p>We're a family business serving families. Every inspection is performed with the care and attention we'd give to our own loved ones' homes.</p>
+            </div>
+            <div class="value-card">
+                <h4>🤝 Trust</h4>
+                <p>Our reputation is built on honest assessments, clear communication, and always putting the client's best interests first.</p>
+            </div>
+            <div class="value-card">
+                <h4>💪 Hard Work</h4>
+                <p>We don't cut corners. Every inspection is thorough, detailed, and delivered with the professionalism you deserve.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo -->
+    <div class="page">
+        <h2>Logo Design</h2>
+        <p>
+            The Heartland Home Inspections logo combines a stylized home with a magnifying glass—symbolizing both the comfort of home and the thoroughness of our inspections. The design is clean, professional, and easily recognizable across all applications.
+        </p>
+
+        <h3>Primary Logo</h3>
+        <div class="logo-variations">
+            <div class="logo-example light">
+                <svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="#1a4d2e" stroke-width="0.8"/>
+                    <path d="M30 44 L50 28 L70 44 L70 72 L30 72 Z" fill="#1a4d2e" stroke="#d4a574" stroke-width="0.8"/>
+                    <rect x="43" y="55" width="6" height="17" fill="#d4a574"/>
+                    <rect x="51" y="55" width="6" height="17" fill="#d4a574"/>
+                    <path d="M35 50 L50 38 L65 50" stroke="#d4a574" stroke-width="1.5" fill="none"/>
+                    <circle cx="68" cy="60" r="7" fill="none" stroke="#c85a3b" stroke-width="1.2"/>
+                    <line x1="73" y1="65" x2="78" y2="70" stroke="#c85a3b" stroke-width="1.6"/>
+                    <path d="M63 60 L67 64 L73 57" fill="none" stroke="#1a4d2e" stroke-width="0.8"/>
+                </svg>
+                <h4>Light Background</h4>
+            </div>
+            <div class="logo-example dark">
+                <svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="#d4a574" stroke-width="0.8"/>
+                    <path d="M30 44 L50 28 L70 44 L70 72 L30 72 Z" fill="#ffffff" stroke="#d4a574" stroke-width="0.8"/>
+                    <rect x="43" y="55" width="6" height="17" fill="#d4a574"/>
+                    <rect x="51" y="55" width="6" height="17" fill="#d4a574"/>
+                    <path d="M35 50 L50 38 L65 50" stroke="#d4a574" stroke-width="1.5" fill="none"/>
+                    <circle cx="68" cy="60" r="7" fill="none" stroke="#c85a3b" stroke-width="1.2"/>
+                    <line x1="73" y1="65" x2="78" y2="70" stroke="#c85a3b" stroke-width="1.6"/>
+                    <path d="M63 60 L67 64 L73 57" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+                </svg>
+                <h4>Dark Background</h4>
+            </div>
+        </div>
+
+        <h3>Clear Space & Minimum Size</h3>
+        <div class="spacing-guide">
+            <p><strong>Clear Space:</strong> Always maintain a clear space around the logo equal to the height of the house in the logo. No other graphic elements, text, or edges should enter this space.</p>
+            <p style="margin-top: 20px;"><strong>Minimum Size:</strong></p>
+            <ul>
+                <li><strong>Print:</strong> 0.75 inches (19mm) in height</li>
+                <li><strong>Digital:</strong> 48 pixels in height</li>
+                <li><strong>Social Media Profile:</strong> 200x200 pixels minimum</li>
+            </ul>
+        </div>
+
+        <h3>Logo Usage Guidelines</h3>
+        <div class="dos-donts">
+            <div class="do-box">
+                <h4>✓ Do</h4>
+                <ul>
+                    <li>Use approved logo variations only</li>
+                    <li>Maintain proper clear space</li>
+                    <li>Scale proportionally</li>
+                    <li>Use on appropriate backgrounds</li>
+                    <li>Ensure minimum size requirements</li>
+                </ul>
+            </div>
+            <div class="dont-box">
+                <h4>✗ Don't</h4>
+                <ul>
+                    <li>Stretch or distort the logo</li>
+                    <li>Change logo colors</li>
+                    <li>Add effects (shadows, glows)</li>
+                    <li>Rotate the logo</li>
+                    <li>Place on busy backgrounds</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="page">
+        <h2>Color Palette</h2>
+        <p>
+            Our color palette reflects trust, stability, and professionalism while maintaining warmth and approachability. The primary green represents growth and reliability, while the secondary gold adds a touch of premium quality.
+        </p>
+
+        <h3>Primary Colors</h3>
+        <div class="color-grid">
+            <div class="color-swatch">
+                <div class="color-box" style="background: #1a4d2e;"></div>
+                <div class="color-name">Heartland Green</div>
+                <div class="color-values">
+                    HEX: #1a4d2e<br>
+                    RGB: 26, 77, 46<br>
+                    CMYK: 66, 0, 40, 70
+                </div>
+            </div>
+            <div class="color-swatch">
+                <div class="color-box" style="background: #d4a574;"></div>
+                <div class="color-name">Harvest Gold</div>
+                <div class="color-values">
+                    HEX: #d4a574<br>
+                    RGB: 212, 165, 116<br>
+                    CMYK: 0, 22, 45, 17
+                </div>
+            </div>
+        </div>
+
+        <h3>Secondary Colors</h3>
+        <div class="color-grid">
+            <div class="color-swatch">
+                <div class="color-box" style="background: #c85a3b;"></div>
+                <div class="color-name">Terra Cotta</div>
+                <div class="color-values">
+                    HEX: #c85a3b<br>
+                    RGB: 200, 90, 59<br>
+                    CMYK: 0, 55, 71, 22
+                </div>
+            </div>
+            <div class="color-swatch">
+                <div class="color-box" style="background: #0f3420;"></div>
+                <div class="color-name">Forest Green</div>
+                <div class="color-values">
+                    HEX: #0f3420<br>
+                    RGB: 15, 52, 32<br>
+                    CMYK: 71, 0, 38, 80
+                </div>
+            </div>
+        </div>
+
+        <h3>Neutral Colors</h3>
+        <div class="color-grid">
+            <div class="color-swatch">
+                <div class="color-box" style="background: #1a1a1a;"></div>
+                <div class="color-name">Charcoal</div>
+                <div class="color-values">
+                    HEX: #1a1a1a<br>
+                    RGB: 26, 26, 26<br>
+                    CMYK: 0, 0, 0, 90
+                </div>
+            </div>
+            <div class="color-swatch">
+                <div class="color-box" style="background: #666666;"></div>
+                <div class="color-name">Slate Gray</div>
+                <div class="color-values">
+                    HEX: #666666<br>
+                    RGB: 102, 102, 102<br>
+                    CMYK: 0, 0, 0, 60
+                </div>
+            </div>
+            <div class="color-swatch">
+                <div class="color-box" style="background: #f8f6f3;"></div>
+                <div class="color-name">Cream</div>
+                <div class="color-values">
+                    HEX: #f8f6f3<br>
+                    RGB: 248, 246, 243<br>
+                    CMYK: 0, 1, 2, 3
+                </div>
+            </div>
+            <div class="color-swatch">
+                <div class="color-box" style="background: #ffffff; border: 1px solid #e0e0e0;"></div>
+                <div class="color-name">White</div>
+                <div class="color-values">
+                    HEX: #ffffff<br>
+                    RGB: 255, 255, 255<br>
+                    CMYK: 0, 0, 0, 0
+                </div>
+            </div>
+        </div>
+
+        <h3>Color Usage</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Application</th>
+                    <th>Primary</th>
+                    <th>Accent</th>
+                    <th>Background</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Website Header</td>
+                    <td>Heartland Green</td>
+                    <td>Harvest Gold</td>
+                    <td>White</td>
+                </tr>
+                <tr>
+                    <td>Call-to-Action Buttons</td>
+                    <td>Terra Cotta</td>
+                    <td>White</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>Body Text</td>
+                    <td>Charcoal</td>
+                    <td>Slate Gray</td>
+                    <td>White/Cream</td>
+                </tr>
+                <tr>
+                    <td>Business Cards</td>
+                    <td>Heartland Green</td>
+                    <td>Harvest Gold</td>
+                    <td>White</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Typography -->
+    <div class="page">
+        <h2>Typography</h2>
+        <p>
+            Our typography system uses two complementary fonts: Crimson Pro for headlines and Work Sans for body text. This combination creates a professional yet approachable feel.
+        </p>
+
+        <div class="font-display">
+            <div class="font-name">Crimson Pro (Headlines & Display)</div>
+            <div class="typography-sample">
+                <p class="sample-crimson" style="font-size: 48px; font-weight: 700; margin-bottom: 20px;">Heartland Home Inspections</p>
+                <p class="sample-crimson" style="font-size: 36px; font-weight: 600; margin-bottom: 20px;">Professional Home Inspections</p>
+                <p class="sample-crimson" style="font-size: 24px; font-weight: 400;">Family, Trust, Hard Work</p>
+            </div>
+            <p><strong>Usage:</strong> Headlines, subheadings, logo lockup, quotes, and emphasis text</p>
+            <p><strong>Weights:</strong> Regular (400), Semibold (600), Bold (700)</p>
+        </div>
+
+        <div class="font-display">
+            <div class="font-name">Work Sans (Body & Interface)</div>
+            <div class="typography-sample">
+                <p class="sample-work" style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">Navigation & Buttons</p>
+                <p class="sample-work" style="font-size: 16px; font-weight: 400; margin-bottom: 15px;">Body text should be clear, readable, and professional. Work Sans provides excellent legibility across all digital and print applications while maintaining a modern, friendly appearance.</p>
+                <p class="sample-work" style="font-size: 14px; font-weight: 400; color: #666;">Supporting text and captions</p>
+            </div>
+            <p><strong>Usage:</strong> Body copy, navigation, buttons, forms, captions</p>
+            <p><strong>Weights:</strong> Regular (400), Medium (500), Semibold (600), Bold (700)</p>
+        </div>
+
+        <h3>Typography Scale</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    <th>Font</th>
+                    <th>Size</th>
+                    <th>Weight</th>
+                    <th>Usage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>H1 / Hero</td>
+                    <td>Crimson Pro</td>
+                    <td>56-62px</td>
+                    <td>Bold (700)</td>
+                    <td>Main page headlines</td>
+                </tr>
+                <tr>
+                    <td>H2 / Section</td>
+                    <td>Crimson Pro</td>
+                    <td>42-48px</td>
+                    <td>Bold (700)</td>
+                    <td>Section headers</td>
+                </tr>
+                <tr>
+                    <td>H3 / Subsection</td>
+                    <td>Crimson Pro</td>
+                    <td>28-32px</td>
+                    <td>Bold (700)</td>
+                    <td>Subsection headers</td>
+                </tr>
+                <tr>
+                    <td>Body Large</td>
+                    <td>Work Sans</td>
+                    <td>18-20px</td>
+                    <td>Regular (400)</td>
+                    <td>Lead paragraphs</td>
+                </tr>
+                <tr>
+                    <td>Body</td>
+                    <td>Work Sans</td>
+                    <td>16px</td>
+                    <td>Regular (400)</td>
+                    <td>Standard text</td>
+                </tr>
+                <tr>
+                    <td>Small / Caption</td>
+                    <td>Work Sans</td>
+                    <td>14px</td>
+                    <td>Regular (400)</td>
+                    <td>Captions, labels</td>
+                </tr>
+                <tr>
+                    <td>Button</td>
+                    <td>Work Sans</td>
+                    <td>16px</td>
+                    <td>Semibold (600)</td>
+                    <td>CTAs, navigation</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Applications -->
+    <div class="page">
+        <h2>Brand Applications</h2>
+        <p>
+            Consistent application of our brand across all touchpoints ensures recognition and builds trust with our community.
+        </p>
+
+        <div class="application-examples">
+            <div class="application-card">
+                <h4>Business Cards</h4>
+                <p><strong>Dimensions:</strong> 3.5" x 2" standard</p>
+                <p><strong>Front:</strong> Logo, name, title</p>
+                <p><strong>Back:</strong> Contact info, tagline</p>
+                <p><strong>Colors:</strong> Heartland Green background with white text and Harvest Gold accents</p>
+            </div>
+
+            <div class="application-card">
+                <h4>Vehicle Wraps</h4>
+                <p><strong>Primary Elements:</strong> Large logo on doors, contact info on sides</p>
+                <p><strong>Colors:</strong> White base with Heartland Green and Harvest Gold graphics</p>
+                <p><strong>Typography:</strong> Large, legible phone number</p>
+            </div>
+
+            <div class="application-card">
+                <h4>Uniforms</h4>
+                <p><strong>Polo Shirts:</strong> Heartland Green with embroidered logo on left chest</p>
+                <p><strong>Baseball Caps:</strong> Heartland Green with logo front center</p>
+                <p><strong>Jacket:</strong> Black with logo on left chest and back</p>
+            </div>
+
+            <div class="application-card">
+                <h4>Inspection Reports</h4>
+                <p><strong>Cover Page:</strong> Full logo, client info, property address</p>
+                <p><strong>Headers:</strong> Crimson Pro, Heartland Green</p>
+                <p><strong>Body:</strong> Work Sans, professional layout</p>
+                <p><strong>Footer:</strong> Contact info, license number</p>
+            </div>
+
+            <div class="application-card">
+                <h4>Social Media</h4>
+                <p><strong>Profile Image:</strong> Logo on white or Heartland Green background</p>
+                <p><strong>Cover Photo:</strong> Brand colors with tagline</p>
+                <p><strong>Post Graphics:</strong> Consistent color scheme, readable fonts</p>
+            </div>
+
+            <div class="application-card">
+                <h4>Yard Signs</h4>
+                <p><strong>Size:</strong> 18" x 24" standard</p>
+                <p><strong>Layout:</strong> Logo at top, large phone number</p>
+                <p><strong>Colors:</strong> White background with green and gold</p>
+                <p><strong>Material:</strong> Weather-resistant corrugated plastic</p>
+            </div>
+        </div>
+
+        <h3>Digital Applications</h3>
+        <div class="dos-donts">
+            <div class="do-box">
+                <h4>✓ Website Best Practices</h4>
+                <ul>
+                    <li>Modern, clean navigation at top</li>
+                    <li>Hero section with strong imagery</li>
+                    <li>Clear calls-to-action in Terra Cotta</li>
+                    <li>Mobile-responsive design</li>
+                    <li>Fast loading times</li>
+                    <li>Accessible color contrast (WCAG AA)</li>
+                </ul>
+            </div>
+            <div class="do-box">
+                <h4>✓ Email Templates</h4>
+                <ul>
+                    <li>Logo in header</li>
+                    <li>Brand colors for sections</li>
+                    <li>Work Sans for body text</li>
+                    <li>Contact info in footer</li>
+                    <li>Consistent signature</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice & Messaging -->
+    <div class="page">
+        <h2>Brand Voice & Messaging</h2>
+        
+        <h3>Our Voice</h3>
+        <div class="intro-section">
+            <p><strong>Professional yet Approachable:</strong> We're experts, but we explain things in plain language.</p>
+            <p><strong>Honest and Transparent:</strong> We tell it like it is, good news and bad.</p>
+            <p><strong>Warm and Personal:</strong> We're your neighbor helping you make a big decision.</p>
+            <p><strong>Confident but not Arrogant:</strong> We know our stuff, but we're here to serve you.</p>
+        </div>
+
+        <h3>Key Messages</h3>
+        <div class="brand-values">
+            <div class="value-card">
+                <h4>Expertise</h4>
+                <p>"Over 10 years protecting families in the Roscoe area"</p>
+            </div>
+            <div class="value-card">
+                <h4>Thoroughness</h4>
+                <p>"We inspect every accessible area—from foundation to roof"</p>
+            </div>
+            <div class="value-card">
+                <h4>Local</h4>
+                <p>"Your neighbors, serving the community we love"</p>
+            </div>
+        </div>
+
+        <h3>Tagline</h3>
+        <p style="font-family: 'Crimson Pro', serif; font-size: 32px; text-align: center; color: #1a4d2e; margin: 40px 0;">
+            Family. Trust. Hard Work.
+        </p>
+
+        <h3>Sample Messaging</h3>
+        <div class="application-card" style="margin: 30px 0;">
+            <h4>Website Homepage</h4>
+            <p>"Protecting Your Family's Future: Professional home inspections you can trust, backed by over a decade of experience serving Roscoe and surrounding communities."</p>
+        </div>
+
+        <div class="application-card" style="margin: 30px 0;">
+            <h4>Social Media Bio</h4>
+            <p>"Family-owned home inspection service in Roscoe, IL. 🏠 Thorough inspections, honest reports, peace of mind. 📞 (815) 555-HOME"</p>
+        </div>
+    </div>
+
+    <!-- Contact & Resources -->
+    <div class="page">
+        <h2>Contact & Resources</h2>
+        
+        <h3>Company Information</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td><strong>Business Name</strong></td>
+                    <td>Heartland Home Inspections</td>
+                </tr>
+                <tr>
+                    <td><strong>Location</strong></td>
+                    <td>Roscoe, IL 61073</td>
+                </tr>
+                <tr>
+                    <td><strong>Phone</strong></td>
+                    <td>(815) 555-HOME (4663)</td>
+                </tr>
+                <tr>
+                    <td><strong>Email</strong></td>
+                    <td><a href="mailto:info@heartlandinspectiongroup.com">info@heartlandinspectiongroup.com</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Website</strong></td>
+                    <td>www.heartlandhomeinspections.com</td>
+                </tr>
+                <tr>
+                    <td><strong>Hours</strong></td>
+                    <td>Monday - Saturday: 7:00 AM - 7:00 PM</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Brand Asset Files</h3>
+        <ul>
+            <li><strong>Logo Package:</strong> SVG, PNG (transparent), PNG (white bg), EPS</li>
+            <li><strong>Color Swatches:</strong> Adobe Swatch Exchange (.ase), Photoshop (.aco)</li>
+            <li><strong>Fonts:</strong> Crimson Pro, Work Sans (Google Fonts)</li>
+            <li><strong>Templates:</strong> Business card, letterhead, inspection report cover</li>
+        </ul>
+
+        <h3>Questions About Brand Usage?</h3>
+        <p>
+            For questions about using the Heartland Home Inspections brand, logo, or other brand assets, please contact:
+        </p>
+        <p style="margin-top: 20px;">
+            <strong>Email:</strong> <a href="mailto:info@heartlandinspectiongroup.com">info@heartlandinspectiongroup.com</a><br>
+            <strong>Phone:</strong> (815) 555-HOME
+        </p>
+
+        <div class="intro-section" style="margin-top: 60px;">
+            <p style="text-align: center; font-size: 18px;">
+                <strong>Thank you for helping us maintain a strong, consiste

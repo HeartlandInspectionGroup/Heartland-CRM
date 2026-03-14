@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Field Photos — Heartland</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.2/browser-image-compression.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="/config.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy:#121e30; --navy2:#1a2a44; --green:#27ae60; --border:rgba(255,255,255,0.1); --card:rgba(255,255,255,0.05); --card2:rgba(255,255,255,0.09); --sub:rgba(255,255,255,0.45); }
+  html, body { height:100%; background:var(--navy); color:#fff; font-family:'Work Sans',sans-serif; overflow:hidden; }
+  /* ── OFFLINE TOGGLE BUTTON ── */
+  .fp-offline-btn {
+    display:inline-flex;align-items:center;gap:5px;
+    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+    border-radius:8px;padding:6px 10px;font-family:'Barlow Condensed',sans-serif;
+    font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.15s;white-space:nowrap;
+  }
+  .fp-offline-btn:hover { background:rgba(255,255,255,0.14);color:rgba(255,255,255,0.9); }
+
+  /* ── OFFLINE BANNER ── */
+  .fp-offline-banner {
+    display:none;background:linear-gradient(135deg,#b7770d,#f39c12);
+    padding:10px 16px;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  }
+  .fp-offline-banner.active { display:flex; }
+  .fp-offline-banner-text { font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.5px;color:white;text-transform:uppercase; }
+  .fp-offline-action-btn {
+    display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);
+    border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:7px 14px;
+    font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;
+    text-transform:uppercase;color:white;cursor:pointer;transition:all 0.15s;white-space:nowrap;
+  }
+  .fp-offline-action-btn:hover { background:rgba(255,255,255,0.3); }
+
+  /* ── OFFLINE MODAL ── */
+  .fp-offline-modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:20px; }
+  .fp-offline-modal-overlay.active { display:flex; }
+  .fp-offline-modal { background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+  .fp-offline-modal-header { background:linear-gradient(135deg,#1a2a44,#243652);padding:28px 24px 22px;text-align:center; }
+  .fp-offline-modal-logo { width:120px;margin-bottom:14px; }
+  .fp-offline-modal-title { font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px; }
+  .fp-offline-modal-sub { font-size:12px;color:rgba(255,255,255,0.5); }
+  .fp-offline-modal-body { padding:28px 24px;text-align:center; }
+  .fp-offline-modal-icon { font-size:40px;margin-bottom:12px; }
+  .fp-offline-modal-msg { font-family:'Barlow Condensed',sans-serif;font-size:15px;color:#333;line-height:1.5;margin-bottom:8px; }
+  .fp-offline-modal-progress { font-family:'Barlow Condensed',sans-serif;font-size:13px;color:#888;letter-spacing:0.5px;margin-bottom:20px; }
+  .fp-offline-modal-spinner { width:36px;height:36px;border:3px solid #e8edf2;border-top-color:#27ae60;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px; }
+  .fp-offline-modal-btn { width:100%;padding:14px;border:none;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;margin-bottom:10px; }
+  .fp-offline-modal-btn-primary { background:linear-gradient(135deg,#27ae60,#1e8449);color:white; }
+  .fp-offline-modal-btn-secondary { background:#f0f2f5;color:#666; }
+
+  .screen { display:none; position:fixed; inset:0; flex-direction:column; background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 100%); overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .screen.active { display:flex; }
+
+  /* NAV */
+  .fp-nav { position:sticky; top:0; z-index:100; background:rgba(18,30,48,0.97); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:12px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .fp-nav-back { background:none; border:none; color:rgba(255,255,255,0.6); font-size:24px; cursor:pointer; padding:2px 6px; line-height:1; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
+  .fp-nav-info { flex:1; min-width:0; }
+  .fp-nav-title { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fp-nav-sub   { font-size:11px; color:var(--sub); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fp-wizard-btn { background:var(--green); border:none; color:#fff; border-radius:8px; padding:7px 10px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+
+  /* LOADING/ERROR */
+  #screenLoading { align-items:center; justify-content:center; }
+  .fp-spinner { width:38px; height:38px; border-radius:50%; border:3px solid rgba(255,255,255,0.1); border-top-color:var(--green); animation:spin 0.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .fp-loading-text { margin-top:12px; font-size:13px; color:var(--sub); }
+  #screenError { align-items:center; justify-content:center; padding:32px; text-align:center; }
+  .fp-error-msg { font-size:15px; color:rgba(255,255,255,0.7); line-height:1.6; }
+
+  /* JOB BANNER */
+  .fp-job-banner { background:rgba(39,174,96,0.08); border-bottom:1px solid rgba(39,174,96,0.18); padding:12px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .fp-job-icon { font-size:22px; }
+  .fp-job-name { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; }
+  .fp-job-addr { font-size:11px; color:var(--sub); margin-top:1px; }
+  .fp-job-type { margin-left:auto; flex-shrink:0; background:rgba(39,174,96,0.2); color:#4cd47e; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; }
+
+  /* SECTION LIST */
+  .fp-section-list { padding:12px; display:flex; flex-direction:column; gap:8px; }
+  .fp-section-btn { display:flex; align-items:center; gap:12px; background:var(--card); border:1.5px solid var(--border); border-radius:12px; padding:14px 14px; cursor:pointer; transition:all 0.15s; text-align:left; width:100%; -webkit-tap-highlight-color:transparent; }
+  .fp-section-btn:active { background:var(--card2); transform:scale(0.98); }
+  .fp-section-btn.has-photos { border-color:rgba(39,174,96,0.35); }
+  .fp-section-icon { font-size:22px; flex-shrink:0; }
+  .fp-section-name { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; color:#fff; }
+  .fp-section-count { font-size:11px; color:var(--sub); margin-top:2px; }
+  .fp-section-count.has { color:var(--green); font-weight:600; }
+  .fp-section-arrow { font-size:18px; color:rgba(255,255,255,0.2); margin-left:auto; flex-shrink:0; }
+  .fp-mini-thumbs { display:flex; gap:5px; padding:0 14px 10px; overflow-x:auto; scrollbar-width:none; }
+  .fp-mini-thumbs::-webkit-scrollbar { display:none; }
+  .fp-mini-thumb { width:48px; height:48px; border-radius:7px; object-fit:cover; border:1.5px solid rgba(255,255,255,0.12); flex-shrink:0; }
+
+  /* SECTION DETAIL */
+  .fp-section-body { padding:14px; flex:1; }
+  .fp-detail-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--sub); margin-bottom:10px; }
+
+  /* BADGES */
+  .fp-badge-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .fp-badge { background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:7px 13px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; color:rgba(255,255,255,0.8); cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; gap:6px; }
+  .fp-badge:active { transform:scale(0.95); background:var(--card2); }
+  .fp-badge.has-photos { border-color:rgba(39,174,96,0.5); color:#4cd47e; background:rgba(39,174,96,0.08); }
+  .fp-badge-count { background:var(--green); color:#fff; border-radius:10px; padding:1px 6px; font-size:11px; font-weight:700; }
+
+  /* FLAT ADD BUTTON */
+  .fp-add-flat { display:flex; align-items:center; gap:10px; background:var(--card); border:2px dashed rgba(255,255,255,0.2); border-radius:12px; padding:16px; cursor:pointer; width:100%; color:rgba(255,255,255,0.5); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; margin-bottom:20px; -webkit-tap-highlight-color:transparent; }
+  .fp-add-flat:active { background:var(--card2); }
+
+  /* THUMB GRID */
+  .fp-thumb-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .fp-thumb-item { display:flex; flex-direction:column; gap:4px; }
+  .fp-thumb-cell { position:relative; border-radius:10px; overflow:hidden; aspect-ratio:4/3; background:var(--card); border:1.5px solid var(--border); }
+  .fp-thumb-cell img { width:100%; height:100%; object-fit:cover; display:block; }
+  .fp-thumb-sub-label { font-size:10px; font-weight:600; color:rgba(255,255,255,0.6); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 2px; }
+  .fp-thumb-del { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.7); border:none; border-radius:50%; width:22px; height:22px; color:#fff; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .fp-thumb-reannotate { position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.65); border:none; border-radius:5px; padding:3px 6px; color:rgba(255,255,255,0.7); font-size:10px; cursor:pointer; }
+
+  /* STATUS BAR */
+  .fp-status-bar { position:sticky; bottom:0; background:rgba(18,30,48,0.97); border-top:1px solid var(--border); padding:10px 14px; display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .fp-status-count { flex:1; font-size:12px; color:var(--sub); }
+  .fp-status-count strong { color:var(--green); }
+  .fp-upload-spinner { font-size:12px; color:var(--sub); }
+
+  /* ANNOTATION */
+  .annot-overlay { display:none; position:fixed; inset:0; background:#1a1a1a; z-index:99000; flex-direction:column; }
+  .annot-overlay.active { display:flex; }
+  .annot-toolbar { background:#222; padding:8px 10px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; flex-shrink:0; border-bottom:1px solid #333; }
+  .annot-tool-btn { padding:6px 10px; border-radius:6px; border:1.5px solid #444; background:#333; color:#ccc; font-size:12px; font-weight:600; cursor:pointer; font-family:'Barlow Condensed',sans-serif; transition:all 0.15s; }
+  .annot-tool-btn.active { background:var(--green); border-color:var(--green); color:white; }
+  .annot-color-swatch { width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid transparent; flex-shrink:0; }
+  .annot-color-swatch.active { border-color:white; }
+  .annot-size-slider { width:80px; height:4px; cursor:pointer; accent-color:var(--green); }
+  .annot-spacer { flex:1; }
+  .annot-action-btn { padding:6px 12px; border-radius:6px; border:none; font-size:12px; font-weight:700; cursor:pointer; font-family:'Barlow Condensed',sans-serif; }
+  .annot-undo-btn   { background:#444; color:#ccc; }
+  .annot-clear-btn  { background:#444; color:#ccc; }
+  .annot-cancel-btn { background:#c0392b; color:white; }
+  .annot-done-btn   { background:var(--green); color:white; }
+  .annot-canvas-wrap { flex:1; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#111; }
+  .annot-canvas-wrap canvas { max-width:100%; max-height:100%; cursor:crosshair; touch-action:none; display:block; }
+  .annot-text-input-wrap { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99500; align-items:flex-end; justify-content:center; padding-bottom:40px; }
+  .annot-text-input-wrap.active { display:flex; }
+  .annot-text-modal { background:#222; border-radius:12px; padding:20px; width:90%; max-width:400px; display:flex; flex-direction:column; gap:12px; }
+  .annot-text-modal input { padding:12px 14px; border-radius:8px; border:1.5px solid #444; background:#333; color:white; font-size:16px; font-family:'Work Sans',sans-serif; outline:none; }
+  .annot-text-modal input:focus { border-color:var(--green); }
+  .annot-text-modal-btns { display:flex; gap:10px; }
+  .annot-text-modal-btns button { flex:1; padding:12px; border-radius:8px; border:none; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+
+  /* TOAST */
+  .fp-toast { position:fixed; bottom:68px; left:50%; transform:translateX(-50%) translateY(10px); background:rgba(30,40,55,0.97); color:#fff; border-radius:22px; padding:9px 18px; font-size:13px; font-weight:600; opacity:0; transition:all 0.25s; pointer-events:none; z-index:99999; white-space:nowrap; }
+  .fp-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* CONFIRM */
+  .fp-confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99800; align-items:flex-end; justify-content:center; padding-bottom:20px; }
+  .fp-confirm-overlay.active { display:flex; }
+  /* JOB PICKER */
+  #screenPicker { align-items:center; justify-content:flex-start; padding:32px 16px; }
+  .fp-picker-box { width:100%; max-width:400px; display:flex; flex-direction:column; align-items:center; }
+  .fp-picker-logo { width:54px; height:54px; border-radius:12px; margin-bottom:14px; }
+  .fp-picker-title { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#fff; margin-bottom:4px; }
+  .fp-picker-sub { font-size:13px; color:rgba(255,255,255,0.45); margin-bottom:18px; text-align:center; }
+  .fp-picker-list { width:100%; display:flex; flex-direction:column; gap:10px; max-height:60vh; overflow-y:auto; }
+  .fp-picker-item { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:16px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:background 0.15s; -webkit-tap-highlight-color:transparent; }
+  .fp-picker-item:active { background:rgba(255,255,255,0.12); transform:scale(0.98); }
+  .fp-picker-icon { font-size:24px; flex-shrink:0; }
+  .fp-picker-info { flex:1; min-width:0; }
+  .fp-picker-client { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fp-picker-addr { font-size:12px; color:rgba(255,255,255,0.45); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fp-picker-arrow { font-size:20px; color:rgba(255,255,255,0.2); flex-shrink:0; }
+
+  .fp-confirm-box { background:#1e2d42; border-radius:14px; padding:22px 18px; width:90%; max-width:360px; display:flex; flex-direction:column; gap:14px; }
+  .fp-confirm-msg { font-size:14px; color:rgba(255,255,255,0.85); line-height:1.5; }
+  .fp-confirm-btns { display:flex; gap:10px; }
+  .fp-confirm-btns button { flex:1; padding:12px; border-radius:9px; border:none; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; cursor:pointer; }
+  .fp-confirm-cancel { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); }
+  .fp-confirm-ok     { background:#c0392b; color:#fff; }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screenLoading">
+  <div class="fp-spinner"></div>
+  <div class="fp-loading-text">Loading job...</div>
+</div>
+
+<div class="screen" id="screenError">
+  <div style="font-size:44px;margin-bottom:14px;">⚠️</div>
+  <div class="fp-error-msg" id="errorMsg">Something went wrong.</div>
+</div>
+
+<div class="screen" id="screenPicker">
+  <div class="fp-picker-box">
+    <img class="fp-picker-logo" src="https://i.imgur.com/I1vTiVT.png" alt="Heartland">
+    <div class="fp-picker-title">Field Photos</div>
+    <div class="fp-picker-sub" id="pickerSub">Loading scheduled jobs...</div>
+    <div class="fp-picker-list" id="pickerList">
+      <div style="text-align:center;color:rgba(255,255,255,0.3);font-size:13px;padding:20px;">⏳</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION LIST -->
+<div class="screen" id="screenSections">
+  <div class="fp-nav">
+    <button class="fp-nav-back" onclick="window.history.back()">‹</button>
+    <div class="fp-nav-info">
+      <div class="fp-nav-title" id="navTitle">Field Photos</div>
+      <div class="fp-nav-sub"   id="navSub"></div>
+    </div>
+    <button class="fp-offline-btn" id="fpOfflineToggleBtn" onclick="fpToggleOffline()" style="display:none;">🔴 Go Offline</button>
+    <button class="fp-wizard-btn" onclick="openWizard()">Open in Inspection Wizard</button>
+  </div>
+  <div class="fp-offline-banner" id="fpOfflineBanner"><div class="fp-offline-banner-text">📡 Offline Mode — photos saving locally</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><button class="fp-offline-action-btn" onclick="fpSavePhotosToDevice()">💾 Save Photos</button><button class="fp-offline-action-btn" onclick="fpGoOnline()">🟢 Go Online</button></div></div>
+  <div class="fp-job-banner">
+    <div class="fp-job-icon">📍</div>
+    <div style="flex:1;min-width:0;">
+      <div class="fp-job-name" id="jobName"></div>
+      <div class="fp-job-addr" id="jobAddr"></div>
+    </div>
+    <div class="fp-job-type" id="jobType"></div>
+  </div>
+  <div class="fp-section-list" id="sectionList"></div>
+</div>
+
+<!-- SYNC MODAL -->
+<div class="fp-offline-modal-overlay" id="fpSyncModal">
+  <div class="fp-offline-modal">
+    <div class="fp-offline-modal-header">
+      <img src="https://i.imgur.com/I1vTiVT.png" class="fp-offline-modal-logo" alt="Heartland">
+      <div class="fp-offline-modal-title" id="fpSyncTitle">Going Online</div>
+      <div class="fp-offline-modal-sub" id="fpSyncSub">Uploading your photos</div>
+    </div>
+    <div class="fp-offline-modal-body">
+      <div class="fp-offline-modal-spinner" id="fpSyncSpinner"></div>
+      <div class="fp-offline-modal-icon" id="fpSyncIcon" style="display:none;"></div>
+      <div class="fp-offline-modal-msg" id="fpSyncMsg">Uploading photos...</div>
+      <div class="fp-offline-modal-progress" id="fpSyncProgress"></div>
+      <button class="fp-offline-modal-btn fp-offline-modal-btn-primary" id="fpSyncOkBtn" style="display:none;" onclick="document.getElementById('fpSyncModal').classList.remove('active')">OK</button>
+      <button class="fp-offline-modal-btn fp-offline-modal-btn-secondary" id="fpSyncStayBtn" style="display:none;" onclick="document.getElementById('fpSyncModal').classList.remove('active')">Stay Offline</button>
+    </div>
+  </div>
+</div>
+
+<!-- ZIP MODAL -->
+<div class="fp-offline-modal-overlay" id="fpZipModal">
+  <div class="fp-offline-modal">
+    <div class="fp-offline-modal-header">
+      <img src="https://i.imgur.com/I1vTiVT.png" class="fp-offline-modal-logo" alt="Heartland">
+      <div class="fp-offline-modal-title">Save Photos to Device</div>
+      <div class="fp-offline-modal-sub">Packaging your photos</div>
+    </div>
+    <div class="fp-offline-modal-body">
+      <div class="fp-offline-modal-spinner" id="fpZipSpinner"></div>
+      <div class="fp-offline-modal-icon" id="fpZipIcon" style="display:none;"></div>
+      <div class="fp-offline-modal-msg" id="fpZipMsg">Preparing photos...</div>
+      <div class="fp-offline-modal-progress" id="fpZipProgress"></div>
+      <button class="fp-offline-modal-btn fp-offline-modal-btn-primary" id="fpZipOkBtn" style="display:none;" onclick="document.getElementById('fpZipModal').classList.remove('active')">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION DETAIL -->
+<div class="screen" id="screenSection">
+  <div class="fp-nav">
+    <button class="fp-nav-back" id="sectionBack">‹</button>
+    <div class="fp-nav-info">
+      <div class="fp-nav-title" id="secNavTitle"></div>
+      <div class="fp-nav-sub"   id="secNavSub"></div>
+    </div>
+  </div>
+  <div class="fp-offline-banner" id="fpOfflineBanner2"><div class="fp-offline-banner-text">📡 Offline Mode — photos saving locally</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><button class="fp-offline-action-btn" onclick="fpSavePhotosToDevice()">💾 Save Photos</button><button class="fp-offline-action-btn" onclick="fpGoOnline()">🟢 Go Online</button></div></div>
+  <div class="fp-section-body" id="sectionBody"></div>
+  <div class="fp-status-bar">
+    <div class="fp-status-count" id="statusCount">0 photos</div>
+    <div class="fp-upload-spinner" id="uploadSpinner" style="display:none;">⏳ Uploading...</div>
+  </div>
+</div>
+
+<!-- ANNOTATION OVERLAY -->
+<div class="annot-overlay" id="annotOverlay">
+  <div class="annot-toolbar">
+    <button class="annot-tool-btn active" id="toolFree"   onclick="setAnnotTool('free')">✏️ Draw</button>
+    <button class="annot-tool-btn"        id="toolArrow"  onclick="setAnnotTool('arrow')">➡ Arrow</button>
+    <button class="annot-tool-btn"        id="toolCircle" onclick="setAnnotTool('circle')">⭕ Circle</button>
+    <button class="annot-tool-btn"        id="toolRect"   onclick="setAnnotTool('rect')">▭ Box</button>
+    <button class="annot-tool-btn"        id="toolText"   onclick="setAnnotTool('text')">T Text</button>
+    <div class="annot-color-swatch active" style="background:#e74c3c;" data-color="#e74c3c" onclick="setAnnotColor(this)"></div>
+    <div class="annot-color-swatch"        style="background:#f1c40f;" data-color="#f1c40f" onclick="setAnnotColor(this)"></div>
+    <div class="annot-color-swatch"        style="background:#27ae60;" data-color="#27ae60" onclick="setAnnotColor(this)"></div>
+    <div class="annot-color-swatch"        style="background:#3498db;" data-color="#3498db" onclick="setAnnotColor(this)"></div>
+    <div class="annot-color-swatch"        style="background:#ffffff;" data-color="#ffffff" onclick="setAnnotColor(this)"></div>
+    <input type="range" class="annot-size-slider" id="annotSize" min="2" max="20" value="4">
+    <div class="annot-spacer"></div>
+    <button class="annot-action-btn annot-undo-btn"   onclick="annotUndo()">↺ Undo</button>
+    <button class="annot-action-btn annot-clear-btn"  onclick="annotClear()">✕ Clear</button>
+    <button class="annot-action-btn annot-cancel-btn" onclick="annotCancel()">Cancel</button>
+    <button class="annot-action-btn annot-done-btn"   onclick="annotDone()">✓ Done</button>
+  </div>
+  <div class="annot-canvas-wrap" id="annotCanvasWrap">
+    <canvas id="annotCanvas"></canvas>
+  </div>
+</div>
+<div class="annot-text-input-wrap" id="annotTextWrap">
+  <div class="annot-text-modal">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:white;">Add Label</div>
+    <input type="text" id="annotTextInput" placeholder="Type label..." maxlength="60" onkeydown="if(event.key==='Enter') confirmAnnotText()">
+    <div class="annot-text-modal-btns">
+      <button style="background:rgba(255,255,255,0.1);color:white;" onclick="cancelAnnotText()">Cancel</button>
+      <button style="background:#27ae60;color:white;" onclick="confirmAnnotText()">Add</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+<div class="fp-toast" id="fpToast"></div>
+<div class="fp-confirm-overlay" id="fpConfirmOverlay">
+  <div class="fp-confirm-box">
+    <div class="fp-confirm-msg" id="fpConfirmMsg"></div>
+    <div class="fp-confirm-btns">
+      <button class="fp-confirm-cancel" id="fpConfirmCancel">Cancel</button>
+      <button class="fp-confirm-ok"     id="fpConfirmOk">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SB_URL = window.SUPABASE_URL      || 'https://fusravedbksupcsjfzda.supabase.co';
+const SB_KEY = window.SUPABASE_ANON_KEY || '';
+const CLOUD  = 'dmztfzqfm';
+const PRESET = 'slvlwkcf';
+
+var recordId       = null;
+var recordData     = null;
+var allSections    = [];
+var photos         = [];  // { dbId, section_id, subsection_id, url, public_id }
+var currentSection = null;
+var pendingSubId   = null;
+var replaceDbId    = null;
+var uploadCount    = 0;
+
+// ── SECTION DEFINITIONS ───────────────────────────────────────────
+function sub(id, label) { return {id:id, label:label}; }
+
+function buildSectionDefs(rec) {
+  var cat  = rec.category || 'home_health_check';
+  var tier = rec.tier     || 'Standard';
+
+  if (cat === 'home_health_check') {
+    var base = [
+      {id:'furnace',    icon:'🔥', name:'Furnace',           subsections:null},
+      {id:'ac',         icon:'❄️', name:'Air Conditioning',  subsections:null},
+      {id:'electrical', icon:'⚡', name:'Electrical Panel',  subsections:null},
+      {id:'plumbing',   icon:'💧', name:'Plumbing System',   subsections:null},
+      {id:'smoke',      icon:'🚨', name:'Smoke Detectors',   subsections:null},
+      {id:'co',         icon:'☁️', name:'CO Detectors',      subsections:null},
+      {id:'filters',    icon:'🌬️', name:'Filters & Vents',   subsections:null},
+    ];
+    if (tier !== 'Standard') base = base.concat([
+      {id:'driveways', icon:'🚗', name:'Driveways & Sidewalks', subsections:null},
+      {id:'grading',   icon:'⛰️', name:'Grading & Drainage',    subsections:null},
+      {id:'windows',   icon:'🪟', name:'Windows',                subsections:null},
+      {id:'doors',     icon:'🚪', name:'Doors',                  subsections:null},
+      {id:'garage',    icon:'🏠', name:'Garage',                 subsections:null},
+    ]);
+    if (tier === 'Signature') base = base.concat([
+      {id:'attic',      icon:'🏚️', name:'Attic & Crawlspace', subsections:null},
+      {id:'appliances', icon:'🍳', name:'Appliances',           subsections:null},
+    ]);
+    return base;
+  }
+
+  if (cat === 'home_inspection') return [
+    {id:'hi_roof',     icon:'🏠', name:'Roof',                      subsections:[sub('condition','Overall Condition'),sub('flashing','Flashings'),sub('gutters','Gutters & Downspouts'),sub('ventilation','Roof Ventilation'),sub('penetrations','Penetrations & Boots'),sub('skylights','Skylights')]},
+    {id:'hi_ext',      icon:'🧱', name:'Exterior Walls & Cladding', subsections:[sub('condition','Cladding Condition'),sub('trim','Trim & Fascia'),sub('caulking','Caulking & Sealants'),sub('windows','Window Exteriors'),sub('doors','Exterior Doors')]},
+    {id:'hi_grading',  icon:'🌧️', name:'Grading & Drainage',        subsections:[sub('slope','Grading Slope'),sub('drainage','Surface Drainage'),sub('window_wells','Window Wells'),sub('retaining','Retaining Walls')]},
+    {id:'hi_decks',    icon:'🪵', name:'Decks, Porches & Walkways', subsections:[sub('structure','Structural Integrity'),sub('surface','Surface Condition'),sub('railings','Railings & Guards'),sub('stairs','Stairs & Steps'),sub('ledger','Ledger Board')]},
+    {id:'hi_garage',   icon:'🚗', name:'Garage',                     subsections:[sub('door','Garage Door'),sub('opener','Automatic Opener'),sub('reverse','Auto-Reverse Safety'),sub('floor','Floor Condition'),sub('firewall','Firewall Separation')]},
+    {id:'hi_found',    icon:'🏗️', name:'Foundation',                subsections:[sub('cracks','Cracks'),sub('moisture','Moisture Intrusion'),sub('settlement','Settlement Indicators')]},
+    {id:'hi_basement', icon:'🔦', name:'Basement / Crawlspace',      subsections:[sub('walls','Wall Condition'),sub('floor','Floor Condition'),sub('moisture','Moisture / Water Stains'),sub('sump','Sump Pump'),sub('insulation','Insulation'),sub('vapor','Vapor Barrier')]},
+    {id:'hi_framing',  icon:'🪨', name:'Structural Framing',         subsections:[sub('joists','Floor Joists'),sub('beams','Beams & Columns'),sub('subfloor','Subflooring'),sub('rafters','Roof Framing')]},
+    {id:'hi_heating',  icon:'🔥', name:'Heating System',             subsections:[sub('condition','Overall Condition'),sub('flue','Flue / Venting'),sub('filters','Filters'),sub('distribution','Distribution')]},
+    {id:'hi_cooling',  icon:'❄️', name:'Cooling System',             subsections:[sub('condition','Overall Condition'),sub('refrigerant','Refrigerant Lines'),sub('drainage','Condensate Drainage')]},
+    {id:'hi_plumbing', icon:'💧', name:'Plumbing',                   subsections:[sub('supply_cond','Supply Lines'),sub('drain_cond','Drain Condition'),sub('water_heater','Water Heater'),sub('fixtures','Fixtures')]},
+    {id:'hi_elec',     icon:'⚡', name:'Electrical',                 subsections:[sub('panel_cond','Panel Condition'),sub('wiring','Visible Wiring'),sub('gfci','GFCI Protection'),sub('afci','AFCI Protection'),sub('outlets','Outlets & Switches')]},
+    {id:'hi_attic',    icon:'🏚️', name:'Attic',                      subsections:[sub('insulation','Insulation'),sub('ventilation','Ventilation'),sub('framing','Framing Condition'),sub('moisture','Moisture / Staining')]},
+    {id:'hi_interior', icon:'🪞', name:'Interior',                   subsections:[sub('walls_ceilings','Walls & Ceilings'),sub('floors','Floors'),sub('doors','Interior Doors'),sub('windows','Windows'),sub('stairs','Stairs & Railings')]},
+    {id:'hi_kitchen',  icon:'🍳', name:'Kitchen',                    subsections:[sub('cabinets','Cabinets'),sub('countertops','Countertops'),sub('sink','Sink & Faucet'),sub('dishwasher','Dishwasher'),sub('range','Range / Oven'),sub('exhaust','Exhaust Fan'),sub('gfci','GFCI')]},
+    {id:'hi_baths',    icon:'🛁', name:'Bathrooms',                  subsections:[sub('fixtures','Fixtures'),sub('faucets','Faucets & Valves'),sub('tile','Tile & Grout'),sub('exhaust','Exhaust Fan'),sub('gfci','GFCI'),sub('moisture','Moisture / Mold')]},
+  ];
+
+  if (cat === 'new_construction') {
+    if (tier === 'Pre Pour') return [
+      {id:'nc_site',     icon:'🌍', name:'Site Preparation & Grading',  subsections:[sub('prep','Site Prep'),sub('grading','Grading'),sub('soil','Soil Conditions'),sub('erosion','Erosion Control')]},
+      {id:'nc_excav',    icon:'⛏️', name:'Excavation',                  subsections:[sub('depth','Depth & Dimensions'),sub('bearing','Bearing Soil'),sub('water','Groundwater')]},
+      {id:'nc_footings', icon:'🏗️', name:'Footings',                    subsections:[sub('size','Size & Dimensions'),sub('depth','Frost Depth'),sub('placement','Placement'),sub('rebar','Rebar'),sub('lap','Lap Splices')]},
+      {id:'nc_forms',    icon:'📐', name:'Foundation Forms & Layout',   subsections:[sub('plumb','Plumb & Square'),sub('bracing','Bracing'),sub('anchor','Anchor Bolts')]},
+      {id:'nc_rebar',    icon:'🔩', name:'Rebar / Reinforcement Steel', subsections:[sub('size','Bar Size & Grade'),sub('spacing','Spacing'),sub('cover','Concrete Cover'),sub('ties','Ties & Supports')]},
+      {id:'nc_vapor',    icon:'🛡️', name:'Vapor Barrier / Membrane',   subsections:[sub('coverage','Coverage'),sub('laps','Laps & Seams'),sub('penetrations','Penetrations')]},
+      {id:'nc_plumb_pp', icon:'💧', name:'Underslab Plumbing Rough-In', subsections:[sub('layout','Layout'),sub('pressure','Pressure Test'),sub('cleanouts','Cleanouts'),sub('protection','Pipe Protection')]},
+      {id:'nc_elec_pp',  icon:'⚡', name:'Underslab Electrical Conduit',subsections:[sub('conduit','Conduit'),sub('routing','Routing'),sub('pullboxes','Pull Boxes')]},
+      {id:'nc_radon_pp', icon:'☢️', name:'Radon Mitigation Rough-In',  subsections:[sub('pipe','Sub-Slab Pipe'),sub('location','Termination Location')]},
+      {id:'nc_insul_pp', icon:'🧱', name:'Underslab Insulation',        subsections:[sub('type','Type & R-Value'),sub('placement','Placement & Coverage')]},
+    ];
+    if (tier === 'Pre Drywall') return [
+      {id:'nc_framing',    icon:'🔨', name:'Structural Framing',              subsections:[sub('plumb','Plumb & Straight'),sub('spacing','Stud/Joist Spacing'),sub('headers','Headers'),sub('blocking','Blocking'),sub('lft','Lateral Force Transfer')]},
+      {id:'nc_stairs',     icon:'🪜', name:'Stairways & Landings',            subsections:[sub('rise_run','Rise & Run'),sub('width','Width & Headroom'),sub('landing','Landing')]},
+      {id:'nc_rough_open', icon:'🚪', name:'Window & Door Rough Openings',    subsections:[sub('size','Opening Size'),sub('header','Header'),sub('flashing','Rough Flashing')]},
+      {id:'nc_sheathing',  icon:'🏠', name:'Roof Sheathing & Underlayment',   subsections:[sub('sheathing','Sheathing'),sub('underlayment','Underlayment'),sub('ridge','Ridge & Hip')]},
+      {id:'nc_ext_sheath', icon:'🧱', name:'Exterior Sheathing & Housewrap',  subsections:[sub('sheathing','Sheathing'),sub('housewrap','Housewrap'),sub('tape','Seams & Penetrations')]},
+      {id:'nc_elec_pd',    icon:'⚡', name:'Electrical Rough-In',             subsections:[sub('panel_loc','Panel Location'),sub('wiring','Wiring'),sub('boxes','Box Placement'),sub('grounding','Grounding')]},
+      {id:'nc_plumb_pd',   icon:'💧', name:'Plumbing Rough-In',               subsections:[sub('supply','Supply Lines'),sub('dwv','DWV'),sub('pressure','Pressure Test')]},
+      {id:'nc_hvac_pd',    icon:'🌬️', name:'HVAC Rough-In',                   subsections:[sub('ducts','Ductwork'),sub('equipment','Equipment Location'),sub('exhaust','Exhaust Terminations')]},
+      {id:'nc_gas_pd',     icon:'🔥', name:'Gas Piping Rough-In',             subsections:[sub('pipe','Pipe & Support'),sub('pressure','Pressure Test'),sub('shutoffs','Shutoffs')]},
+      {id:'nc_insul_pd',   icon:'🧱', name:'Insulation',                      subsections:[sub('walls','Wall Insulation'),sub('ceiling','Ceiling/Floor'),sub('coverage','Coverage'),sub('vapor','Vapor Retarder')]},
+      {id:'nc_fire_block', icon:'🔴', name:'Fire Blocking & Draft Stopping',  subsections:[sub('blocking','Fire Blocking'),sub('draft','Draft Stopping')]},
+      {id:'nc_flash_pd',   icon:'🛡️', name:'Flashing',                        subsections:[sub('windows','Window & Door'),sub('roof_pen','Roof Penetrations'),sub('step','Step & Kick-Out')]},
+      {id:'nc_garage_fw',  icon:'🚗', name:'Garage Firewall Separation',      subsections:[sub('drywall','Drywall'),sub('door','Fire-Rated Door'),sub('penetrations','Penetrations Sealed')]},
+    ];
+    return [
+      {id:'nc_ext_fw',      icon:'🧱', name:'Exterior',              subsections:[sub('grading','Grading'),sub('cladding','Cladding & Trim'),sub('driveway','Driveway'),sub('landscaping','Landscaping')]},
+      {id:'nc_roof_fw',     icon:'🏠', name:'Roof',                  subsections:[sub('covering','Roof Covering'),sub('flashings','Flashings'),sub('gutters','Gutters'),sub('vents','Vents')]},
+      {id:'nc_garage_fw2',  icon:'🚗', name:'Garage',                subsections:[sub('door','Door & Opener'),sub('reverse','Auto-Reverse'),sub('firewall','Firewall'),sub('floor','Floor')]},
+      {id:'nc_found_fw',    icon:'🏗️', name:'Foundation & Basement', subsections:[sub('walls','Wall Condition'),sub('moisture','Moisture'),sub('sump','Sump Pump')]},
+      {id:'nc_elec_fw',     icon:'⚡', name:'Electrical',            subsections:[sub('panel_cond','Panel'),sub('gfci','GFCI'),sub('afci','AFCI'),sub('outlets','Outlets'),sub('smoke','Smoke Detectors'),sub('co','CO Detectors')]},
+      {id:'nc_plumb_fw',    icon:'💧', name:'Plumbing',              subsections:[sub('fixtures','Fixtures'),sub('supply','Supply Lines'),sub('drain','Drainage'),sub('wh','Water Heater')]},
+      {id:'nc_hvac_fw',     icon:'🌬️', name:'HVAC',                  subsections:[sub('heating','Heating'),sub('cooling','Cooling'),sub('filters','Filters'),sub('thermostat','Thermostat'),sub('vents','Vents')]},
+      {id:'nc_interior_fw', icon:'🪞', name:'Interior',              subsections:[sub('walls_ceil','Walls & Ceilings'),sub('floors','Floors'),sub('doors','Doors'),sub('windows','Windows'),sub('stairs','Stairs')]},
+      {id:'nc_kitchen_fw',  icon:'🍳', name:'Kitchen',               subsections:[sub('cabinets','Cabinets'),sub('counters','Countertops'),sub('sink','Sink'),sub('appliances','Appliances'),sub('gfci','GFCI')]},
+      {id:'nc_baths_fw',    icon:'🛁', name:'Bathrooms',             subsections:[sub('fixtures','Fixtures'),sub('tile','Tile & Caulking'),sub('exhaust','Exhaust Fans'),sub('gfci','GFCI')]},
+      {id:'nc_attic_fw',    icon:'🏚️', name:'Attic',                 subsections:[sub('framing','Framing'),sub('insulation','Insulation'),sub('ventilation','Ventilation'),sub('moisture','Moisture')]},
+      {id:'nc_site_fw',     icon:'🌍', name:'Site & Grading (Final)',subsections:[sub('drainage','Drainage'),sub('clearance','Wood to Soil'),sub('landscaping','Landscaping')]},
+    ];
+  }
+
+  if (cat === 'addon' || cat === 'bundle_addon') {
+    if (tier === 'Radon') return [
+      {id:'ao_radon_setup',      icon:'☢️', name:'Test Setup',               subsections:[sub('device','Device & Serial'),sub('location','Deployment Location'),sub('conditions','Test Conditions')]},
+      {id:'ao_radon_result',     icon:'📊', name:'Test Results',             subsections:[sub('readings','Radon Readings'),sub('action','Action Level')]},
+      {id:'ao_radon_conditions', icon:'🏠', name:'Environmental Conditions', subsections:[sub('hvac','HVAC During Test'),sub('windows','Windows & Doors'),sub('notes','Weather Notes')]},
+    ];
+    if (tier === 'Sewer Scope') return [
+      {id:'ao_sewer_setup',    icon:'🔍', name:'Scope Setup',              subsections:[sub('equipment','Equipment'),sub('access','Access Point'),sub('pipe','Pipe Details')]},
+      {id:'ao_sewer_findings', icon:'📋', name:'Line Condition & Findings',subsections:[sub('overall','Overall Condition'),sub('roots','Root Intrusion'),sub('integrity','Pipe Integrity'),sub('debris','Debris / Buildup')]},
+      {id:'ao_sewer_video',    icon:'🎥', name:'Video Recording',           subsections:[sub('recording','Recording')]},
+    ];
+    if (tier === 'Mold') return [
+      {id:'ao_mold_setup',      icon:'🦠', name:'Sampling Setup',           subsections:[sub('lab','Lab & Service'),sub('samples','Sample Count')]},
+      {id:'ao_mold_areas',      icon:'🏠', name:'Areas Sampled',            subsections:[sub('locations','Sample Locations'),sub('visible','Visible Mold'),sub('moisture','Moisture Present')]},
+      {id:'ao_mold_conditions', icon:'💨', name:'Environmental Conditions', subsections:[sub('humidity','Humidity'),sub('temp','Temperature')]},
+    ];
+    if (tier === 'Water Quality') return [
+      {id:'ao_water_setup',  icon:'💧', name:'Sample Collection',      subsections:[sub('source','Water Source'),sub('collection','Collection Point')]},
+      {id:'ao_water_tests',  icon:'🔬', name:'Tests Ordered',          subsections:[sub('panel','Potability Panel'),sub('lead','Lead & Copper'),sub('nitrates','Nitrates')]},
+      {id:'ao_water_visual', icon:'🏠', name:'Visual Observations',    subsections:[sub('color','Water Color'),sub('odor','Odor'),sub('plumbing','Visible Plumbing')]},
+    ];
+    if (tier === 'Thermal') return [
+      {id:'ao_thermal_setup', icon:'🌡️', name:'Equipment & Conditions', subsections:[sub('camera','Camera Model'),sub('temps','Temps'),sub('delta_t','Delta-T')]},
+      {id:'ao_thermal_areas', icon:'🏠', name:'Areas Scanned',          subsections:[sub('scope','Scan Scope'),sub('insulation','Insulation'),sub('moisture','Moisture'),sub('electrical','Electrical')]},
+    ];
+    return [
+      {id:'ao_wdo_inspection', icon:'🐛', name:'WDO Inspection', subsections:[sub('type','Inspection Type'),sub('access','Access Points')]},
+      {id:'ao_wdo_findings',   icon:'🔍', name:'Findings',        subsections:[sub('termites','Termites'),sub('damage','Termite Damage'),sub('wood_decay','Wood Decay'),sub('other','Other WDO')]},
+      {id:'ao_wdo_areas',      icon:'🏠', name:'Areas Inspected', subsections:[sub('exterior','Exterior'),sub('garage','Garage'),sub('basement','Basement/Crawlspace'),sub('attic','Attic'),sub('interior','Interior')]},
+    ];
+  }
+  return [];
+}
+
+function formatJobType(rec) {
+  var cat=rec.category||'', tier=rec.tier||'';
+  if (cat==='home_health_check') return 'HHC'+(tier?' — '+tier:'');
+  if (cat==='home_inspection')   return 'Home Inspection';
+  if (cat==='new_construction')  return 'New Construction'+(tier?' — '+tier:'');
+  if (cat==='addon'||cat==='bundle_addon') return tier||'Add-On';
+  return tier||'Inspection';
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function photosFor(secId) { return photos.filter(function(p){return p.section_id===secId;}); }
+function photosForSub(secId,subId) { return photos.filter(function(p){return p.section_id===secId&&p.subsection_id===subId;}); }
+function subLabel(sec, subId) {
+  if (!subId||!sec.subsections) return '';
+  var s=sec.subsections.find(function(x){return x.id===subId;});
+  return s?s.label:subId;
+}
+
+function sbFetch(path, opts) {
+  return fetch(SB_URL+path, Object.assign({headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}, opts||{}));
+}
+function showScreen(id) { document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');}); document.getElementById(id).classList.add('active'); }
+function showError(msg) { document.getElementById('errorMsg').textContent=msg; showScreen('screenError'); }
+function openWizard() { if(recordId) window.open('/inspector-wizard.html?draft='+recordId,'_blank'); }
+
+// ── INIT ──────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async function() {
+  var params = new URLSearchParams(window.location.search);
+  recordId = params.get('record');
+  if (!recordId) { showScreen('screenPicker'); loadJobPicker(); return; }
+  try {
+    var rRes = await fetch('/.netlify/functions/load-draft?id=' + encodeURIComponent(recordId),
+      { headers: { 'x-admin-token': window.ADMIN_TOKEN } });
+    var rData = await rRes.json();
+    if (!rRes.ok || !rData || !rData.id) { showError('Job not found.'); return; }
+    recordData = rData;
+
+    var pRes = await sbFetch('/rest/v1/field_photos?record_id=eq.'+recordId+'&order=created_at.asc');
+    var pRows = await pRes.json();
+    if (Array.isArray(pRows)) {
+      photos = pRows.map(function(p){return {dbId:p.id,section_id:p.section_id,subsection_id:p.subsection_id||null,url:p.cloudinary_url,public_id:p.cloudinary_public_id};});
+    }
+
+    allSections = buildSectionDefs(recordData);
+    renderSectionList();
+    showScreen('screenSections');
+    fpShowOfflineToggle();
+  } catch(err) { showError('Could not load job: '+err.message); }
+});
+
+async function loadJobPicker() {
+  var sub  = document.getElementById('pickerSub');
+  var list = document.getElementById('pickerList');
+  try {
+    var res  = await fetch('/.netlify/functions/get-clients?status=scheduled&limit=100',
+      { headers: { 'x-admin-token': window.ADMIN_TOKEN } });
+    var data = await res.json();
+    var rows = (data && data.clients) ? data.clients : [];
+    if (!Array.isArray(rows) || !rows.length) {
+      sub.textContent = 'No scheduled jobs found.';
+      list.innerHTML  = '<div style="text-align:center;color:rgba(255,255,255,0.3);font-size:13px;padding:20px;">No jobs scheduled.</div>';
+      return;
+    }
+    sub.textContent = 'Select a job to photograph.';
+    var catIcons = { home_inspection:'🏠', new_construction:'🔨', home_health_check:'🔧', addon:'🔬' };
+    list.innerHTML = rows.map(function(r) {
+      var icon = catIcons[r.category] || '📋';
+      return '<div class="fp-picker-item" onclick="window.location.href=\'field-photos.html?record='+r.id+'\'">'
+        + '<div class="fp-picker-icon">'+icon+'</div>'
+        + '<div class="fp-picker-info">'
+        +   '<div class="fp-picker-client">'+(r.cust_name||'Unnamed Client')+'</div>'
+        +   '<div class="fp-picker-addr">'+(r.address||'No address')+'</div>'
+        + '</div>'
+        + '<div class="fp-picker-arrow">›</div>'
+        + '</div>';
+    }).join('');
+  } catch(err) {
+    sub.textContent = 'Could not load jobs.';
+    list.innerHTML  = '<div style="text-align:center;color:rgba(255,255,255,0.5);font-size:13px;padding:20px;">⚠️ ' + (err.message||'Check connection and retry.') + '</div>';
+  }
+}
+
+// ── SECTION LIST ──────────────────────────────────────────────────
+function renderSectionList() {
+  var r=recordData;
+  document.getElementById('navTitle').textContent = r.cust_name||'Field Photos';
+  document.getElementById('navSub').textContent   = r.address||'';
+  document.getElementById('jobName').textContent  = r.cust_name||'—';
+  document.getElementById('jobAddr').textContent  = r.address||'—';
+  document.getElementById('jobType').textContent  = formatJobType(r);
+
+  var list=document.getElementById('sectionList');
+  list.innerHTML='';
+  allSections.forEach(function(sec) {
+    var sp=photosFor(sec.id), cnt=sp.length;
+    var btn=document.createElement('button');
+    btn.className='fp-section-btn'+(cnt?' has-photos':'');
+    btn.innerHTML='<div class="fp-section-icon">'+sec.icon+'</div>'+
+      '<div style="flex:1;min-width:0;"><div class="fp-section-name">'+sec.name+'</div>'+
+      '<div class="fp-section-count'+(cnt?' has':'')+'">'+( cnt ? cnt+' photo'+(cnt!==1?'s':'') : 'Tap to add photos')+'</div></div>'+
+      '<div class="fp-section-arrow">›</div>';
+    btn.addEventListener('click', function(){openSection(sec);});
+    list.appendChild(btn);
+    if (sp.length) {
+      var row=document.createElement('div'); row.className='fp-mini-thumbs';
+      sp.slice(0,6).forEach(function(p){ var img=document.createElement('img'); img.className='fp-mini-thumb'; img.src=p.url; row.appendChild(img); });
+      list.appendChild(row);
+    }
+  });
+}
+
+document.getElementById('sectionBack').addEventListener('click', function(){ renderSectionList(); showScreen('screenSections'); });
+
+// ── SECTION DETAIL ────────────────────────────────────────────────
+function openSection(sec) {
+  currentSection=sec;
+  document.getElementById('secNavTitle').textContent = sec.icon+' '+sec.name;
+  document.getElementById('secNavSub').textContent   = (recordData.cust_name||'')+(recordData.address?' — '+recordData.address:'');
+  renderDetail();
+  updateStatus();
+  showScreen('screenSection');
+}
+
+function renderDetail() {
+  var sec=currentSection;
+  var body=document.getElementById('sectionBody');
+  body.innerHTML='';
+
+  if (!sec.subsections) {
+    // HHC flat — direct button
+    var btn=document.createElement('button');
+    btn.className='fp-add-flat';
+    btn.innerHTML='📷 <span>Take Photo</span>';
+    btn.addEventListener('click', function(){triggerCamera(null);});
+    body.appendChild(btn);
+  } else {
+    // Badge row
+    var lbl=document.createElement('div'); lbl.className='fp-detail-label'; lbl.textContent='Tap a subsection to add a photo';
+    body.appendChild(lbl);
+    var row=document.createElement('div'); row.className='fp-badge-row';
+    sec.subsections.forEach(function(s) {
+      var sp=photosForSub(sec.id,s.id);
+      var badge=document.createElement('button');
+      badge.className='fp-badge'+(sp.length?' has-photos':'');
+      badge.innerHTML=s.label+(sp.length?' <span class="fp-badge-count">'+sp.length+'</span>':'');
+      badge.addEventListener('click', (function(sid){return function(){triggerCamera(sid);};})(s.id));
+      row.appendChild(badge);
+    });
+    body.appendChild(row);
+  }
+
+  // Thumb grid
+  var sp=photosFor(sec.id);
+  if (sp.length) {
+    var tl=document.createElement('div'); tl.className='fp-detail-label'; tl.textContent='Photos — '+sec.name;
+    body.appendChild(tl);
+    var grid=document.createElement('div'); grid.className='fp-thumb-grid';
+    sp.forEach(function(p) {
+      var item=document.createElement('div'); item.className='fp-thumb-item';
+      var cell=document.createElement('div'); cell.className='fp-thumb-cell';
+      var img=document.createElement('img'); img.src=p.url;
+      var del=document.createElement('button'); del.className='fp-thumb-del'; del.textContent='✕';
+      del.addEventListener('click',(function(ph){return function(e){e.stopPropagation();confirmDelete(ph);};})(p));
+      var rean=document.createElement('button'); rean.className='fp-thumb-reannotate'; rean.textContent='✏️';
+      rean.addEventListener('click',(function(ph){return function(e){e.stopPropagation();startReannotate(ph);};})(p));
+      cell.appendChild(img); cell.appendChild(del); cell.appendChild(rean);
+      item.appendChild(cell);
+      if (p.subsection_id) {
+        var sl=document.createElement('div'); sl.className='fp-thumb-sub-label'; sl.textContent=subLabel(sec,p.subsection_id);
+        item.appendChild(sl);
+      }
+      grid.appendChild(item);
+    });
+    body.appendChild(grid);
+  }
+}
+
+function updateStatus() {
+  var cnt=photosFor(currentSection.id).length;
+  document.getElementById('statusCount').innerHTML='<strong>'+cnt+'</strong> photo'+(cnt!==1?'s':'')+' in this section';
+}
+
+// ── CAMERA ───────────────────────────────────────────────────────
+function triggerCamera(subId) {
+  pendingSubId=subId; replaceDbId=null;
+  var inp=document.getElementById('cameraInput'); inp.value=''; inp.click();
+}
+document.getElementById('cameraInput').addEventListener('change', function(e) {
+  var file=e.target.files&&e.target.files[0]; if (!file) return;
+  openAnnotEditor(file);
+});
+
+// ── ANNOTATION ───────────────────────────────────────────────────
+var annotState={tool:'free',color:'#e74c3c',size:4,drawing:false,startX:0,startY:0,history:[],textX:0,textY:0};
+var _ah={start:null,move:null,end:null};
+
+function getPos(e,cnv){var rect=cnv.getBoundingClientRect(),src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
+
+function openAnnotEditor(file) {
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      document.getElementById('annotOverlay').classList.add('active');
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        var wrap=document.getElementById('annotCanvasWrap'),canvas=document.getElementById('annotCanvas');
+        var maxW=wrap.clientWidth||window.innerWidth,maxH=wrap.clientHeight||(window.innerHeight-80);
+        var ratio=Math.min(maxW/img.width,maxH/img.height,1);
+        canvas.width=Math.floor(img.width*ratio); canvas.height=Math.floor(img.height*ratio);
+        var ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        annotState.history=[ctx.getImageData(0,0,canvas.width,canvas.height)];
+        setAnnotTool('free'); attachAnnotEvents(canvas,ctx);
+      });});
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function attachAnnotEvents(canvas,ctx){
+  if(_ah.start){canvas.removeEventListener('mousedown',_ah.start);canvas.removeEventListener('touchstart',_ah.start);canvas.removeEventListener('mousemove',_ah.move);canvas.removeEventListener('touchmove',_ah.move);canvas.removeEventListener('mouseup',_ah.end);canvas.removeEventListener('touchend',_ah.end);}
+  _ah.start=function(e){
+    e.preventDefault(); var pos=getPos(e,canvas);
+    annotState.drawing=true; annotState.startX=pos.x; annotState.startY=pos.y;
+    if(annotState.tool==='text'){annotState.drawing=false;annotState.textX=pos.x;annotState.textY=pos.y;document.getElementById('annotTextWrap').classList.add('active');document.getElementById('annotTextInput').value='';document.getElementById('annotTextInput').focus();}
+    else if(annotState.tool==='free'){annotState.history.push(ctx.getImageData(0,0,canvas.width,canvas.height));ctx.beginPath();ctx.moveTo(pos.x,pos.y);}
+  };
+  _ah.move=function(e){
+    e.preventDefault(); if(!annotState.drawing)return; var pos=getPos(e,canvas);
+    ctx.strokeStyle=annotState.color;ctx.lineWidth=annotState.size;ctx.lineCap='round';ctx.lineJoin='round';
+    if(annotState.tool==='free'){ctx.lineTo(pos.x,pos.y);ctx.stroke();}
+    else{
+      var snap=annotState.history[annotState.history.length-1]; ctx.putImageData(snap,0,0);
+      var sx=annotState.startX,sy=annotState.startY;
+      if(annotState.tool==='arrow'){ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(pos.x,pos.y);ctx.stroke();var a=Math.atan2(pos.y-sy,pos.x-sx),hs=Math.max(annotState.size*3,12);ctx.beginPath();ctx.moveTo(pos.x,pos.y);ctx.lineTo(pos.x-hs*Math.cos(a-Math.PI/6),pos.y-hs*Math.sin(a-Math.PI/6));ctx.moveTo(pos.x,pos.y);ctx.lineTo(pos.x-hs*Math.cos(a+Math.PI/6),pos.y-hs*Math.sin(a+Math.PI/6));ctx.stroke();}
+      else if(annotState.tool==='circle'){var rx=Math.abs(pos.x-sx)/2,ry=Math.abs(pos.y-sy)/2,cx=(sx+pos.x)/2,cy=(sy+pos.y)/2;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.stroke();}
+      else if(annotState.tool==='rect'){ctx.strokeRect(sx,sy,pos.x-sx,pos.y-sy);}
+    }
+  };
+  _ah.end=function(e){e.preventDefault();if(!annotState.drawing)return;annotState.drawing=false;if(annotState.tool!=='free')annotState.history.push(ctx.getImageData(0,0,canvas.width,canvas.height));};
+  canvas.addEventListener('mousedown',_ah.start,{passive:false});canvas.addEventListener('touchstart',_ah.start,{passive:false});
+  canvas.addEventListener('mousemove',_ah.move,{passive:false});canvas.addEventListener('touchmove',_ah.move,{passive:false});
+  canvas.addEventListener('mouseup',_ah.end,{passive:false});canvas.addEventListener('touchend',_ah.end,{passive:false});
+}
+
+function setAnnotTool(tool){
+  annotState.tool=tool;
+  document.querySelectorAll('.annot-tool-btn').forEach(function(b){b.classList.remove('active');});
+  var m={free:'Free',arrow:'Arrow',circle:'Circle',rect:'Rect',text:'Text'};
+  var b=document.getElementById('tool'+(m[tool]||tool.charAt(0).toUpperCase()+tool.slice(1))); if(b)b.classList.add('active');
+}
+function setAnnotColor(el){annotState.color=el.dataset.color;document.querySelectorAll('.annot-color-swatch').forEach(function(s){s.classList.remove('active');});el.classList.add('active');}
+document.getElementById('annotSize').addEventListener('input',function(){annotState.size=parseInt(this.value);});
+function annotUndo(){var c=document.getElementById('annotCanvas'),ctx=c.getContext('2d');if(annotState.history.length>1){annotState.history.pop();ctx.putImageData(annotState.history[annotState.history.length-1],0,0);}}
+function annotClear(){var c=document.getElementById('annotCanvas'),ctx=c.getContext('2d');if(annotState.history.length){var b=annotState.history[0];ctx.putImageData(b,0,0);annotState.history=[b];}}
+function annotCancel(){document.getElementById('annotOverlay').classList.remove('active');pendingSubId=null;replaceDbId=null;}
+function annotDone(){
+  var canvas=document.getElementById('annotCanvas');
+  document.getElementById('annotOverlay').classList.remove('active');
+  var subId=pendingSubId, repId=replaceDbId;
+  canvas.toBlob(function(blob){
+    var file=new File([blob],(currentSection.id+(subId?'_'+subId:'')+'_annotated.jpg'),{type:'image/jpeg'});
+    uploadPhoto(file,subId,repId);
+  },'image/jpeg',0.92);
+}
+function confirmAnnotText(){
+  var text=document.getElementById('annotTextInput').value.trim();
+  document.getElementById('annotTextWrap').classList.remove('active');
+  if(!text)return;
+  var c=document.getElementById('annotCanvas'),ctx=c.getContext('2d');
+  annotState.history.push(ctx.getImageData(0,0,c.width,c.height));
+  ctx.font=annotState.size*5+'px Barlow Condensed,sans-serif';ctx.fillStyle=annotState.color;
+  ctx.fillText(text,annotState.textX,annotState.textY);
+}
+function cancelAnnotText(){document.getElementById('annotTextWrap').classList.remove('active');}
+
+function startReannotate(photo) {
+  pendingSubId = photo.subsection_id;
+  replaceDbId  = photo.dbId;
+  fetch(photo.url).then(function(r){return r.blob();}).then(function(blob){
+    openAnnotEditor(new File([blob],'photo.jpg',{type:'image/jpeg'}));
+  });
+}
+
+// ── UPLOAD ────────────────────────────────────────────────────────
+async function uploadPhoto(file, subId, repId) {
+  // Offline mode — store blob locally
+  if (fpIsOffline) {
+    var key = (currentSection ? currentSection.id : 'unknown') + '_' + (subId || 'main') + '_' + Date.now();
+    fpOfflineBlobs[key] = { blob: file, subId: subId || null, sectionId: currentSection ? currentSection.id : null };
+    // Show as preview using object URL
+    var previewUrl = URL.createObjectURL(file);
+    photos.push({ dbId: null, section_id: currentSection ? currentSection.id : null, subsection_id: subId || null, url: previewUrl, public_id: null, offlineKey: key });
+    fpToast('Photo saved offline ✓');
+    renderDetail(); updateStatus(); renderSectionList();
+    return;
+  }
+
+  uploadCount++;
+  document.getElementById('uploadSpinner').style.display='';
+  try {
+    var compressed=await imageCompression(file,{maxSizeMB:0.15,maxWidthOrHeight:1600,useWebWorker:true});
+    var fd=new FormData(); fd.append('file',compressed,file.name); fd.append('upload_preset',PRESET); fd.append('folder','heartland/field-photos/'+recordId);
+    var cRes=await fetch('https://api.cloudinary.com/v1_1/'+CLOUD+'/image/upload',{method:'POST',body:fd});
+    if(!cRes.ok) throw new Error('Cloudinary failed');
+    var cData=await cRes.json();
+    var url=cData.secure_url, pubId=cData.public_id;
+
+    if (repId) {
+      await sbFetch('/rest/v1/field_photos?id=eq.'+repId,{method:'DELETE'});
+      photos=photos.filter(function(p){return p.dbId!==repId;});
+    }
+
+    var sRes=await sbFetch('/rest/v1/field_photos',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=representation'},
+      body:JSON.stringify({record_id:recordId,section_id:currentSection.id,subsection_id:subId||null,cloudinary_url:url,cloudinary_public_id:pubId})
+    });
+    var sData=await sRes.json();
+    var dbId=(Array.isArray(sData)&&sData[0])?sData[0].id:null;
+    photos.push({dbId:dbId,section_id:currentSection.id,subsection_id:subId||null,url:url,public_id:pubId});
+    fpToast('Photo saved ✓');
+  } catch(err) { fpToast('Upload failed — please retry'); console.error(err); }
+  finally {
+    uploadCount--;
+    if(!uploadCount) document.getElementById('uploadSpinner').style.display='none';
+    renderDetail(); updateStatus(); renderSectionList();
+  }
+}
+
+// ── DELETE ────────────────────────────────────────────────────────
+function confirmDelete(photo) {
+  fpConfirm('Delete this photo? This cannot be undone.', async function(){
+    try {
+      if(photo.dbId) await sbFetch('/rest/v1/field_photos?id=eq.'+photo.dbId,{method:'DELETE'});
+      photos=photos.filter(function(p){return p.dbId!==photo.dbId;});
+      renderDetail(); updateStatus(); renderSectionList();
+      fpToast('Photo deleted');
+    } catch(e){fpToast('Delete failed');}
+  });
+}
+
+// ── TOAST + CONFIRM ───────────────────────────────────────────────
+var _tt=null;
+function fpToast(msg){var el=document.getElementById('fpToast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(function(){el.classList.remove('show');},2500);}
+
+// ── OFFLINE MODE ──────────────────────────────────────────────────────────────
+var fpIsOffline = false;
+var fpOfflineBlobs = {}; // { key: { blob, subId, sectionId } }
+
+function fpCountOfflinePhotos() {
+  return Object.keys(fpOfflineBlobs).filter(function(k){ return fpOfflineBlobs[k]; }).length;
+}
+
+function fpToggleOffline() {
+  fpIsOffline = true;
+  var btn = document.getElementById('fpOfflineToggleBtn');
+  if (btn) btn.style.display = 'none';
+  ['fpOfflineBanner','fpOfflineBanner2'].forEach(function(id){
+    var b = document.getElementById(id);
+    if (b) b.classList.add('active');
+  });
+}
+
+async function fpGoOnline() {
+  var modal    = document.getElementById('fpSyncModal');
+  var spinner  = document.getElementById('fpSyncSpinner');
+  var icon     = document.getElementById('fpSyncIcon');
+  var msg      = document.getElementById('fpSyncMsg');
+  var progress = document.getElementById('fpSyncProgress');
+  var okBtn    = document.getElementById('fpSyncOkBtn');
+  var stayBtn  = document.getElementById('fpSyncStayBtn');
+
+  spinner.style.display = 'block'; icon.style.display = 'none';
+  msg.textContent = 'Uploading photos...'; progress.textContent = '';
+  okBtn.style.display = 'none'; stayBtn.style.display = 'none';
+  modal.classList.add('active');
+
+  var queue = Object.keys(fpOfflineBlobs).filter(function(k){ return fpOfflineBlobs[k]; });
+  var total = queue.length, uploaded = 0, errors = 0;
+
+  for (var i = 0; i < queue.length; i++) {
+    var key  = queue[i];
+    var item = fpOfflineBlobs[key];
+    progress.textContent = (i + 1) + ' / ' + total + ' photos uploaded';
+    try {
+      var file = new File([item.blob], key + '.jpg', { type: 'image/jpeg' });
+      var compressed = await imageCompression(file, { maxSizeMB: 0.15, maxWidthOrHeight: 1600, useWebWorker: true });
+      var fd = new FormData();
+      fd.append('file', compressed, file.name);
+      fd.append('upload_preset', PRESET);
+      fd.append('folder', 'heartland/field-photos/' + recordId);
+      var cRes = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD + '/image/upload', { method: 'POST', body: fd });
+      if (!cRes.ok) throw new Error('Cloudinary failed');
+      var cData = await cRes.json();
+      var url = cData.secure_url, pubId = cData.public_id;
+
+      var sRes = await sbFetch('/rest/v1/field_photos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation' },
+        body: JSON.stringify({ record_id: recordId, section_id: item.sectionId, subsection_id: item.subId || null, cloudinary_url: url, cloudinary_public_id: pubId })
+      });
+      var sData = await sRes.json();
+      var dbId = (Array.isArray(sData) && sData[0]) ? sData[0].id : null;
+      // Replace the offline placeholder in-place rather than pushing a duplicate
+      var existingIdx = photos.findIndex(function(p){ return p.offlineKey === key; });
+      var newEntry = { dbId: dbId, section_id: item.sectionId, subsection_id: item.subId || null, url: url, public_id: pubId };
+      if (existingIdx !== -1) {
+        photos[existingIdx] = newEntry;
+      } else {
+        photos.push(newEntry);
+      }
+      fpOfflineBlobs[key] = null;
+      uploaded++;
+    } catch(e) {
+      console.warn('Offline photo upload failed:', key, e);
+      errors++;
+    }
+    progress.textContent = uploaded + ' / ' + total + ' photos uploaded';
+  }
+
+  spinner.style.display = 'none'; icon.style.display = 'block';
+  if (errors === 0) {
+    icon.textContent = '✅';
+    msg.textContent = uploaded + ' photo' + (uploaded !== 1 ? 's' : '') + ' uploaded successfully.';
+    fpIsOffline = false;
+    ['fpOfflineBanner','fpOfflineBanner2'].forEach(function(id){
+      var b = document.getElementById(id);
+      if (b) b.classList.remove('active');
+    });
+    document.getElementById('fpOfflineToggleBtn').style.display = 'inline-flex';
+    renderDetail(); updateStatus(); renderSectionList();
+  } else {
+    icon.textContent = '⚠️';
+    msg.textContent = (total - errors) + ' of ' + total + ' photos uploaded. ' + errors + ' failed.';
+    stayBtn.style.display = 'block';
+  }
+  progress.textContent = '';
+  okBtn.style.display = 'block';
+}
+
+async function fpSavePhotosToDevice() {
+  var queue = Object.keys(fpOfflineBlobs).filter(function(k){ return fpOfflineBlobs[k]; });
+  if (!queue.length) {
+    fpToast('No offline photos to save.');
+    return;
+  }
+  var modal    = document.getElementById('fpZipModal');
+  var spinner  = document.getElementById('fpZipSpinner');
+  var icon     = document.getElementById('fpZipIcon');
+  var msg      = document.getElementById('fpZipMsg');
+  var progress = document.getElementById('fpZipProgress');
+  var okBtn    = document.getElementById('fpZipOkBtn');
+  spinner.style.display = 'block'; icon.style.display = 'none';
+  okBtn.style.display = 'none'; msg.textContent = 'Packaging photos...';
+  progress.textContent = '0 of ' + queue.length + ' photos';
+  modal.classList.add('active');
+  try {
+    var zip = new JSZip();
+    var folder = zip.folder('heartland_field_photos');
+    for (var i = 0; i < queue.length; i++) {
+      var item = fpOfflineBlobs[queue[i]];
+      folder.file(queue[i] + '.jpg', item.blob);
+      progress.textContent = (i + 1) + ' of ' + queue.length + ' photos packed';
+    }
+    msg.textContent = 'Compressing...'; progress.textContent = '';
+    var content = await zip.generateAsync({ type: 'blob' }, function(meta){
+      progress.textContent = Math.round(meta.percent) + '%';
+    });
+    var url  = URL.createObjectURL(content);
+    var link = document.createElement('a');
+    link.href = url; link.download = 'heartland_photos_' + (recordId || 'offline').toString().slice(0, 12) + '.zip';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 5000);
+    spinner.style.display = 'none'; icon.style.display = 'block';
+    icon.textContent = '✅'; msg.textContent = queue.length + ' photos saved to your device.';
+    progress.textContent = '';
+  } catch(err) {
+    spinner.style.display = 'none'; icon.style.display = 'block';
+    icon.textContent = '❌'; msg.textContent = 'Could not create ZIP. Please try again.';
+    progress.textContent = err.message || '';
+  }
+  okBtn.style.display = 'block';
+}
+
+// Show offline toggle once record is loaded
+function fpShowOfflineToggle() {
+  var btn = document.getElementById('fpOfflineToggleBtn');
+  if (btn) btn.style.display = 'inline-flex';
+}
+
+// Warn before leaving with unsaved offline photos
+window.addEventListener('beforeunload', function(e) {
+  if (!fpIsOffline || !fpCountOfflinePhotos()) return;
+  var msg = 'You have offline photos that have not been uploaded. Go online first to avoid losing them.';
+  e.preventDefault(); e.returnValue = msg; return msg;
+});
+var _cb=null;
+function fpConfirm(msg,onOk){document.getElementById('fpConfirmMsg').textContent=msg;document.getElementById('fpConfirmOverlay').classList.add('active');_cb=function(ok){document.getElementById('fpConfirmOverlay').classList.remove('active');if(ok)onOk();};}
+document.getElementById('fpConfirmOk').addEventListener('click',function(){_cb&&_cb(true);});
+document.getElementById('fpConfirmCancel').addEventListener('click',function(){_cb&&_cb(false);});
+</script>
+</body>
+</html>
