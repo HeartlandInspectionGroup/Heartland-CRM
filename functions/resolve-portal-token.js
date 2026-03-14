@@ -46,6 +46,12 @@ exports.handler = async function(event) {
       return { statusCode: 404, headers, body: JSON.stringify({ error: 'Invalid or expired portal link' }) };
     }
     var tokenRow   = tokenRows[0];
+
+    // Enforce token expiration
+    if (tokenRow.expires_at && new Date(tokenRow.expires_at) < new Date()) {
+      return { statusCode: 404, headers, body: JSON.stringify({ error: 'Invalid or expired portal link' }) };
+    }
+
     var clientEmail = tokenRow.client_email;
     var clientName  = tokenRow.client_name || '';
 

@@ -4,6 +4,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL     = 'no-reply@heartlandinspectiongroup.com';
 const FROM_NAME      = 'Heartland Inspection Group';
 const SITE_URL = process.env.SITE_URL || 'https://heartlandinspectiongroup.com';
+const crypto         = require('crypto');
 const BCC_EMAIL      = 'jake@heartlandinspectiongroup.com';
 
 const HEADERS = {
@@ -286,13 +287,13 @@ exports.handler = async (event) => {
     let token = tokRows && tokRows[0] && tokRows[0].token;
     if (!token) {
       // No token exists — generate and insert a fresh one
-      token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      token = crypto.randomBytes(32).toString('hex');
       await fetch(SUPABASE_URL + '/rest/v1/client_portal_tokens', {
         method: 'POST',
         headers: { ...sbHeaders, 'Prefer': 'return=minimal' },
         body: JSON.stringify({ token, client_email: cust_email, client_name: cust_name || '', booking_id: null }),
       });
-      console.log('send-report-email: generated fresh portal token for', cust_email);
+      console.log('send-report-email: generated fresh portal token for', (cust_email || '').replace(/^(.).*@/, '$1***@'));
     }
     portalUrl = `${SITE_URL}/client-portal.html?token=${token}`;
   } catch(e) { console.error('Portal token lookup/upsert failed:', e); }

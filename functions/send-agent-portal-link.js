@@ -102,7 +102,7 @@ exports.handler = async (event) => {
       htmlBody: buildAgentPortalEmail(firstName, portalUrl),
     });
 
-    console.log('[send-agent-portal-link] Sent to', agent.email, 'portal:', portalUrl);
+    console.log('[send-agent-portal-link] Sent to', (agent.email || '').replace(/^(.).*@/, '$1***@'));
     return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
 
   } catch (err) {

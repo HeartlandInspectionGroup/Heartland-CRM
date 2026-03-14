@@ -82,11 +82,11 @@ exports.handler = async function(event) {
         sent.push({ name: r.name, email: r.email });
       } else {
         var errText = await res.text();
-        console.error('Resend error for', r.email, errText);
+        console.error('Resend error for', (r.email || '').replace(/^(.).*@/, '$1***@'), errText);
         failed.push({ name: r.name, email: r.email });
       }
     } catch(e) {
-      console.error('Send error for', r.email, e.message);
+      console.error('Send error for', (r.email || '').replace(/^(.).*@/, '$1***@'), e.message);
       failed.push({ name: r.name, email: r.email });
     }
   }

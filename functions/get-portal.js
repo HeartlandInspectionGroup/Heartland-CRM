@@ -39,6 +39,11 @@ exports.handler = async function(event) {
     return { statusCode: 404, headers, body: JSON.stringify({ error: 'Invalid or expired token' }) };
   }
 
+  // Enforce token expiration
+  if (tokenRow.expires_at && new Date(tokenRow.expires_at) < new Date()) {
+    return { statusCode: 404, headers, body: JSON.stringify({ error: 'Invalid or expired token' }) };
+  }
+
   var clientEmail = tokenRow.client_email;
   var clientName  = tokenRow.client_name || '';
 
@@ -56,7 +61,7 @@ exports.handler = async function(event) {
   );
 
   var safeRecords = Array.isArray(records) ? records : [];
-  console.log('get-portal: records count:', safeRecords.length, 'for', clientEmail);
+  console.log('get-portal: records count:', safeRecords.length, 'for', (clientEmail || '').replace(/^(.).*@/, '$1***@'));
   if (!Array.isArray(records)) console.error('get-portal: records error:', JSON.stringify(records));
 
   // Fetch waiver signatures for this client (all records)

@@ -2,7 +2,7 @@
   functions = "functions"
 
 [build.environment]
-  SECRETS_SCAN_ENABLED = "false"
+  SECRETS_SCAN_ENABLED = "true"
 
 
 [functions]
@@ -146,3 +146,13 @@
   to = "/.netlify/functions/get-availability"
   status = 200
   force = true
+
+# ── Security headers for all pages ──
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"

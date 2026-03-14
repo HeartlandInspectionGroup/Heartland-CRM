@@ -101,7 +101,7 @@ exports.handler = async function(event) {
       action:    'payment.field',
       category:  'payments',
       actor:     'admin',
-      details:   { method: payment_method, amount: amount, address: address, client: cust_name },
+      details:   { method: payment_method, amount: amount },
     });
 
     // ── 3. Send receipt email (non-fatal) ──
@@ -163,7 +163,7 @@ exports.handler = async function(event) {
           subject:  'Payment Received — Heartland Inspection Group',
           htmlBody: html,
         });
-        console.log('[record-field-payment] Receipt email sent to', cust_email);
+        console.log('[record-field-payment] Receipt email sent to', (cust_email || '').replace(/^(.).*@/, '$1***@'));
       } catch(emailErr) {
         console.error('[record-field-payment] Email failed (non-fatal):', emailErr.message);
       }

@@ -7,6 +7,7 @@
  * POST body: { booking_id, stripe_payment_intent_id }
  */
 
+const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const { writeAuditLog } = require('./write-audit-log');
 
@@ -92,13 +93,13 @@ exports.handler = async (event) => {
         portalToken = tokenRows[0].token;
       } else {
         // No token exists — generate and insert a fresh one
-        const freshToken = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        const freshToken = crypto.randomBytes(32).toString('hex');
         const { error: tokErr } = await sb
           .from('client_portal_tokens')
           .insert({ token: freshToken, client_email: record.cust_email, client_name: '', booking_id: booking_id });
         if (!tokErr) {
           portalToken = freshToken;
-          console.log('record-online-payment: generated fresh portal token for', record.cust_email);
+          console.log('record-online-payment: generated fresh portal token for', (record.cust_email || '').replace(/^(.).*@/, '$1***@'));
         } else {
           console.error('record-online-payment: token insert failed', tokErr);
         }

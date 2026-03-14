@@ -125,7 +125,7 @@ exports.handler = async function (event) {
     }
 
     var sigRecord = Array.isArray(sigData) ? sigData[0] : sigData;
-    console.log("[sign-waiver] Recorded id:", sigRecord && sigRecord.id, "email:", client_email, "waiver:", waiver.name);
+    console.log("[sign-waiver] Recorded id:", sigRecord && sigRecord.id, "email:", (client_email || '').replace(/^(.).*@/, '$1***@'), "waiver:", waiver.name);
 
     // ── Update signed_agreements count and flip signed_agreement if all signed ──
     if (inspection_record_id) {
@@ -190,7 +190,7 @@ exports.handler = async function (event) {
       action:    'agreement.signed',
       category:  'agreements',
       actor:     'client',
-      details:   { client_email: client_email, signed_name: signed_name, method: signature_method },
+      details:   { method: signature_method },
     });
 
     return { statusCode: 200, headers, body: JSON.stringify({ success: true, signature: sigRecord }) };

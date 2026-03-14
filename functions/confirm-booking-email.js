@@ -20,6 +20,7 @@ const HEADERS = {
   'Access-Control-Allow-Origin': '*',
 };
 
+const crypto = require('crypto');
 const { emailWrap, emailBtn, emailInfoTable, esc } = require('./lib/email-template');
 const { writeAuditLog } = require('./write-audit-log');
 
@@ -206,7 +207,7 @@ exports.handler = async function(event) {
     if (existingTokenRows && existingTokenRows[0] && existingTokenRows[0].token) {
       token = existingTokenRows[0].token;
     } else {
-      token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      token = crypto.randomBytes(32).toString('hex');
       await sbPost('client_portal_tokens', {
         token,
         client_email: b.client_email,
@@ -216,7 +217,7 @@ exports.handler = async function(event) {
     }
   } catch(e) {
     console.error('Token save error:', e);
-    token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    token = crypto.randomBytes(32).toString('hex');
   }
 
   await sbPatch('bookings?id=eq.' + booking_id, { status: 'confirmed' });
@@ -262,8 +263,8 @@ exports.handler = async function(event) {
 
     // ── Audit log ──
     var recordId = existingRec ? existingRec.id : (recResult && recResult.data && recResult.data[0] ? recResult.data[0].id : null);
-    writeAuditLog({ record_id: recordId, action: 'booking.confirmed', category: 'scheduling', actor: 'admin', details: { source: 'index_html', address: b.property_address, client: b.client_name, agent_id: b.agent_id || null } });
-    writeAuditLog({ record_id: recordId, action: 'agreement.sent',    category: 'agreements',  actor: 'system', details: { address: b.property_address, client: b.client_name, email: b.client_email } });
+    writeAuditLog({ record_id: recordId, action: 'booking.confirmed', category: 'scheduling', actor: 'admin', details: { source: 'confirm_booking', agent_id: b.agent_id || null } });
+    writeAuditLog({ record_id: recordId, action: 'agreement.sent',    category: 'agreements',  actor: 'system', details: {} });
 
     return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ success: true }) };
   } catch(e) {
