@@ -1,0 +1,2672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Inspector Wizard V2 — Heartland</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/booking-tool.css">
+  <script src="https://unpkg.com/@geoapify/geocoder-autocomplete@2/dist/index.min.js"></script>
+  <script src="/config.js"></script>
+  <script src="/shared/config-loader.js"></script>
+  <script src="/shared/booking-tool.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #121e30;
+      --navy-mid:   #1a2a44;
+      --navy-light: #243554;
+      --green:      #27ae60;
+      --green-dark: #1e8449;
+      --orange:     #f59321;
+      --red:        #c0392b;
+      --white:      #ffffff;
+      --text:       #e8edf5;
+      --text-muted: rgba(232,237,245,0.5);
+      --border:     rgba(255,255,255,0.08);
+      --card-bg:    rgba(255,255,255,0.04);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Barlow', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── SCREENS ────────────────────────────────────────────────────── */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      background: var(--navy);
+    }
+    .screen.active { display: flex; }
+
+    /* ── HEADER ─────────────────────────────────────────────────────── */
+    .v2-header {
+      background: var(--navy-mid);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .v2-header-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--white);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .v2-back-btn {
+      background: none;
+      border: none;
+      color: var(--green);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+      z-index: 1;
+    }
+    .v2-header-right {
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── SCROLLABLE BODY ─────────────────────────────────────────────── */
+    .v2-body {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .v2-body::-webkit-scrollbar { display: none; }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────────── */
+    .v2-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      width: 100%;
+    }
+    .v2-btn:active { opacity: 0.75; }
+    .v2-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .v2-btn--green  { background: var(--green); color: #fff; }
+    .v2-btn--ghost  { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); }
+    .v2-btn--icon   {
+      width: 40px; height: 40px; padding: 0;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* ── LOGIN SCREEN ────────────────────────────────────────────────── */
+    #screenLogin {
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+    .v2-login-box {
+      width: 100%;
+      max-width: 360px;
+    }
+    .v2-login-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .v2-login-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+    .v2-label {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      margin-top: 16px;
+    }
+    .v2-label:first-of-type { margin-top: 0; }
+    .v2-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 15px;
+      font-family: 'Barlow', sans-serif;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .v2-input:focus { border-color: var(--green); }
+    .v2-input.has-error { border-color: var(--red); }
+    .v2-err {
+      font-size: 13px;
+      color: var(--red);
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    /* ── LOADING / SPINNER ─────────────────────────────────────────── */
+    .v2-spinner {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--green);
+      animation: v2spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes v2spin { to { transform: rotate(360deg); } }
+    .v2-loading {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 20px; gap: 12px;
+    }
+    .v2-loading-text { font-size: 13px; color: var(--text-muted); }
+
+    /* ── JOB CARDS ──────────────────────────────────────────────────── */
+    .v2-job-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .v2-job-card {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--card-bg); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 14px; cursor: pointer;
+      transition: all 0.15s; text-align: left; width: 100%;
+    }
+    .v2-job-card:active { background: rgba(255,255,255,0.08); transform: scale(0.98); }
+    .v2-job-icon { font-size: 22px; flex-shrink: 0; }
+    .v2-job-info { flex: 1; min-width: 0; }
+    .v2-job-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px; font-weight: 700; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .v2-job-addr {
+      font-size: 11px; color: var(--text-muted); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .v2-job-meta {
+      font-size: 11px; color: var(--text-muted); margin-top: 2px;
+    }
+    .v2-job-type {
+      flex-shrink: 0; background: rgba(39,174,96,0.2); color: #4cd47e;
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px;
+    }
+    .v2-search-wrap { padding: 12px 12px 0; }
+    .v2-search {
+      width: 100%; padding: 10px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--card-bg);
+      color: var(--text); font-size: 14px; font-family: 'Barlow', sans-serif;
+      outline: none;
+    }
+    .v2-search:focus { border-color: var(--green); }
+    .v2-picker-sub {
+      padding: 8px 14px 0; font-size: 12px; color: var(--text-muted);
+      font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── FORM GROUPS (IL fields + property profile) ───────────────── */
+    .v2-form { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+    .v2-form-section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--green); margin-bottom: -4px;
+    }
+    .v2-form-group { display: flex; flex-direction: column; gap: 4px; }
+    .v2-form-row { display: flex; gap: 12px; }
+    .v2-form-row > .v2-form-group { flex: 1; }
+    .v2-select {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--navy-mid);
+      color: var(--text); font-size: 15px; font-family: 'Barlow', sans-serif;
+      outline: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+    .v2-select:focus { border-color: var(--green); }
+    .v2-select.has-error { border-color: var(--red); }
+    .v2-input-readonly {
+      opacity: 0.6; cursor: not-allowed;
+    }
+    .v2-inline-err {
+      font-size: 12px; color: var(--red); min-height: 16px;
+    }
+    .v2-form-footer {
+      padding: 16px; border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── TOGGLE SWITCHES ─────────────────────────────────────────── */
+    .v2-toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .v2-toggle-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px; font-weight: 600; color: var(--text);
+    }
+    .v2-toggle {
+      width: 44px; height: 24px; border-radius: 12px;
+      background: rgba(255,255,255,0.12); border: none; cursor: pointer;
+      position: relative; transition: background 0.2s; flex-shrink: 0;
+    }
+    .v2-toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #fff; transition: transform 0.2s;
+    }
+    .v2-toggle.on { background: var(--green); }
+    .v2-toggle.on::after { transform: translateX(20px); }
+
+    /* ── JOB BANNER ───────────────────────────────────────────────── */
+    .v2-job-banner {
+      background: rgba(39,174,96,0.08);
+      border-bottom: 1px solid rgba(39,174,96,0.18);
+      padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
+    .v2-job-banner-icon { font-size: 22px; }
+    .v2-job-banner-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 17px; font-weight: 700;
+    }
+    .v2-job-banner-addr { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    /* ── TWO-PANEL SHELL ─────────────────────────────────────────── */
+    .v2-shell-wrap {
+      display: flex; flex: 1; overflow: hidden;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────────── */
+    .v2-sidebar {
+      width: 280px; min-width: 280px;
+      background: var(--navy-mid);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .v2-sidebar-header {
+      padding: 14px 16px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .v2-sidebar-list {
+      flex: 1; overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .v2-sidebar-list::-webkit-scrollbar { width: 4px; }
+    .v2-sidebar-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .v2-sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.12s;
+    }
+    .v2-sidebar-item:hover { background: rgba(255,255,255,0.04); }
+    .v2-sidebar-item.active {
+      background: rgba(39,174,96,0.1);
+      border-left: 3px solid var(--green);
+      padding-left: 13px;
+    }
+    .v2-sidebar-icon { font-size: 18px; flex-shrink: 0; width: 24px; text-align: center; }
+    .v2-sidebar-name {
+      flex: 1; min-width: 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .v2-sidebar-status {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .v2-sidebar-status.grey   { background: rgba(255,255,255,0.15); }
+    .v2-sidebar-status.orange { background: var(--orange); }
+    .v2-sidebar-status.green  { background: var(--green); }
+
+    /* ── RIGHT PANEL ─────────────────────────────────────────────── */
+    .v2-panel {
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; min-width: 0;
+    }
+    .v2-panel-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0;
+    }
+    .v2-panel-icon { font-size: 24px; }
+    .v2-panel-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--white);
+    }
+    .v2-panel-body {
+      flex: 1; overflow-y: auto; padding: 24px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .v2-panel-body::-webkit-scrollbar { display: none; }
+    .v2-panel-placeholder {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 300px;
+      color: var(--text-muted); text-align: center;
+    }
+    .v2-panel-placeholder-text {
+      font-size: 14px; line-height: 1.6;
+    }
+    .v2-panel-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; gap: 12px;
+      flex-shrink: 0;
+    }
+    .v2-panel-footer .v2-btn { width: auto; min-width: 140px; }
+
+    /* ── QUICK PASS ──────────────────────────────────────────────── */
+    .v2-quick-pass-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; margin-bottom: 16px;
+      background: var(--card-bg); border: 1.5px solid var(--border);
+      border-radius: 12px;
+    }
+    .v2-quick-pass-bar.passed {
+      background: rgba(39,174,96,0.1); border-color: rgba(39,174,96,0.3);
+    }
+    .v2-qp-btn {
+      padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 13px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      transition: opacity 0.15s;
+    }
+    .v2-qp-btn:active { opacity: 0.75; }
+    .v2-qp-btn--pass { background: var(--green); color: #fff; }
+    .v2-qp-btn--undo { background: rgba(255,255,255,0.12); color: var(--text); }
+    .v2-qp-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 14px;
+      font-weight: 700; color: var(--green);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .v2-cards-collapsed { display: none !important; }
+
+    /* ── N/A REASON ──────────────────────────────────────────────── */
+    .v2-na-row { margin-bottom: 10px; }
+
+    /* ── PHOTO STRIP ─────────────────────────────────────────────── */
+    .v2-photo-strip {
+      margin-bottom: 16px; padding: 12px 14px;
+      background: var(--card-bg); border: 1.5px solid var(--border);
+      border-radius: 12px;
+    }
+    .v2-photo-strip-title {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 12px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--text-muted); margin-bottom: 10px;
+    }
+    .v2-photo-grid {
+      display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .v2-photo-item {
+      width: 120px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .v2-photo-thumb {
+      width: 120px; height: 90px; border-radius: 8px; object-fit: cover;
+      border: 1.5px solid var(--border); cursor: pointer;
+    }
+    .v2-photo-thumb:hover { border-color: var(--green); }
+    .v2-photo-linked-name {
+      font-size: 11px; color: var(--green);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .v2-photo-unlinked {
+      font-size: 11px; color: var(--text-muted);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+    }
+    .v2-photo-select {
+      width: 100%; padding: 4px 6px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--navy-mid);
+      color: var(--text); font-size: 11px; font-family: 'Barlow', sans-serif;
+      outline: none; appearance: none;
+    }
+    .v2-photo-select:focus { border-color: var(--green); }
+    .v2-photo-unlink-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-muted); font-size: 10px; padding: 3px 8px;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.12s;
+    }
+    .v2-photo-unlink-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── CARD PHOTOS (inline in finding cards) ────────────────────── */
+    .v2-card-photos {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
+    }
+    .v2-card-photo-item { position: relative; }
+    .v2-card-photo-thumb {
+      width: 80px; height: 60px; border-radius: 6px; object-fit: cover;
+      border: 1px solid var(--border);
+    }
+    .v2-card-photo-unlink {
+      position: absolute; top: 2px; right: 2px;
+      background: rgba(0,0,0,0.7); border: none; border-radius: 4px;
+      color: #fff; font-size: 10px; padding: 2px 5px; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+    }
+    .v2-card-photo-unlink:hover { background: var(--red); }
+
+    /* ── FINDING CARDS ────────────────────────────────────────────── */
+    .v2-card {
+      background: var(--card-bg); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 18px 16px; margin-bottom: 12px;
+      position: relative;
+    }
+    .v2-card.has-error { border-color: var(--red); }
+    .v2-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .v2-card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px; font-weight: 700; color: var(--white);
+    }
+    .v2-card-save {
+      font-size: 13px; color: var(--text-muted); display: flex;
+      align-items: center; gap: 4px; min-width: 20px;
+    }
+    .v2-card-save .saved { color: var(--green); }
+
+    /* Rating buttons */
+    .v2-rating-group {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+    }
+    .v2-rating-btn {
+      padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card-bg); color: var(--text-muted);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 12px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.12s; white-space: nowrap;
+    }
+    .v2-rating-btn:hover { background: rgba(255,255,255,0.08); }
+    .v2-rating-btn.active-sat   { background: var(--green); color: #fff; border-color: var(--green); }
+    .v2-rating-btn.active-mon   { background: var(--orange); color: #fff; border-color: var(--orange); }
+    .v2-rating-btn.active-rep   { background: #e67e22; color: #fff; border-color: #e67e22; }
+    .v2-rating-btn.active-repl  { background: var(--red); color: #fff; border-color: var(--red); }
+    .v2-rating-btn.active-safe  { background: #8e44ad; color: #fff; border-color: #8e44ad; }
+    .v2-rating-btn.active-na    { background: rgba(255,255,255,0.15); color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    /* Card sub-sections */
+    .v2-card-row { margin-bottom: 10px; }
+    .v2-card-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 4px;
+    }
+    .v2-card-textarea {
+      width: 100%; min-height: 60px; padding: 10px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--navy-mid);
+      color: var(--text); font-size: 14px; font-family: 'Barlow', sans-serif;
+      resize: vertical; outline: none;
+    }
+    .v2-card-textarea:focus { border-color: var(--green); }
+    .v2-card-textarea.has-error { border-color: var(--red); }
+    .v2-card-input {
+      width: 100%; padding: 10px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--navy-mid);
+      color: var(--text); font-size: 14px; font-family: 'Barlow', sans-serif;
+      outline: none;
+    }
+    .v2-card-input:focus { border-color: var(--green); }
+    .v2-card-err { font-size: 11px; color: var(--red); margin-top: 3px; min-height: 14px; }
+
+    /* Priority selector */
+    .v2-priority-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .v2-priority-btn {
+      padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--card-bg); color: var(--text-muted);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 11px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.12s;
+    }
+    .v2-priority-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+    /* Recommendations chips */
+    .v2-rec-list { display: flex; flex-direction: column; gap: 6px; }
+    .v2-rec-item {
+      display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px;
+      border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg);
+      cursor: pointer; transition: background 0.12s;
+    }
+    .v2-rec-item:hover { background: rgba(255,255,255,0.06); }
+    .v2-rec-item.selected { border-color: var(--green); background: rgba(39,174,96,0.08); }
+    .v2-rec-check {
+      width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; margin-top: 1px;
+    }
+    .v2-rec-item.selected .v2-rec-check { border-color: var(--green); color: var(--green); }
+    .v2-rec-label { font-size: 13px; color: var(--text); flex: 1; }
+    .v2-rec-note-input {
+      width: 100%; margin-top: 6px; padding: 6px 8px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--navy-mid);
+      color: var(--text); font-size: 12px; font-family: 'Barlow', sans-serif;
+      outline: none;
+    }
+    .v2-rec-note-input:focus { border-color: var(--green); }
+
+    /* Measurement row */
+    .v2-measure-row { display: flex; gap: 8px; align-items: center; }
+    .v2-measure-row .v2-card-input { flex: 1; }
+    .v2-measure-unit {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 13px;
+      font-weight: 600; color: var(--text-muted); white-space: nowrap;
+    }
+
+    /* Safety toggle inline */
+    .v2-safety-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .v2-safety-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 12px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+    .v2-safety-toggle {
+      width: 36px; height: 20px; border-radius: 10px;
+      background: rgba(255,255,255,0.12); border: none; cursor: pointer;
+      position: relative; transition: background 0.2s; flex-shrink: 0;
+    }
+    .v2-safety-toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #fff; transition: transform 0.2s;
+    }
+    .v2-safety-toggle.on { background: #8e44ad; }
+    .v2-safety-toggle.on::after { transform: translateX(16px); }
+
+    /* Add custom finding button */
+    .v2-add-custom-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 12px; border-radius: 10px;
+      border: 1.5px dashed var(--border); background: transparent;
+      color: var(--text-muted); font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s;
+      margin-top: 4px;
+    }
+    .v2-add-custom-btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* ── SHELL LOADING ────────────────────────────────────────────── */
+    .v2-shell-loading {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; gap: 12px;
+    }
+    .v2-shell-loading-text {
+      font-size: 13px; color: var(--text-muted);
+      font-family: 'Barlow Condensed', sans-serif;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ── DRAFT SELECTOR + START NEW ──────────────────────────────── */
+    .v2-start-new-wrap { padding: 12px 12px 0; }
+    .v2-start-new-btn {
+      width: 100%; padding: 14px 20px; border-radius: 12px; border: none;
+      background: var(--green); color: #fff; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 16px;
+      font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      transition: opacity 0.15s;
+    }
+    .v2-start-new-btn:active { opacity: 0.75; }
+    .v2-draft-section { padding: 12px; }
+    .v2-draft-title {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 12px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--text-muted); margin-bottom: 8px; padding: 0 2px;
+    }
+    .v2-draft-list { display: flex; flex-direction: column; gap: 8px; }
+    .v2-draft-card {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--card-bg); border: 1.5px solid rgba(39,174,96,0.2);
+      border-radius: 12px; padding: 12px 14px; width: 100%;
+    }
+    .v2-draft-info { flex: 1; min-width: 0; }
+    .v2-draft-name {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 15px;
+      font-weight: 700; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .v2-draft-addr {
+      font-size: 11px; color: var(--text-muted); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .v2-draft-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .v2-draft-badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; padding: 2px 8px; border-radius: 10px;
+      font-family: 'Barlow Condensed', sans-serif; flex-shrink: 0;
+    }
+    .v2-draft-badge.scheduled { background: rgba(39,174,96,0.2); color: #4cd47e; }
+    .v2-draft-badge.draft { background: rgba(245,147,33,0.2); color: var(--orange); }
+    .v2-draft-resume {
+      padding: 6px 14px; border-radius: 8px; border: none;
+      background: var(--green); color: #fff; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 12px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      flex-shrink: 0; transition: opacity 0.15s;
+    }
+    .v2-draft-resume:active { opacity: 0.75; }
+
+    /* ── GLOBAL SAVE INDICATOR ────────────────────────────────────── */
+    .v2-save-status {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 11px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text-muted); display: flex; align-items: center; gap: 5px;
+    }
+    .v2-save-status.saving { color: var(--orange); }
+    .v2-save-status.saved { color: var(--green); }
+    .v2-save-status.failed { color: var(--red); }
+    .v2-save-retry {
+      background: none; border: 1px solid var(--red); border-radius: 6px;
+      color: var(--red); font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      padding: 2px 8px; cursor: pointer; letter-spacing: 0.5px;
+    }
+    .v2-save-retry:hover { background: rgba(192,57,43,0.15); }
+
+    /* ── REVIEW SCREEN ────────────────────────────────────────────── */
+    .v2-review-body {
+      flex: 1; overflow-y: auto; padding: 32px 24px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .v2-review-card {
+      width: 100%; max-width: 540px; background: var(--card-bg);
+      border: 1.5px solid var(--border); border-radius: 14px;
+      padding: 24px; margin-bottom: 16px;
+    }
+    .v2-review-title {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 22px;
+      font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--white); margin-bottom: 16px; text-align: center;
+    }
+    .v2-review-stat {
+      display: flex; justify-content: space-between; padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 15px;
+      font-weight: 600;
+    }
+    .v2-review-stat:last-child { border-bottom: none; }
+    .v2-review-stat-label { color: var(--text-muted); }
+    .v2-review-stat-value { color: var(--white); }
+    .v2-review-stat-value.warn { color: var(--orange); }
+    .v2-review-stat-value.danger { color: var(--red); }
+    .v2-review-err {
+      text-align: center; color: var(--red); font-size: 13px;
+      margin-bottom: 12px; min-height: 18px;
+    }
+    .v2-review-footer {
+      width: 100%; max-width: 540px; margin-top: 8px;
+    }
+
+    /* ── CONFIRM SCREEN ───────────────────────────────────────────── */
+    .v2-confirm-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 40px 24px;
+      text-align: center;
+    }
+    .v2-confirm-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(39,174,96,0.15); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 36px; margin-bottom: 20px;
+    }
+    .v2-confirm-title {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 26px;
+      font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--white); margin-bottom: 8px;
+    }
+    .v2-confirm-sub {
+      font-size: 14px; color: var(--text-muted); line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .v2-confirm-btns {
+      display: flex; flex-direction: column; gap: 10px;
+      width: 100%; max-width: 300px;
+    }
+    .v2-btn--disabled {
+      background: rgba(255,255,255,0.08); color: var(--text-muted);
+      cursor: not-allowed; opacity: 0.6;
+    }
+
+    /* ── TOAST ────────────────────────────────────────────────────── */
+    .v2-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #333; color: #fff; padding: 10px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; z-index: 9999; white-space: nowrap;
+    }
+    .v2-toast.show { opacity: 1; }
+    .v2-toast.error { background: var(--red); }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOGIN ─────────────────────────────────────────────────────────────── -->
+  <div class="screen active" id="screenLogin">
+    <div class="v2-login-box">
+      <div class="v2-login-logo">V2 <span>Wizard</span></div>
+      <div class="v2-login-sub">Sign in to access your jobs</div>
+      <label class="v2-label">Email</label>
+      <input class="v2-input" id="v2Email" type="email" autocomplete="email" placeholder="your@email.com"
+        onkeydown="if(event.key==='Enter')document.getElementById('v2Pw').focus()">
+      <label class="v2-label">Password</label>
+      <input class="v2-input" id="v2Pw" type="password" autocomplete="current-password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')v2DoLogin()">
+      <div class="v2-err" id="v2LoginErr"></div>
+      <button class="v2-btn v2-btn--green" id="v2LoginBtn" onclick="v2DoLogin()">Sign In</button>
+    </div>
+  </div>
+
+  <!-- ── JOB PICKER ────────────────────────────────────────────────────────── -->
+  <div class="screen" id="screenPicker">
+    <div class="v2-header">
+      <div class="v2-header-title">V2 Wizard</div>
+      <div class="v2-header-right">
+        <button class="v2-btn--icon" onclick="v2SignOut()" title="Sign out">&#x1F6AA;</button>
+      </div>
+    </div>
+    <div class="v2-body">
+      <div class="v2-start-new-wrap">
+        <button class="v2-start-new-btn" onclick="openWalkinBooking()">+ Start New Inspection</button>
+      </div>
+      <div id="v2DraftSection"></div>
+      <div class="v2-search-wrap">
+        <input class="v2-search" id="v2SearchInput" type="text" placeholder="Search by name or address..." oninput="v2FilterJobs()">
+      </div>
+      <div class="v2-picker-sub" id="v2PickerSub">Loading...</div>
+      <div class="v2-job-list" id="v2JobList">
+        <div class="v2-loading"><div class="v2-spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ILLINOIS REQUIRED FIELDS ──────────────────────────────────────────── -->
+  <div class="screen" id="screenIllinois">
+    <div class="v2-header">
+      <button class="v2-back-btn" onclick="v2ShowScreen('screenPicker')">&#8592; Back</button>
+      <div class="v2-header-title">Pre-Inspection</div>
+      <div class="v2-header-right"></div>
+    </div>
+    <div class="v2-job-banner" id="v2IlBanner"></div>
+    <div class="v2-body">
+      <div class="v2-form">
+        <div class="v2-form-section-title">Illinois Required Fields</div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Inspection Start Time</label>
+          <input class="v2-input" id="v2StartTime" type="time">
+          <div class="v2-inline-err" id="v2StartTimeErr"></div>
+        </div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Weather Conditions</label>
+          <select class="v2-select" id="v2Weather">
+            <option value="">Select...</option>
+            <option value="Clear">Clear</option>
+            <option value="Cloudy">Cloudy</option>
+            <option value="Rain">Rain</option>
+            <option value="Snow">Snow</option>
+            <option value="Fog">Fog</option>
+            <option value="Wind">Wind</option>
+          </select>
+          <div class="v2-inline-err" id="v2WeatherErr"></div>
+        </div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Inspector License Number</label>
+          <input class="v2-input v2-input-readonly" id="v2License" type="text" readonly>
+        </div>
+      </div>
+    </div>
+    <div class="v2-form-footer">
+      <button class="v2-btn v2-btn--green" id="v2BeginBtn" onclick="v2SubmitIllinois()">Begin Inspection</button>
+    </div>
+  </div>
+
+  <!-- ── PROPERTY PROFILE ──────────────────────────────────────────────────── -->
+  <div class="screen" id="screenProfile">
+    <div class="v2-header">
+      <button class="v2-back-btn" onclick="v2ShowScreen('screenIllinois')">&#8592; Back</button>
+      <div class="v2-header-title">Property Profile</div>
+      <div class="v2-header-right"></div>
+    </div>
+    <div class="v2-job-banner" id="v2PpBanner"></div>
+    <div class="v2-body">
+      <div class="v2-form">
+        <div class="v2-form-section-title">Property Details</div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Property Type</label>
+          <select class="v2-select" id="v2PropType">
+            <option value="">Select...</option>
+            <option value="single_family">Single Family</option>
+            <option value="condo">Condo</option>
+            <option value="townhouse">Townhouse</option>
+            <option value="multi_family">Multi Family</option>
+            <option value="manufactured">Manufactured</option>
+          </select>
+          <div class="v2-inline-err" id="v2PropTypeErr"></div>
+        </div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Foundation Type</label>
+          <select class="v2-select" id="v2Foundation">
+            <option value="">Select...</option>
+            <option value="basement">Basement</option>
+            <option value="crawlspace">Crawlspace</option>
+            <option value="slab">Slab</option>
+            <option value="pier_and_beam">Pier &amp; Beam</option>
+            <option value="combination">Combination</option>
+          </select>
+        </div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Construction Type</label>
+          <select class="v2-select" id="v2Construction">
+            <option value="">Select...</option>
+            <option value="wood_frame">Wood Frame</option>
+            <option value="masonry">Masonry</option>
+            <option value="steel_frame">Steel Frame</option>
+            <option value="manufactured">Manufactured</option>
+          </select>
+        </div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Roof Type</label>
+          <select class="v2-select" id="v2Roof">
+            <option value="">Select...</option>
+            <option value="gable">Gable</option>
+            <option value="hip">Hip</option>
+            <option value="flat">Flat</option>
+            <option value="shed">Shed</option>
+            <option value="gambrel">Gambrel</option>
+            <option value="mansard">Mansard</option>
+            <option value="combination">Combination</option>
+          </select>
+        </div>
+
+        <div class="v2-form-section-title" style="margin-top:8px;">Dimensions</div>
+
+        <div class="v2-form-row">
+          <div class="v2-form-group">
+            <label class="v2-label">Year Built</label>
+            <input class="v2-input" id="v2YearBuilt" type="number" placeholder="e.g. 1998" min="1800" max="2030">
+          </div>
+          <div class="v2-form-group">
+            <label class="v2-label">Square Footage</label>
+            <input class="v2-input" id="v2SqFt" type="number" placeholder="e.g. 2400" min="0">
+          </div>
+        </div>
+
+        <div class="v2-form-row">
+          <div class="v2-form-group">
+            <label class="v2-label">Bedrooms</label>
+            <input class="v2-input" id="v2Beds" type="number" placeholder="3" min="0" max="20">
+          </div>
+          <div class="v2-form-group">
+            <label class="v2-label">Bathrooms</label>
+            <input class="v2-input" id="v2Baths" type="number" placeholder="2" min="0" max="20" step="0.5">
+          </div>
+          <div class="v2-form-group">
+            <label class="v2-label">Stories</label>
+            <input class="v2-input" id="v2Stories" type="number" placeholder="2" min="1" max="10">
+          </div>
+        </div>
+
+        <div class="v2-form-group">
+          <label class="v2-label">Garage Type</label>
+          <select class="v2-select" id="v2Garage">
+            <option value="">Select...</option>
+            <option value="attached">Attached</option>
+            <option value="detached">Detached</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+
+        <div class="v2-form-section-title" style="margin-top:8px;">Features</div>
+
+        <div class="v2-toggle-row">
+          <span class="v2-toggle-label">Has Pool</span>
+          <button class="v2-toggle" id="v2Pool" type="button" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="v2-toggle-row">
+          <span class="v2-toggle-label">Has Fireplace</span>
+          <button class="v2-toggle" id="v2Fireplace" type="button" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="v2-toggle-row" style="border-bottom:none;">
+          <span class="v2-toggle-label">Occupied</span>
+          <button class="v2-toggle" id="v2Occupied" type="button" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+    </div>
+    <div class="v2-form-footer">
+      <button class="v2-btn v2-btn--green" id="v2StartBtn" onclick="v2SubmitProfile()">Start Inspection</button>
+    </div>
+  </div>
+
+  <!-- ── WIZARD SHELL ──────────────────────────────────────────────────────── -->
+  <div class="screen" id="screenShell">
+    <div class="v2-header">
+      <button class="v2-back-btn" onclick="v2BackToJobs()">&#8592; Jobs</button>
+      <div class="v2-header-title">Inspection</div>
+      <div class="v2-header-right">
+        <span class="v2-save-status saved" id="v2GlobalSave">All changes saved</span>
+        <button class="v2-back-btn" onclick="v2EditProfile()" style="font-size:12px;">Edit Profile</button>
+        <button class="v2-btn--icon" onclick="v2SignOut()" title="Sign out">&#x1F6AA;</button>
+      </div>
+    </div>
+    <div class="v2-job-banner" id="v2ShellBanner"></div>
+    <!-- Loading state -->
+    <div class="v2-shell-loading" id="v2ShellLoading">
+      <div class="v2-spinner"></div>
+      <div class="v2-shell-loading-text">Loading inspection data...</div>
+    </div>
+    <!-- Two-panel layout (hidden until data loads) -->
+    <div class="v2-shell-wrap" id="v2ShellWrap" style="display:none;">
+      <div class="v2-sidebar">
+        <div class="v2-sidebar-header">Sections</div>
+        <div class="v2-sidebar-list" id="v2SidebarList"></div>
+      </div>
+      <div class="v2-panel">
+        <div class="v2-panel-header" id="v2PanelHeader">
+          <span class="v2-panel-icon" id="v2PanelIcon"></span>
+          <span class="v2-panel-title" id="v2PanelTitle"></span>
+        </div>
+        <div class="v2-panel-body" id="v2PanelBody">
+          <div class="v2-panel-placeholder">
+            <div class="v2-panel-placeholder-text">Finding cards will be rendered here in Session 4.</div>
+          </div>
+        </div>
+        <div class="v2-panel-footer" id="v2PanelFooter">
+          <button class="v2-btn v2-btn--ghost" id="v2BtnBack" onclick="v2NavSection(-1)">&#8592; Back</button>
+          <button class="v2-btn v2-btn--green" id="v2BtnNext" onclick="v2NavSection(1)">Next &#8594;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REVIEW SCREEN ──────────────────────────────────────────────────── -->
+  <div class="screen" id="screenReview">
+    <div class="v2-header">
+      <button class="v2-back-btn" onclick="v2ShowScreen('screenShell')">&#8592; Back to Sections</button>
+      <div class="v2-header-title">Review</div>
+      <div class="v2-header-right"></div>
+    </div>
+    <div class="v2-review-body">
+      <div class="v2-review-title">Inspection Summary</div>
+      <div class="v2-review-card" id="v2ReviewStats"></div>
+      <div class="v2-review-err" id="v2ReviewErr"></div>
+      <div class="v2-review-footer">
+        <button class="v2-btn v2-btn--green" id="v2SubmitBtn" onclick="v2SubmitInspection()">Submit Inspection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONFIRM SCREEN ───────────────────────────────────────────────────── -->
+  <div class="screen" id="screenConfirm">
+    <div class="v2-header">
+      <div class="v2-header-title">Submitted</div>
+      <div class="v2-header-right"></div>
+    </div>
+    <div class="v2-confirm-body">
+      <div class="v2-confirm-icon">&#10003;</div>
+      <div class="v2-confirm-title">Inspection Submitted</div>
+      <div class="v2-confirm-sub" id="v2ConfirmSub">The inspection has been submitted successfully.</div>
+      <div class="v2-confirm-btns">
+        <button class="v2-btn v2-btn--disabled" disabled title="Coming in Phase 5">Generate Narrative</button>
+        <button class="v2-btn v2-btn--ghost" onclick="v2BackToJobs()">Back to Jobs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── IWB BOOKING OVERLAY ────────────────────────────────────────────── -->
+<div class="draft-picker-overlay" id="walkinOverlay" style="display:none;overflow-y:auto;align-items:flex-start;padding:24px 16px;">
+    <div style="width:100%;max-width:560px;margin:0 auto;padding:32px 28px 40px;background:linear-gradient(160deg,#0e1a2b 0%,#152236 100%);border-radius:16px;display:flex;flex-direction:column;align-items:center;color:#fff;">
+        <img src="https://i.imgur.com/I1vTiVT.png" class="apw-logo" alt="Heartland Inspection Group">
+        <div class="apw-title">New Inspection Booking</div>
+        <div class="apw-sub">Book on behalf of your client in 4 easy steps</div>
+        <div class="apw-progress" id="iwbProgress">
+          <div class="apw-prog-step active" data-s="0"><div class="apw-prog-circle">1</div><div class="apw-prog-label">Contact</div></div>
+          <div class="apw-prog-line" id="iwbLine01"></div>
+          <div class="apw-prog-step" data-s="1"><div class="apw-prog-circle">2</div><div class="apw-prog-label">Pricing</div></div>
+          <div class="apw-prog-line" id="iwbLine12"></div>
+          <div class="apw-prog-step" data-s="2"><div class="apw-prog-circle">3</div><div class="apw-prog-label">Schedule</div></div>
+          <div class="apw-prog-line" id="iwbLine23"></div>
+          <div class="apw-prog-step" data-s="3"><div class="apw-prog-circle">4</div><div class="apw-prog-label">Review</div></div>
+        </div>
+        <div class="apw-step active" id="iwbStep0">
+          <div class="apw-step-header">Client Information &amp; Property</div>
+          <div class="apw-row2">
+            <div class="apw-field"><label class="apw-label">First Name *</label><input class="apw-input" id="iwb_firstName" placeholder="Jane" autocomplete="off"></div>
+            <div class="apw-field"><label class="apw-label">Last Name</label><input class="apw-input" id="iwb_lastName" placeholder="Smith" autocomplete="off"></div>
+          </div>
+          <div class="apw-field"><label class="apw-label">Email *</label><input class="apw-input" id="iwb_email" type="email" placeholder="jane@email.com" autocomplete="off"></div>
+          <div class="apw-field"><label class="apw-label">Phone</label><input class="apw-input" id="iwb_phone" type="tel" placeholder="(815) 555-0000" autocomplete="off"></div>
+          <div class="apw-field"><label class="apw-label">Client Current Address *</label><div id="iwbCurrentAddrAC"></div><input type="hidden" id="iwb_currentAddress"></div>
+          <div class="apw-field"><label class="apw-label">Inspection Address *</label><div id="iwbInspAddrAC"></div><input type="hidden" id="iwb_address"></div>
+          <div class="apw-err" id="iwbErr0"></div>
+          <button class="apw-btn-primary" id="iwbNext0">Next — Select Services &rarr;</button>
+        </div>
+        <div class="apw-step" id="iwbStep1" style="display:none;">
+          <div class="apw-step-header">Select Service &amp; Pricing</div>
+          <div class="apw-cat-grid" id="iwbCatGrid"></div>
+          <div id="iwbPricingPanel" style="display:none;">
+            <div id="iwbPanelHI" style="display:none;">
+              <div class="apw-subsection"><div class="apw-sublabel">Inspection Type</div><div class="apw-type-row" id="iwbHITypeRow"><button class="apw-type-btn" data-type="Pre Purchase" data-label="Pre Purchase">&#128273; Pre Purchase</button><button class="apw-type-btn" data-type="Pre Listing" data-label="Pre Listing">&#128203; Pre Listing</button></div></div>
+              <div class="apw-subsection"><div class="apw-sublabel">Home Size</div><div id="iwbHISizeGrid" class="apw-size-grid"></div></div>
+              <div class="apw-subsection" id="iwbYBSection"><div class="apw-sublabel">Year Built</div><div id="iwbYBRow" class="apw-yb-row"></div></div>
+              <div class="apw-subsection" id="iwbHIAddonsSection"><div class="apw-sublabel">Add-On Services <span style="font-weight:400;opacity:0.5;">(optional)</span></div><div id="iwbHIAddonsList"></div></div>
+            </div>
+            <div id="iwbPanelNC" style="display:none;">
+              <div class="apw-subsection"><div class="apw-sublabel">Inspection Phase</div><div id="iwbNCGrid"></div></div>
+              <div class="apw-subsection" id="iwbNCAddonsSection"><div class="apw-sublabel">Add-On Services <span style="font-weight:400;opacity:0.5;">(optional)</span></div><div id="iwbNCAddonsList"></div></div>
+            </div>
+            <div id="iwbPanelHHC" style="display:none;">
+              <div class="apw-subsection"><div class="apw-sublabel">Select Tier</div><div id="iwbHHCGrid"></div></div>
+              <div class="apw-subsection" id="iwbHHCAddonsSection"><div class="apw-sublabel">Add-On Services <span style="font-weight:400;opacity:0.5;">(optional)</span></div><div id="iwbHHCAddonsList"></div></div>
+            </div>
+            <div id="iwbPanelSA" style="display:none;">
+              <div class="apw-subsection"><div class="apw-sublabel">Select Add-On Services</div><div id="iwbSAAddonsList"></div></div>
+            </div>
+            <div class="apw-price-box" id="iwbPriceBox"><div id="iwbPriceLines"></div><div class="apw-price-total-row"><span>Total</span><span id="iwbTotal">$0</span></div></div>
+          </div>
+          <div class="apw-err" id="iwbErr1"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;"><button class="apw-btn-back" id="iwbBack1">&larr; Back</button><button class="apw-btn-primary" id="iwbNext1" style="flex:1;">Next — Choose Date &rarr;</button></div>
+        </div>
+        <div class="apw-step" id="iwbStep2" style="display:none;">
+          <div class="apw-step-header">Date &amp; Time</div>
+          <div class="wiz-calendar">
+            <div class="wiz-cal-header"><button type="button" class="wiz-cal-nav" id="iwbCalPrev">&#8249;</button><span class="wiz-cal-title" id="iwbCalTitle"></span><button type="button" class="wiz-cal-nav" id="iwbCalNext">&#8250;</button></div>
+            <div class="wiz-cal-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+            <div class="wiz-cal-days" id="iwbCalDays"></div>
+            <div class="wiz-cal-legend"><div class="wiz-legend-item"><span class="wiz-legend-dot available"></span> Available</div><div class="wiz-legend-item"><span class="wiz-legend-dot booked"></span> Booked</div><div class="wiz-legend-item"><span class="wiz-legend-dot closed"></span> Closed</div></div>
+          </div>
+          <div id="iwbTimeSlots" style="display:none;"><div class="apw-sublabel" id="iwbTimeTitle" style="margin-bottom:10px;"></div><div class="wiz-timeslot-grid" id="iwbTimeGrid"></div></div>
+          <input type="hidden" id="iwb_date"><input type="hidden" id="iwb_time">
+          <div class="apw-err" id="iwbErr2"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;"><button class="apw-btn-back" id="iwbBack2">&larr; Back</button><button class="apw-btn-primary" id="iwbNext2" style="flex:1;">Next — Review &rarr;</button></div>
+        </div>
+        <div class="apw-step" id="iwbStep3" style="display:none;">
+          <div class="apw-step-header">Review &amp; Submit</div>
+          <div class="apw-review-card">
+            <div class="apw-review-section"><div class="apw-review-label">Client</div><div id="iwbRevClient" class="apw-review-value"></div></div>
+            <div class="apw-review-section"><div class="apw-review-label">Current Address</div><div id="iwbRevCurrentAddr" class="apw-review-value"></div></div>
+            <div class="apw-review-section"><div class="apw-review-label">Inspection Address</div><div id="iwbRevAddress" class="apw-review-value"></div></div>
+            <div class="apw-review-section"><div class="apw-review-label">Service</div><div id="iwbRevService" class="apw-review-value"></div></div>
+            <div class="apw-review-section"><div class="apw-review-label">Date &amp; Time</div><div id="iwbRevDateTime" class="apw-review-value"></div></div>
+          </div>
+          <div class="apw-price-box" style="margin-top:16px;"><div id="iwbRevPriceLines"></div><div class="apw-price-total-row"><span>Total</span><span id="iwbRevTotal"></span></div></div>
+          <div class="apw-field" style="margin-top:16px;"><label class="apw-label">Coupon Code <span style="font-weight:400;opacity:0.5;">(optional)</span></label><div style="display:flex;gap:8px;"><input class="apw-input" id="iwb_coupon" placeholder="Enter code" style="flex:1;text-transform:uppercase;" autocomplete="off"><button class="apw-coupon-btn" id="iwbApplyCoupon">Apply</button></div><div id="iwbCouponMsg" style="font-size:12px;margin-top:5px;min-height:16px;color:#27ae60;"></div></div>
+          <div class="apw-err" id="iwbErr3"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;"><button class="apw-btn-back" id="iwbBack3">&larr; Back</button><button class="apw-btn-primary" id="iwbSubmitBtn" style="flex:1;">&#128640; Send Booking Request</button></div>
+        </div>
+        <div class="apw-step" id="iwbSuccess" style="display:none;text-align:center;">
+          <div style="font-size:56px;margin-bottom:16px;">&#10003;</div>
+          <div class="apw-success-title">Booking Sent!</div>
+          <div id="iwbSuccessMsg" class="apw-success-msg"></div>
+          <div style="margin-top:24px;padding:16px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">
+            Booking created. Return to the job picker to see the new inspection.
+          </div>
+          <button class="apw-btn-primary" id="iwbGoAdmin" style="margin-top:20px;">&#8594; Back to Jobs</button>
+        </div>
+        <button onclick="closeWalkinBooking()" style="margin-top:20px;background:none;border:none;color:rgba(255,255,255,0.3);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">&#10005; Cancel</button>
+    </div>
+</div>
+
+  <!-- ── TOAST ────────────────────────────────────────────────────────────── -->
+  <div class="v2-toast" id="v2Toast"></div>
+
+  <script src="/scripts/inspector-wizard-iwb.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+  'use strict';
+
+  var sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  var v2Jobs         = [];
+  var v2JobsFiltered = [];
+  var v2CurrentJob   = null;
+  var v2Agent        = null; // { id, name, role, license_number }
+
+  // Shell state
+  var v2Sections        = []; // wizard_sections in order
+  var v2Findings        = []; // inspection_findings for current record
+  var v2Photos          = []; // inspection_finding_photos for current record
+  var v2Narratives      = {}; // inspection_narratives keyed by section_id
+  var v2Fields          = {}; // section_id → [wizard_fields]
+  var v2Recommendations = []; // all active wizard_recommendations
+  var v2CustomFindings  = {}; // section_id → [custom finding objects]
+  var v2ActiveIdx       = 0;  // index into v2VisibleSections
+  var v2SaveTimers      = {}; // card key → debounce timer
+  var v2Profile         = null; // property_profiles row
+  var v2VisibleSections = []; // sections filtered by property profile
+  var v2SaveInFlight    = 0;  // count of saves in progress
+  var v2SaveHasError    = false;
+  var v2LastFailedSave  = null; // { cardKey, sectionId, fieldId, isCustom }
+
+  // ── V1 Decoupling — override IWB entry points for V2 ─────────────────────
+  // closeWalkinBooking is defined in inspector-wizard-iwb.js with V1 refs.
+  // Override it here to use V2 navigation instead.
+  closeWalkinBooking = function () {
+    document.getElementById('walkinOverlay').style.display = 'none';
+    v2ShowScreen('screenPicker');
+  };
+
+  // openBundleAddonFromPicker — V1-only, no-op in V2
+  if (typeof openBundleAddonFromPicker !== 'undefined') {
+    openBundleAddonFromPicker = function () {};
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function v2Toast(msg, type) {
+    var t = document.getElementById('v2Toast');
+    t.textContent = msg;
+    t.className = 'v2-toast show' + (type ? ' ' + type : '');
+    clearTimeout(v2Toast._t);
+    v2Toast._t = setTimeout(function () { t.className = 'v2-toast'; }, 3000);
+  }
+
+  function v2ShowScreen(id) {
+    document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
+    var el = document.getElementById(id);
+    if (el) el.classList.add('active');
+  }
+
+  function v2FmtDate(d) {
+    if (!d) return '';
+    return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function v2SetBanner(bannerId, job) {
+    var el = document.getElementById(bannerId);
+    if (!el || !job) return;
+    el.innerHTML =
+      '<span class="v2-job-banner-icon">&#127968;</span>' +
+      '<div>' +
+        '<div class="v2-job-banner-name">' + esc(job.cust_name) + '</div>' +
+        '<div class="v2-job-banner-addr">' + esc(job.address || '') + '</div>' +
+      '</div>';
+  }
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+
+  async function v2CheckAuth() {
+    var result = await sb.auth.getSession();
+    if (!result.data || !result.data.session) return false;
+    var uid = result.data.session.user.id;
+    var { data: agent } = await sb.from('agents').select('id,name,role,license_number').eq('id', uid).single();
+    if (!agent) return false;
+    v2Agent = agent;
+    return true;
+  }
+
+  function v2DoLogin() {
+    var email = document.getElementById('v2Email').value.trim();
+    var pw = document.getElementById('v2Pw').value;
+    if (!email || !pw) return;
+    var btn = document.getElementById('v2LoginBtn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    sb.auth.signInWithPassword({ email: email, password: pw }).then(function (res) {
+      btn.disabled = false; btn.textContent = 'Sign In';
+      if (res.error) {
+        document.getElementById('v2LoginErr').textContent = res.error.message || 'Invalid credentials.';
+        return;
+      }
+      v2CheckAuth().then(function (ok) {
+        if (!ok) {
+          document.getElementById('v2LoginErr').textContent = 'Access denied.';
+          sb.auth.signOut();
+          return;
+        }
+        v2InitApp();
+      });
+    });
+  }
+
+  function v2SignOut() {
+    sb.auth.signOut();
+    v2Agent = null;
+    v2CurrentJob = null;
+    v2ShowScreen('screenLogin');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+
+  function v2Init() {
+    v2CheckAuth().then(function (ok) {
+      if (ok) {
+        v2InitApp();
+      } else {
+        v2ShowScreen('screenLogin');
+      }
+    });
+  }
+
+  function v2InitApp() {
+    // Check for ?record=<id> in URL for resume
+    var params = new URLSearchParams(window.location.search);
+    var resumeId = params.get('record');
+    if (resumeId) {
+      v2ResumeFromUrl(resumeId);
+      return;
+    }
+    v2ShowScreen('screenPicker');
+    v2LoadJobs();
+  }
+
+  function v2ResumeFromUrl(recordId) {
+    var headers = { 'x-admin-token': window.ADMIN_TOKEN };
+    fetch('/.netlify/functions/load-draft?id=' + encodeURIComponent(recordId), { headers: headers })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data || data.error) {
+        v2Toast('Record not found.', 'error');
+        v2ShowScreen('screenPicker');
+        v2LoadJobs();
+        return;
+      }
+      v2CurrentJob = data;
+      // Check for existing property profile
+      return fetch('/.netlify/functions/get-property-profile?record_id=' + recordId, { headers: headers })
+        .then(function (r) { return r.json(); });
+    })
+    .then(function (profileData) {
+      if (!profileData) return; // error path already handled
+      if (profileData && profileData.profile) {
+        v2InitShell();
+      } else {
+        v2ShowIllinois();
+      }
+    })
+    .catch(function () {
+      v2Toast('Failed to load record.', 'error');
+      v2ShowScreen('screenPicker');
+      v2LoadJobs();
+    });
+  }
+
+  // ── Job Picker ────────────────────────────────────────────────────────────
+
+  function v2LoadJobs() {
+    var list = document.getElementById('v2JobList');
+    var sub = document.getElementById('v2PickerSub');
+    list.innerHTML = '<div class="v2-loading"><div class="v2-spinner"></div></div>';
+
+    fetch('/.netlify/functions/get-clients?status=scheduled,draft&limit=100', {
+      headers: { 'x-admin-token': window.ADMIN_TOKEN }
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var all = (data && data.clients) ? data.clients : [];
+
+      // Split into drafts (for current inspector) and scheduled jobs
+      var inspectorId = v2Agent ? v2Agent.id : null;
+      var drafts = inspectorId ? all.filter(function (r) {
+        return r.inspector_id === inspectorId && (r.status === 'draft' || r.status === 'scheduled');
+      }) : [];
+
+      v2Jobs = all;
+      v2JobsFiltered = v2Jobs.slice();
+      sub.textContent = all.length + ' job' + (all.length !== 1 ? 's' : '');
+
+      v2RenderDrafts(drafts);
+      v2RenderJobs();
+    })
+    .catch(function () {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">Failed to load jobs.</div>';
+    });
+  }
+
+  function v2RenderDrafts(drafts) {
+    var section = document.getElementById('v2DraftSection');
+    if (!section) return;
+    if (!drafts.length) {
+      section.innerHTML = '';
+      return;
+    }
+    var html = '<div class="v2-draft-section">';
+    html += '<div class="v2-draft-title">Resume Inspection</div>';
+    html += '<div class="v2-draft-list">';
+    drafts.forEach(function (d) {
+      var dateStr = d.inspection_date ? v2FmtDate(d.inspection_date.split('T')[0]) : '';
+      var badgeCls = d.status === 'draft' ? 'draft' : 'scheduled';
+      html +=
+        '<div class="v2-draft-card">' +
+          '<div class="v2-draft-info">' +
+            '<div class="v2-draft-name">' + esc(d.cust_name) + '</div>' +
+            '<div class="v2-draft-addr">' + esc(d.address || 'No address') + '</div>' +
+            '<div class="v2-draft-meta">' + esc(dateStr) + '</div>' +
+          '</div>' +
+          '<span class="v2-draft-badge ' + badgeCls + '">' + esc(d.status) + '</span>' +
+          '<button class="v2-draft-resume" onclick="v2ResumeDraft(\'' + d.id + '\')">Resume</button>' +
+        '</div>';
+    });
+    html += '</div></div>';
+    section.innerHTML = html;
+  }
+
+  function v2ResumeDraft(recordId) {
+    history.pushState(null, '', '?record=' + recordId);
+    v2ResumeFromUrl(recordId);
+  }
+
+  function v2FilterJobs() {
+    var q = (document.getElementById('v2SearchInput').value || '').toLowerCase().trim();
+    if (!q) {
+      v2JobsFiltered = v2Jobs.slice();
+    } else {
+      v2JobsFiltered = v2Jobs.filter(function (j) {
+        return (j.cust_name || '').toLowerCase().indexOf(q) > -1 ||
+               (j.address || '').toLowerCase().indexOf(q) > -1;
+      });
+    }
+    v2RenderJobs();
+  }
+
+  function v2RenderJobs() {
+    var list = document.getElementById('v2JobList');
+    if (!v2JobsFiltered.length) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">No jobs found.</div>';
+      return;
+    }
+    var html = '';
+    v2JobsFiltered.forEach(function (j) {
+      var tier = j.tier || j.category || '';
+      var dateStr = j.inspection_date ? v2FmtDate(j.inspection_date.split('T')[0]) : '';
+      html +=
+        '<button class="v2-job-card" onclick="v2SelectJob(\'' + j.id + '\')">' +
+          '<span class="v2-job-icon">&#127968;</span>' +
+          '<div class="v2-job-info">' +
+            '<div class="v2-job-name">' + esc(j.cust_name) + '</div>' +
+            '<div class="v2-job-addr">' + esc(j.address || 'No address') + '</div>' +
+            '<div class="v2-job-meta">' + esc(dateStr) + '</div>' +
+          '</div>' +
+          (tier ? '<span class="v2-job-type">' + esc(tier) + '</span>' : '') +
+        '</button>';
+    });
+    list.innerHTML = html;
+  }
+
+  function v2SelectJob(id) {
+    v2CurrentJob = v2Jobs.find(function (j) { return j.id === id; }) || null;
+    if (!v2CurrentJob) return;
+
+    // Check for existing property profile (resume logic)
+    fetch('/.netlify/functions/get-property-profile?record_id=' + id, {
+      headers: { 'x-admin-token': window.ADMIN_TOKEN }
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data && data.profile) {
+        // Profile exists — skip to wizard shell
+        v2InitShell();
+      } else {
+        // No profile — show Illinois fields
+        v2ShowIllinois();
+      }
+    })
+    .catch(function () {
+      // On error, proceed to Illinois fields
+      v2ShowIllinois();
+    });
+  }
+
+  // ── Illinois Required Fields ──────────────────────────────────────────────
+
+  function v2ShowIllinois() {
+    v2SetBanner('v2IlBanner', v2CurrentJob);
+
+    // Pre-populate license
+    var licenseEl = document.getElementById('v2License');
+    if (licenseEl) {
+      licenseEl.value = (v2Agent && v2Agent.license_number) ? v2Agent.license_number : 'Not on file';
+    }
+
+    // Clear previous values
+    document.getElementById('v2StartTime').value = '';
+    document.getElementById('v2Weather').value = '';
+    document.getElementById('v2StartTimeErr').textContent = '';
+    document.getElementById('v2WeatherErr').textContent = '';
+
+    v2ShowScreen('screenIllinois');
+  }
+
+  function v2SubmitIllinois() {
+    var startTime = document.getElementById('v2StartTime').value;
+    var weather = document.getElementById('v2Weather').value;
+    var valid = true;
+
+    document.getElementById('v2StartTimeErr').textContent = '';
+    document.getElementById('v2WeatherErr').textContent = '';
+
+    if (!startTime) {
+      document.getElementById('v2StartTimeErr').textContent = 'Start time is required.';
+      document.getElementById('v2StartTime').classList.add('has-error');
+      valid = false;
+    } else {
+      document.getElementById('v2StartTime').classList.remove('has-error');
+    }
+
+    if (!weather) {
+      document.getElementById('v2WeatherErr').textContent = 'Weather conditions are required.';
+      document.getElementById('v2Weather').classList.add('has-error');
+      valid = false;
+    } else {
+      document.getElementById('v2Weather').classList.remove('has-error');
+    }
+
+    if (!valid) return;
+
+    var btn = document.getElementById('v2BeginBtn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+
+    fetch('/.netlify/functions/save-inspection-meta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify({
+        record_id: v2CurrentJob.id,
+        start_time: startTime,
+        weather_conditions: weather
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      btn.disabled = false; btn.textContent = 'Begin Inspection';
+      if (data.error) {
+        v2Toast(data.error, 'error');
+        return;
+      }
+      v2ShowProfile();
+    })
+    .catch(function () {
+      btn.disabled = false; btn.textContent = 'Begin Inspection';
+      v2Toast('Failed to save. Check connection.', 'error');
+    });
+  }
+
+  // ── Property Profile ──────────────────────────────────────────────────────
+
+  function v2ShowProfile() {
+    v2SetBanner('v2PpBanner', v2CurrentJob);
+
+    // Pre-populate from inspection record if available
+    var job = v2CurrentJob;
+    if (job) {
+      var fd = job.form_data || {};
+      var yb = document.getElementById('v2YearBuilt');
+      var sf = document.getElementById('v2SqFt');
+      if (yb && fd.year_built) yb.value = fd.year_built;
+      if (sf && fd.sqft) sf.value = fd.sqft;
+    }
+
+    // Reset toggles
+    document.getElementById('v2Pool').classList.remove('on');
+    document.getElementById('v2Fireplace').classList.remove('on');
+    document.getElementById('v2Occupied').classList.remove('on');
+
+    // Clear validation
+    document.getElementById('v2PropTypeErr').textContent = '';
+    document.getElementById('v2PropType').classList.remove('has-error');
+
+    v2ShowScreen('screenProfile');
+  }
+
+  function v2SubmitProfile() {
+    var propType = document.getElementById('v2PropType').value;
+
+    document.getElementById('v2PropTypeErr').textContent = '';
+    document.getElementById('v2PropType').classList.remove('has-error');
+
+    if (!propType) {
+      document.getElementById('v2PropTypeErr').textContent = 'Property type is required.';
+      document.getElementById('v2PropType').classList.add('has-error');
+      return;
+    }
+
+    var payload = {
+      record_id: v2CurrentJob.id,
+      property_type: propType,
+      foundation_type: document.getElementById('v2Foundation').value || null,
+      construction_type: document.getElementById('v2Construction').value || null,
+      roof_type: document.getElementById('v2Roof').value || null,
+      year_built: parseInt(document.getElementById('v2YearBuilt').value) || null,
+      square_footage: parseInt(document.getElementById('v2SqFt').value) || null,
+      num_bedrooms: parseInt(document.getElementById('v2Beds').value) || null,
+      num_bathrooms: parseFloat(document.getElementById('v2Baths').value) || null,
+      num_stories: parseInt(document.getElementById('v2Stories').value) || null,
+      garage_type: document.getElementById('v2Garage').value || null,
+      has_pool: document.getElementById('v2Pool').classList.contains('on'),
+      has_fireplace: document.getElementById('v2Fireplace').classList.contains('on'),
+      occupied: document.getElementById('v2Occupied').classList.contains('on'),
+    };
+
+    var btn = document.getElementById('v2StartBtn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+
+    fetch('/.netlify/functions/save-property-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      btn.disabled = false; btn.textContent = 'Start Inspection';
+      if (data.error) {
+        v2Toast(data.error, 'error');
+        return;
+      }
+      v2InitShell();
+    })
+    .catch(function () {
+      btn.disabled = false; btn.textContent = 'Start Inspection';
+      v2Toast('Failed to save. Check connection.', 'error');
+    });
+  }
+
+  // ── Shell — Two-Panel Layout ─────────────────────────────────────────────
+
+  function v2InitShell() {
+    v2SetBanner('v2ShellBanner', v2CurrentJob);
+    var loadingEl = document.getElementById('v2ShellLoading');
+    var wrapEl = document.getElementById('v2ShellWrap');
+    if (loadingEl) loadingEl.style.display = '';
+    if (wrapEl) wrapEl.style.display = 'none';
+    v2ShowScreen('screenShell');
+
+    var category = (v2CurrentJob.category || '').toLowerCase();
+    var recordId = v2CurrentJob.id;
+    var headers = { 'x-admin-token': window.ADMIN_TOKEN };
+
+    // Fire all fetches in parallel
+    Promise.all([
+      fetch('/.netlify/functions/get-wizard-sections?category=' + encodeURIComponent(category), { headers: headers }).then(function (r) { return r.json(); }),
+      fetch('/.netlify/functions/get-findings?record_id=' + recordId, { headers: headers }).then(function (r) { return r.json(); }),
+      fetch('/.netlify/functions/get-finding-photos?record_id=' + recordId, { headers: headers }).then(function (r) { return r.json(); }),
+      fetch('/.netlify/functions/get-narratives?record_id=' + recordId, { headers: headers }).then(function (r) { return r.json(); }),
+      fetch('/.netlify/functions/get-wizard-recommendations', { headers: headers }).then(function (r) { return r.json(); }),
+      fetch('/.netlify/functions/get-property-profile?record_id=' + recordId, { headers: headers }).then(function (r) { return r.json(); }),
+    ])
+    .then(function (results) {
+      v2Sections        = (results[0] && results[0].sections) || [];
+      v2Findings        = (results[1] && results[1].findings) || [];
+      v2Photos          = (results[2] && results[2].photos) || [];
+      v2Narratives      = (results[3] && results[3].narratives) || {};
+      v2Recommendations = (results[4] && results[4].recommendations) || [];
+      v2Profile         = (results[5] && results[5].profile) || null;
+      v2ActiveIdx       = 0;
+      v2CustomFindings  = {};
+
+      // Load fields for all sections in one call
+      var sectionIds = v2Sections.map(function (s) { return s.id; }).join(',');
+      return (sectionIds
+        ? fetch('/.netlify/functions/get-wizard-fields?section_id=' + encodeURIComponent(sectionIds), { headers: headers }).then(function (r) { return r.json(); })
+        : Promise.resolve({ fields: [] })
+      );
+    })
+    .then(function (fieldsResult) {
+      // Key fields by section_id
+      v2Fields = {};
+      ((fieldsResult && fieldsResult.fields) || []).forEach(function (f) {
+        if (!v2Fields[f.section_id]) v2Fields[f.section_id] = [];
+        v2Fields[f.section_id].push(f);
+      });
+
+      // Discover custom findings from v2Findings (is_custom = true)
+      v2Findings.forEach(function (f) {
+        if (f.is_custom) {
+          if (!v2CustomFindings[f.section_id]) v2CustomFindings[f.section_id] = [];
+          v2CustomFindings[f.section_id].push({
+            custom_label: f.custom_label || 'Custom Finding',
+            _findingId: f.id,
+          });
+        }
+      });
+
+      // Compute visible sections based on property profile
+      v2VisibleSections = v2ComputeVisibleSections(v2Sections, v2Profile);
+
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (wrapEl) wrapEl.style.display = '';
+
+      v2RenderSidebar();
+      v2RenderPanel();
+    })
+    .catch(function (err) {
+      console.error('v2InitShell error:', err);
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (wrapEl) wrapEl.style.display = '';
+      var body = document.getElementById('v2PanelBody');
+      if (body) body.innerHTML = '<div class="v2-panel-placeholder"><div class="v2-panel-placeholder-text">Failed to load inspection data.</div></div>';
+    });
+  }
+
+  function v2BackToJobs() {
+    v2Sections = [];
+    v2VisibleSections = [];
+    v2Findings = [];
+    v2Photos = [];
+    v2Narratives = {};
+    v2Fields = {};
+    v2Recommendations = [];
+    v2CustomFindings = {};
+    v2ActiveIdx = 0;
+    v2SaveTimers = {};
+    v2Profile = null;
+    v2ShowScreen('screenPicker');
+  }
+
+  // ── Visibility rules — property-driven section filtering ──────────────────
+
+  function v2ComputeVisibleSections(sections, profile) {
+    if (!profile) return sections.slice();
+    return sections.filter(function (sec) {
+      var name = (sec.name || '').toLowerCase();
+      if (profile.foundation_type === 'slab' && name.indexOf('basement') > -1) return false;
+      if (profile.garage_type === 'none' && name.indexOf('garage') > -1) return false;
+      if (profile.property_type === 'condo' && name.indexOf('exterior') > -1) return false;
+      if (profile.has_pool === false && name.indexOf('pool') > -1) return false;
+      if (profile.has_fireplace === false && name.indexOf('fireplace') > -1) return false;
+      return true;
+    });
+  }
+
+  // ── Status logic: grey / orange / green per section ───────────────────────
+
+  function v2SectionStatus(sectionId) {
+    var sectionFindings = v2Findings.filter(function (f) { return f.section_id === sectionId; });
+    if (sectionFindings.length === 0) return 'grey';
+    var hasSectionPass = sectionFindings.some(function (f) { return f.is_section_pass === true; });
+    if (hasSectionPass) return 'green';
+    return 'orange';
+  }
+
+  // ── Sidebar rendering ────────────────────────────────────────────────────
+
+  function v2RenderSidebar() {
+    var list = document.getElementById('v2SidebarList');
+    if (!list) return;
+    var html = '';
+    v2VisibleSections.forEach(function (sec, idx) {
+      var status = v2SectionStatus(sec.id);
+      var isActive = idx === v2ActiveIdx;
+      html +=
+        '<div class="v2-sidebar-item' + (isActive ? ' active' : '') + '" onclick="v2JumpToSection(' + idx + ')">' +
+          '<span class="v2-sidebar-icon">' + esc(sec.icon || '📋') + '</span>' +
+          '<span class="v2-sidebar-name">' + esc(sec.name) + '</span>' +
+          '<span class="v2-sidebar-status ' + status + '"></span>' +
+        '</div>';
+    });
+    list.innerHTML = html;
+  }
+
+  // ── Condition rating constants ─────────────────────────────────────────
+
+  var V2_RATINGS = [
+    { value: 'satisfactory', label: 'Satisfactory', cls: 'active-sat' },
+    { value: 'monitor',      label: 'Monitor',      cls: 'active-mon' },
+    { value: 'repair',       label: 'Repair',       cls: 'active-rep' },
+    { value: 'replace',      label: 'Replace',      cls: 'active-repl' },
+    { value: 'safety',       label: 'Safety Concern',cls: 'active-safe' },
+    { value: 'na',           label: 'N/A',           cls: 'active-na' },
+  ];
+
+  var V2_PRIORITIES = ['immediate', 'before_closing', 'monitor', 'none'];
+
+  var V2_ACTIONABLE = { monitor: true, repair: true, replace: true, safety: true };
+
+  // ── Finding lookup helper ────────────────────────────────────────────────
+
+  function v2FindExisting(sectionId, fieldId) {
+    return v2Findings.find(function (f) {
+      return f.section_id === sectionId && f.field_id === fieldId && !f.is_custom;
+    }) || null;
+  }
+
+  function v2FindExistingCustom(sectionId, findingId) {
+    return v2Findings.find(function (f) {
+      return f.section_id === sectionId && f.id === findingId && f.is_custom;
+    }) || null;
+  }
+
+  // ── Right panel rendering ────────────────────────────────────────────────
+
+  function v2RenderPanel() {
+    if (!v2VisibleSections.length) return;
+    var sec = v2VisibleSections[v2ActiveIdx];
+    var iconEl = document.getElementById('v2PanelIcon');
+    var titleEl = document.getElementById('v2PanelTitle');
+    var bodyEl = document.getElementById('v2PanelBody');
+    var backBtn = document.getElementById('v2BtnBack');
+    var nextBtn = document.getElementById('v2BtnNext');
+
+    if (iconEl) iconEl.textContent = sec.icon || '📋';
+    if (titleEl) titleEl.textContent = sec.name;
+
+    if (bodyEl) {
+      var fields = v2Fields[sec.id] || [];
+      var html = '';
+      var hasSectionPass = v2Findings.some(function (f) {
+        return f.section_id === sec.id && f.is_section_pass === true;
+      });
+
+      // Quick pass bar
+      if (hasSectionPass) {
+        html += '<div class="v2-quick-pass-bar passed">' +
+          '<span class="v2-qp-label">&#10003; No Findings — Section Passed</span>' +
+          '<button class="v2-qp-btn v2-qp-btn--undo" onclick="v2UndoQuickPass(\'' + sec.id + '\')">Undo Pass</button>' +
+          '</div>';
+      } else {
+        html += '<div class="v2-quick-pass-bar">' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">No issues found?</span>' +
+          '<button class="v2-qp-btn v2-qp-btn--pass" onclick="v2QuickPass(\'' + sec.id + '\')">No Findings</button>' +
+          '</div>';
+      }
+
+      // Photo strip (collapses with cards on quick pass)
+      var collapsedCls = hasSectionPass ? ' v2-cards-collapsed' : '';
+      var stripHtml = v2BuildPhotoStrip(sec.id);
+      if (stripHtml) {
+        html += '<div class="v2-photo-strip-wrap' + collapsedCls + '">' + stripHtml + '</div>';
+      }
+
+      // Wrap cards in a container that can be collapsed
+      html += '<div id="v2-cards-' + sec.id + '" class="v2-cards-wrap' + collapsedCls + '">';
+
+      // Render one card per wizard_field
+      fields.forEach(function (field, idx) {
+        var existing = v2FindExisting(sec.id, field.id);
+        html += v2BuildCard(field, sec.id, existing, false);
+      });
+
+      // Render custom finding cards
+      var customs = v2CustomFindings[sec.id] || [];
+      customs.forEach(function (cf, idx) {
+        var existing = cf._findingId ? v2FindExistingCustom(sec.id, cf._findingId) : null;
+        html += v2BuildCard({
+          id: 'custom-' + sec.id + '-' + idx,
+          name: cf.custom_label || 'Custom Finding',
+          field_type: 'text',
+          _isCustom: true,
+          _customIdx: idx,
+        }, sec.id, existing, true);
+      });
+
+      // Add Custom Finding button
+      html += '<button class="v2-add-custom-btn" onclick="v2AddCustomFinding(\'' + sec.id + '\')">+ Add Custom Finding</button>';
+      html += '</div>'; // close v2-cards-wrap
+
+      bodyEl.innerHTML = html;
+      bodyEl.scrollTop = 0;
+    }
+
+    // Back button: hidden on first section
+    if (backBtn) backBtn.style.display = (v2ActiveIdx === 0) ? 'none' : '';
+
+    // Next button: "Review & Submit" on last section
+    if (nextBtn) {
+      if (v2ActiveIdx === v2VisibleSections.length - 1) {
+        nextBtn.textContent = 'Review & Submit';
+      } else {
+        nextBtn.innerHTML = 'Next &#8594;';
+      }
+    }
+  }
+
+  // ── Build single card HTML ───────────────────────────────────────────────
+
+  function v2BuildCard(field, sectionId, existing, isCustom) {
+    var cardKey = isCustom ? field.id : (sectionId + ':' + field.id);
+    var rating = (existing && existing.condition_value) || '';
+    var safety = existing ? existing.is_safety : false;
+    var priority = (existing && existing.priority) || '';
+    var obs = (existing && existing.observation) || '';
+    // Fallback: pre-populate from draft narrative if no observation exists
+    if (!obs && v2Narratives[sectionId] && v2Narratives[sectionId].draft_narrative) {
+      obs = v2Narratives[sectionId].draft_narrative;
+    }
+    var measVal = (existing && existing.measurement_value) || '';
+    var matVal = (existing && existing.materials_value) || '';
+    var ynVal = existing ? existing.yes_no_value : null;
+    var selectedRecs = (existing && existing.recommendations) || [];
+    var isActionable = V2_ACTIONABLE[rating] || false;
+
+    var h = '<div class="v2-card" id="card-' + cardKey + '">';
+
+    // Header with save indicator
+    h += '<div class="v2-card-header">';
+    if (isCustom) {
+      h += '<input class="v2-card-input" style="flex:1;font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;" ' +
+           'value="' + esc(field.name) + '" placeholder="Finding name..." ' +
+           'onblur="v2UpdateCustomLabel(\'' + sectionId + '\',' + (field._customIdx || 0) + ',this.value)">';
+    } else {
+      h += '<span class="v2-card-title">' + esc(field.name) + '</span>';
+    }
+    h += '<span class="v2-card-save" id="save-' + cardKey + '"></span>';
+    h += '</div>';
+
+    // Rating buttons
+    h += '<div class="v2-rating-group">';
+    V2_RATINGS.forEach(function (r) {
+      var active = (rating === r.value) ? ' ' + r.cls : '';
+      h += '<button class="v2-rating-btn' + active + '" ' +
+           'onclick="v2SetRating(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',' + isCustom + ',\'' + r.value + '\')">' +
+           r.label + '</button>';
+    });
+    h += '</div>';
+
+    // N/A reason (shown only when rating = na)
+    var naReason = (existing && existing.na_reason) || '';
+    var naHidden = (rating !== 'na') ? ' style="display:none;"' : '';
+    h += '<div class="v2-na-row" id="na-row-' + cardKey + '"' + naHidden + '>';
+    h += '<div class="v2-card-label">N/A Reason (optional)</div>';
+    h += '<input class="v2-card-input" id="na-reason-' + cardKey + '" type="text" placeholder="Why not applicable..." value="' + esc(naReason) + '" ' +
+         'onblur="v2DebounceSave(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',' + isCustom + ')">';
+    h += '</div>';
+
+    // Safety toggle
+    h += '<div class="v2-safety-row">';
+    h += '<span class="v2-safety-label">Safety Flag</span>';
+    h += '<button class="v2-safety-toggle' + (safety ? ' on' : '') + '" id="safety-' + cardKey + '" ' +
+         'onclick="this.classList.toggle(\'on\');v2DebounceSave(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',' + isCustom + ')"></button>';
+    h += '</div>';
+
+    // Priority (hidden for satisfactory/na/no rating)
+    var prioHidden = (!rating || rating === 'satisfactory' || rating === 'na') ? ' style="display:none;"' : '';
+    h += '<div class="v2-card-row" id="prio-' + cardKey + '"' + prioHidden + '>';
+    h += '<div class="v2-card-label">Priority</div>';
+    h += '<div class="v2-priority-group">';
+    V2_PRIORITIES.forEach(function (p) {
+      var act = (priority === p) ? ' active' : '';
+      var label = p.replace(/_/g, ' ');
+      h += '<button class="v2-priority-btn' + act + '" ' +
+           'onclick="v2SetPriority(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',' + isCustom + ',\'' + p + '\')">' +
+           label + '</button>';
+    });
+    h += '</div></div>';
+
+    // Observation textarea
+    h += '<div class="v2-card-row">';
+    h += '<div class="v2-card-label">Observation' + (isActionable ? ' <span style="color:var(--red);">*</span>' : '') + '</div>';
+    h += '<textarea class="v2-card-textarea" id="obs-' + cardKey + '" placeholder="Enter observation..." ' +
+         'onblur="v2DebounceSave(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',' + isCustom + ')">' + esc(obs) + '</textarea>';
+    h += '<div class="v2-card-err" id="obs-err-' + cardKey + '"></div>';
+    h += '</div>';
+
+    // Inline photos linked to this finding
+    var findingId = existing ? existing.id : null;
+    if (findingId) {
+      h += v2BuildCardPhotos(findingId);
+    }
+
+    // Type-specific inputs (not for custom cards)
+    if (!isCustom) {
+      if (field.field_type === 'measurement') {
+        h += '<div class="v2-card-row"><div class="v2-card-label">Measurement</div>';
+        h += '<div class="v2-measure-row">';
+        h += '<input class="v2-card-input" id="meas-' + cardKey + '" type="text" placeholder="Value" value="' + esc(measVal) + '" ' +
+             'onblur="v2DebounceSave(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',false)">';
+        h += '<span class="v2-measure-unit">' + esc(field.unit || '') + '</span>';
+        h += '</div></div>';
+      }
+      if (field.field_type === 'materials') {
+        h += '<div class="v2-card-row"><div class="v2-card-label">Materials</div>';
+        h += '<input class="v2-card-input" id="mat-' + cardKey + '" type="text" placeholder="Describe materials..." value="' + esc(matVal) + '" ' +
+             'onblur="v2DebounceSave(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',false)">';
+        h += '</div>';
+      }
+      if (field.field_type === 'yes_no') {
+        h += '<div class="v2-card-row"><div class="v2-card-label">Yes / No</div>';
+        h += '<button class="v2-toggle' + (ynVal === true ? ' on' : '') + '" id="yn-' + cardKey + '" type="button" ' +
+             'onclick="this.classList.toggle(\'on\');v2DebounceSave(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',false)"></button>';
+        h += '</div>';
+      }
+    }
+
+    // Recommendations
+    h += '<div class="v2-card-row"><div class="v2-card-label">Recommendations</div>';
+    h += '<div class="v2-rec-list">';
+    v2Recommendations.forEach(function (rec) {
+      var sel = selectedRecs.find(function (sr) { return sr.recommendation_id === rec.id; });
+      var isSelected = !!sel;
+      var note = (sel && sel.recommendation_note) || '';
+      h += '<div class="v2-rec-item' + (isSelected ? ' selected' : '') + '" ' +
+           'onclick="v2ToggleRec(this,\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',' + isCustom + ',\'' + rec.id + '\')">';
+      h += '<span class="v2-rec-check">' + (isSelected ? '✓' : '') + '</span>';
+      h += '<div style="flex:1;"><span class="v2-rec-label">' + esc(rec.label) + '</span>';
+      if (isSelected) {
+        h += '<input class="v2-rec-note-input" placeholder="Add note..." value="' + esc(note) + '" ' +
+             'onclick="event.stopPropagation()" ' +
+             'onblur="v2DebounceSave(\'' + cardKey + '\',\'' + sectionId + '\',\'' + field.id + '\',' + isCustom + ')">';
+      }
+      h += '</div></div>';
+    });
+    h += '</div></div>';
+
+    h += '</div>';
+    return h;
+  }
+
+  // ── Card interaction functions ───────────────────────────────────────────
+
+  function v2SetRating(cardKey, sectionId, fieldId, isCustom, rating) {
+    // Update button states
+    var card = document.getElementById('card-' + cardKey);
+    if (!card) return;
+    var btns = card.querySelectorAll('.v2-rating-btn');
+    btns.forEach(function (btn) {
+      btn.className = 'v2-rating-btn';
+      V2_RATINGS.forEach(function (r) {
+        if (btn.textContent.trim() === r.label && rating === r.value) {
+          btn.classList.add(r.cls);
+        }
+      });
+    });
+
+    // Auto-enable safety flag for Safety Concern
+    var safetyEl = document.getElementById('safety-' + cardKey);
+    if (rating === 'safety' && safetyEl) {
+      safetyEl.classList.add('on');
+    }
+
+    // Show/hide priority
+    var prioEl = document.getElementById('prio-' + cardKey);
+    if (prioEl) {
+      prioEl.style.display = (rating === 'satisfactory' || rating === 'na' || !rating) ? 'none' : '';
+    }
+
+    // Show/hide N/A reason
+    var naRow = document.getElementById('na-row-' + cardKey);
+    if (naRow) {
+      naRow.style.display = (rating === 'na') ? '' : 'none';
+    }
+
+    // Clear obs error and card error
+    var obsErr = document.getElementById('obs-err-' + cardKey);
+    if (obsErr) obsErr.textContent = '';
+    card.classList.remove('has-error');
+
+    v2SaveCard(cardKey, sectionId, fieldId, isCustom);
+  }
+
+  function v2SetPriority(cardKey, sectionId, fieldId, isCustom, priority) {
+    var card = document.getElementById('card-' + cardKey);
+    if (!card) return;
+    var btns = card.querySelectorAll('.v2-priority-btn');
+    btns.forEach(function (btn) {
+      btn.classList.toggle('active', btn.textContent.trim().replace(/ /g, '_') === priority);
+    });
+    v2DebounceSave(cardKey, sectionId, fieldId, isCustom);
+  }
+
+  function v2ToggleRec(el, cardKey, sectionId, fieldId, isCustom, recId) {
+    el.classList.toggle('selected');
+    var check = el.querySelector('.v2-rec-check');
+    if (check) check.textContent = el.classList.contains('selected') ? '✓' : '';
+
+    // Add/remove note input
+    var noteInput = el.querySelector('.v2-rec-note-input');
+    if (el.classList.contains('selected') && !noteInput) {
+      var input = document.createElement('input');
+      input.className = 'v2-rec-note-input';
+      input.placeholder = 'Add note...';
+      input.onclick = function (e) { e.stopPropagation(); };
+      input.onblur = function () { v2DebounceSave(cardKey, sectionId, fieldId, isCustom); };
+      el.querySelector('div').appendChild(input);
+    } else if (!el.classList.contains('selected') && noteInput) {
+      noteInput.remove();
+    }
+
+    v2DebounceSave(cardKey, sectionId, fieldId, isCustom);
+  }
+
+  function v2AddCustomFinding(sectionId) {
+    if (!v2CustomFindings[sectionId]) v2CustomFindings[sectionId] = [];
+    v2CustomFindings[sectionId].push({ custom_label: 'Custom Finding' });
+    v2RenderPanel();
+  }
+
+  function v2UpdateCustomLabel(sectionId, idx, val) {
+    if (v2CustomFindings[sectionId] && v2CustomFindings[sectionId][idx]) {
+      v2CustomFindings[sectionId][idx].custom_label = val;
+    }
+  }
+
+  // ── Save logic ───────────────────────────────────────────────────────────
+
+  function v2DebounceSave(cardKey, sectionId, fieldId, isCustom) {
+    clearTimeout(v2SaveTimers[cardKey]);
+    v2SaveTimers[cardKey] = setTimeout(function () {
+      v2SaveCard(cardKey, sectionId, fieldId, isCustom);
+    }, 600);
+  }
+
+  function v2ReadCardState(cardKey, sectionId, fieldId, isCustom) {
+    var card = document.getElementById('card-' + cardKey);
+    if (!card) return null;
+
+    // Read rating
+    var rating = '';
+    var ratingBtns = card.querySelectorAll('.v2-rating-btn');
+    V2_RATINGS.forEach(function (r) {
+      ratingBtns.forEach(function (btn) {
+        if (btn.classList.contains(r.cls)) rating = r.value;
+      });
+    });
+
+    // Read safety
+    var safetyEl = document.getElementById('safety-' + cardKey);
+    var isSafety = safetyEl ? safetyEl.classList.contains('on') : false;
+
+    // Read priority
+    var priority = '';
+    var prioBtns = card.querySelectorAll('.v2-priority-btn');
+    prioBtns.forEach(function (btn) {
+      if (btn.classList.contains('active')) priority = btn.textContent.trim().replace(/ /g, '_');
+    });
+
+    // Read observation
+    var obsEl = document.getElementById('obs-' + cardKey);
+    var observation = obsEl ? obsEl.value : '';
+
+    // Read recommendations
+    var recItems = card.querySelectorAll('.v2-rec-item.selected');
+    var recommendations = [];
+    recItems.forEach(function (item) {
+      var recId = item.getAttribute('onclick') || '';
+      var match = recId.match(/'([^']+)'\)$/);
+      if (match) {
+        var noteInput = item.querySelector('.v2-rec-note-input');
+        recommendations.push({
+          id: match[1],
+          note: noteInput ? noteInput.value : null,
+        });
+      }
+    });
+
+    // Read N/A reason
+    var naReasonEl = document.getElementById('na-reason-' + cardKey);
+    var naReason = naReasonEl ? naReasonEl.value : '';
+
+    var payload = {
+      record_id: v2CurrentJob.id,
+      section_id: sectionId,
+      field_id: isCustom ? null : fieldId,
+      condition_value: rating || null,
+      is_safety: isSafety,
+      priority: priority || null,
+      observation: observation || null,
+      not_applicable: rating === 'na',
+      na_reason: (rating === 'na' && naReason) ? naReason : null,
+      is_custom: isCustom,
+      recommendation_ids: recommendations,
+    };
+
+    // Type-specific
+    var measEl = document.getElementById('meas-' + cardKey);
+    if (measEl) payload.measurement_value = measEl.value || null;
+
+    var matEl = document.getElementById('mat-' + cardKey);
+    if (matEl) payload.materials_value = matEl.value || null;
+
+    var ynEl = document.getElementById('yn-' + cardKey);
+    if (ynEl) payload.yes_no_value = ynEl.classList.contains('on');
+
+    // Custom label
+    if (isCustom) {
+      var labelInput = card.querySelector('.v2-card-header .v2-card-input');
+      payload.custom_label = labelInput ? labelInput.value : 'Custom Finding';
+    }
+
+    return payload;
+  }
+
+  function v2UpdateGlobalSave() {
+    var el = document.getElementById('v2GlobalSave');
+    if (!el) return;
+    if (v2SaveInFlight > 0) {
+      el.textContent = 'Saving...';
+      el.className = 'v2-save-status saving';
+    } else if (v2SaveHasError) {
+      el.innerHTML = 'Save failed <button class="v2-save-retry" onclick="v2RetrySave()">Retry</button>';
+      el.className = 'v2-save-status failed';
+    } else {
+      el.textContent = 'All changes saved';
+      el.className = 'v2-save-status saved';
+    }
+  }
+
+  function v2RetrySave() {
+    if (!v2LastFailedSave) return;
+    var s = v2LastFailedSave;
+    v2SaveHasError = false;
+    v2LastFailedSave = null;
+    v2SaveCard(s.cardKey, s.sectionId, s.fieldId, s.isCustom);
+  }
+
+  function v2SaveCard(cardKey, sectionId, fieldId, isCustom) {
+    var payload = v2ReadCardState(cardKey, sectionId, fieldId, isCustom);
+    if (!payload) return;
+
+    // Track globally
+    v2SaveInFlight++;
+    v2UpdateGlobalSave();
+
+    // Show saving spinner
+    var saveEl = document.getElementById('save-' + cardKey);
+    if (saveEl) saveEl.innerHTML = '<div class="v2-spinner" style="width:14px;height:14px;border-width:2px;"></div>';
+
+    fetch('/.netlify/functions/save-finding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify(payload),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      v2SaveInFlight--;
+      if (data.error) {
+        v2SaveHasError = true;
+        v2LastFailedSave = { cardKey: cardKey, sectionId: sectionId, fieldId: fieldId, isCustom: isCustom };
+        if (saveEl) saveEl.innerHTML = '<span style="color:var(--red);">✗</span>';
+      } else {
+        if (saveEl) saveEl.innerHTML = '<span class="saved">✓</span>';
+        v2UpdateFindingState(sectionId, fieldId, isCustom, data.id, payload);
+      }
+      v2UpdateGlobalSave();
+      setTimeout(function () { if (saveEl) saveEl.innerHTML = ''; }, 2000);
+    })
+    .catch(function () {
+      v2SaveInFlight--;
+      v2SaveHasError = true;
+      v2LastFailedSave = { cardKey: cardKey, sectionId: sectionId, fieldId: fieldId, isCustom: isCustom };
+      if (saveEl) {
+        saveEl.innerHTML = '<span style="color:var(--red);">✗</span>';
+        setTimeout(function () { if (saveEl) saveEl.innerHTML = ''; }, 2000);
+      }
+      v2UpdateGlobalSave();
+    });
+  }
+
+  function v2UpdateFindingState(sectionId, fieldId, isCustom, findingId, payload) {
+    // Update in-memory findings so sidebar status stays correct
+    var idx = v2Findings.findIndex(function (f) {
+      if (isCustom) return f.id === findingId;
+      return f.section_id === sectionId && f.field_id === fieldId && !f.is_custom;
+    });
+    var entry = {
+      id: findingId,
+      section_id: sectionId,
+      field_id: fieldId,
+      condition_value: payload.condition_value,
+      is_safety: payload.is_safety,
+      priority: payload.priority,
+      observation: payload.observation,
+      is_custom: isCustom,
+      is_section_pass: payload.is_section_pass || false,
+      custom_label: payload.custom_label || null,
+      recommendations: payload.recommendation_ids || [],
+    };
+    if (idx >= 0) {
+      v2Findings[idx] = entry;
+    } else {
+      v2Findings.push(entry);
+    }
+    v2RenderSidebar();
+  }
+
+  // ── Photo helpers ──────────────────────────────────────────────────────
+
+  function v2GetSectionPhotos(sectionId) {
+    return v2Photos.filter(function (p) { return p.section_id === sectionId; });
+  }
+
+  function v2GetFindingPhotos(findingId) {
+    if (!findingId) return [];
+    return v2Photos.filter(function (p) { return p.finding_id === findingId; });
+  }
+
+  function v2FindingNameForPhoto(photo) {
+    if (!photo.finding_id) return null;
+    var finding = v2Findings.find(function (f) { return f.id === photo.finding_id; });
+    if (!finding) return null;
+    if (finding.is_custom) return finding.custom_label || 'Custom Finding';
+    // Look up field name from v2Fields
+    var sectionFields = v2Fields[finding.section_id] || [];
+    var field = sectionFields.find(function (fl) { return fl.id === finding.field_id; });
+    return field ? field.name : 'Finding';
+  }
+
+  function v2BuildPhotoStrip(sectionId) {
+    var photos = v2GetSectionPhotos(sectionId);
+    if (!photos.length) return '';
+
+    // Build list of saved findings for the link dropdown
+    var sectionFindings = v2Findings.filter(function (f) {
+      return f.section_id === sectionId && !f.is_section_pass && f.id;
+    });
+
+    var h = '<div class="v2-photo-strip">';
+    h += '<div class="v2-photo-strip-title">Field Capture Photos (' + photos.length + ')</div>';
+    h += '<div class="v2-photo-grid">';
+
+    photos.forEach(function (photo) {
+      var linkedName = v2FindingNameForPhoto(photo);
+      h += '<div class="v2-photo-item">';
+      h += '<img class="v2-photo-thumb" src="' + esc(photo.cloudinary_url) + '" alt="' + esc(photo.caption || 'Photo') + '">';
+
+      if (linkedName) {
+        // Linked — show name + unlink button
+        h += '<div class="v2-photo-linked-name">' + esc(linkedName) + '</div>';
+        h += '<button class="v2-photo-unlink-btn" onclick="v2UnlinkPhoto(\'' + photo.id + '\')">Unlink</button>';
+      } else {
+        // Unlinked — show dropdown
+        h += '<div class="v2-photo-unlinked">Unlinked</div>';
+        if (sectionFindings.length) {
+          h += '<select class="v2-photo-select" onchange="v2LinkPhotoFromStrip(\'' + photo.id + '\',this.value)">';
+          h += '<option value="">Link to finding...</option>';
+          sectionFindings.forEach(function (f) {
+            var name;
+            if (f.is_custom) {
+              name = f.custom_label || 'Custom Finding';
+            } else {
+              var fl = (v2Fields[f.section_id] || []).find(function (x) { return x.id === f.field_id; });
+              name = fl ? fl.name : 'Finding';
+            }
+            h += '<option value="' + f.id + '">' + esc(name) + '</option>';
+          });
+          h += '</select>';
+        }
+      }
+      h += '</div>';
+    });
+
+    h += '</div></div>';
+    return h;
+  }
+
+  function v2BuildCardPhotos(findingId) {
+    var photos = v2GetFindingPhotos(findingId);
+    if (!photos.length) return '';
+
+    var h = '<div class="v2-card-row"><div class="v2-card-label">Photos</div>';
+    h += '<div class="v2-card-photos">';
+    photos.forEach(function (photo) {
+      h += '<div class="v2-card-photo-item">';
+      h += '<img class="v2-card-photo-thumb" src="' + esc(photo.cloudinary_url) + '" alt="' + esc(photo.caption || '') + '">';
+      h += '<button class="v2-card-photo-unlink" onclick="v2UnlinkPhoto(\'' + photo.id + '\')" title="Unlink">✕</button>';
+      h += '</div>';
+    });
+    h += '</div></div>';
+    return h;
+  }
+
+  function v2LinkPhotoFromStrip(photoId, findingId) {
+    if (!findingId) return;
+    v2LinkPhoto(photoId, findingId);
+  }
+
+  function v2UnlinkPhoto(photoId) {
+    v2LinkPhoto(photoId, null);
+  }
+
+  function v2LinkPhoto(photoId, findingId) {
+    fetch('/.netlify/functions/link-finding-photo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify({ photo_id: photoId, finding_id: findingId }),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        v2Toast(data.error, 'error');
+        return;
+      }
+      // Update v2Photos in memory
+      v2Photos.forEach(function (p) {
+        if (p.id === photoId) p.finding_id = findingId;
+      });
+      v2RenderPanel();
+    })
+    .catch(function () {
+      v2Toast('Failed to update photo link.', 'error');
+    });
+  }
+
+  // ── Quick Pass ──────────────────────────────────────────────────────────
+
+  function v2QuickPass(sectionId) {
+    var payload = {
+      record_id: v2CurrentJob.id,
+      section_id: sectionId,
+      field_id: null,
+      is_section_pass: true,
+      condition_value: null,
+      is_custom: false,
+    };
+
+    fetch('/.netlify/functions/save-finding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify(payload),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        v2Toast(data.error, 'error');
+        return;
+      }
+      // Add to in-memory findings
+      v2Findings.push({
+        id: data.id,
+        section_id: sectionId,
+        field_id: null,
+        is_section_pass: true,
+        condition_value: null,
+        is_custom: false,
+        is_safety: false,
+      });
+      v2RenderSidebar();
+      v2RenderPanel();
+      v2Toast('Section marked as passed.');
+    })
+    .catch(function () {
+      v2Toast('Failed to save quick pass.', 'error');
+    });
+  }
+
+  function v2UndoQuickPass(sectionId) {
+    // Find the section pass finding
+    var passFinding = v2Findings.find(function (f) {
+      return f.section_id === sectionId && f.is_section_pass === true;
+    });
+    if (!passFinding) return;
+
+    fetch('/.netlify/functions/delete-finding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify({ finding_id: passFinding.id }),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        v2Toast(data.error, 'error');
+        return;
+      }
+      // Remove from in-memory findings
+      v2Findings = v2Findings.filter(function (f) { return f.id !== passFinding.id; });
+      v2RenderSidebar();
+      v2RenderPanel();
+      v2Toast('Quick pass undone.');
+    })
+    .catch(function () {
+      v2Toast('Failed to undo quick pass.', 'error');
+    });
+  }
+
+  // ── Navigation with validation ───────────────────────────────────────────
+
+  function v2SectionHasQuickPass(sectionId) {
+    return v2Findings.some(function (f) {
+      return f.section_id === sectionId && f.is_section_pass === true;
+    });
+  }
+
+  function v2ValidateCurrentSection() {
+    if (!v2VisibleSections.length) return true;
+    var sec = v2VisibleSections[v2ActiveIdx];
+
+    // Quick pass bypasses all validation
+    if (v2SectionHasQuickPass(sec.id)) return true;
+
+    var fields = v2Fields[sec.id] || [];
+    var customs = v2CustomFindings[sec.id] || [];
+    var valid = true;
+
+    // Check template fields
+    fields.forEach(function (field) {
+      var cardKey = sec.id + ':' + field.id;
+      valid = v2ValidateCard(cardKey) && valid;
+    });
+
+    // Check custom fields
+    customs.forEach(function (cf, idx) {
+      var cardKey = 'custom-' + sec.id + '-' + idx;
+      valid = v2ValidateCard(cardKey) && valid;
+    });
+
+    return valid;
+  }
+
+  function v2ValidateCard(cardKey) {
+    var card = document.getElementById('card-' + cardKey);
+    if (!card) return true;
+
+    // Read rating from active button
+    var rating = '';
+    V2_RATINGS.forEach(function (r) {
+      card.querySelectorAll('.v2-rating-btn').forEach(function (btn) {
+        if (btn.classList.contains(r.cls)) rating = r.value;
+      });
+    });
+
+    var obsEl = document.getElementById('obs-' + cardKey);
+    var errEl = document.getElementById('obs-err-' + cardKey);
+    var obsVal = obsEl ? obsEl.value.trim() : '';
+
+    // No rating selected at all
+    if (!rating) {
+      if (errEl) errEl.textContent = 'Rating required.';
+      card.classList.add('has-error');
+      return false;
+    }
+
+    // Actionable rating with no observation
+    if (V2_ACTIONABLE[rating] && !obsVal) {
+      if (errEl) errEl.textContent = 'Observation required for this rating.';
+      if (obsEl) obsEl.classList.add('has-error');
+      card.classList.add('has-error');
+      return false;
+    }
+
+    // Valid
+    if (errEl) errEl.textContent = '';
+    if (obsEl) obsEl.classList.remove('has-error');
+    card.classList.remove('has-error');
+    return true;
+  }
+
+  function v2JumpToSection(idx) {
+    if (idx < 0 || idx >= v2VisibleSections.length) return;
+    // Validate current section before jumping away (unless jumping to same section)
+    if (idx !== v2ActiveIdx && !v2ValidateCurrentSection()) {
+      v2Toast('Please complete all required fields before navigating.', 'error');
+      return;
+    }
+    v2ActiveIdx = idx;
+    v2RenderSidebar();
+    v2RenderPanel();
+  }
+
+  function v2NavSection(dir) {
+    // Validate before navigating away
+    if (!v2ValidateCurrentSection()) {
+      v2Toast('Please complete all required fields before navigating.', 'error');
+      return;
+    }
+    var newIdx = v2ActiveIdx + dir;
+    // If clicking Next on last section → go to review
+    if (dir === 1 && newIdx >= v2VisibleSections.length) {
+      v2ShowReview();
+      return;
+    }
+    if (newIdx < 0 || newIdx >= v2VisibleSections.length) return;
+    // Jump directly — validation already passed above
+    v2ActiveIdx = newIdx;
+    v2RenderSidebar();
+    v2RenderPanel();
+  }
+
+  // ── Edit Profile (mid-session) ────────────────────────────────────────────
+
+  function v2EditProfile() {
+    v2ShowProfile();
+  }
+
+  // ── Review & Submit ────────────────────────────────────────────────────────
+
+  function v2AllSectionsComplete() {
+    return v2VisibleSections.every(function (s) {
+      return v2SectionStatus(s.id) === 'green';
+    });
+  }
+
+  function v2ReviewSummary() {
+    var findingsCount = v2Findings.filter(function (f) { return !f.is_section_pass; }).length;
+    var safetyCount = v2Findings.filter(function (f) { return f.is_safety === true; }).length;
+    var unlinkedPhotos = v2Photos.filter(function (p) { return !p.finding_id; }).length;
+    var sectionsComplete = v2VisibleSections.filter(function (s) {
+      return v2SectionStatus(s.id) === 'green';
+    }).length;
+    return {
+      sectionsComplete: sectionsComplete,
+      sectionsTotal: v2VisibleSections.length,
+      findingsCount: findingsCount,
+      safetyCount: safetyCount,
+      unlinkedPhotos: unlinkedPhotos,
+    };
+  }
+
+  function v2ShowReview() {
+    // Validate all sections first
+    if (!v2AllSectionsComplete()) {
+      var incomplete = v2VisibleSections.filter(function (s) {
+        return v2SectionStatus(s.id) !== 'green';
+      }).map(function (s) { return s.name; });
+      v2Toast('Incomplete sections: ' + incomplete.join(', '), 'error');
+      return;
+    }
+
+    var summary = v2ReviewSummary();
+    var statsEl = document.getElementById('v2ReviewStats');
+    if (statsEl) {
+      var h = '';
+      h += '<div class="v2-review-stat"><span class="v2-review-stat-label">Sections Completed</span><span class="v2-review-stat-value">' + summary.sectionsComplete + ' / ' + summary.sectionsTotal + '</span></div>';
+      h += '<div class="v2-review-stat"><span class="v2-review-stat-label">Total Findings</span><span class="v2-review-stat-value">' + summary.findingsCount + '</span></div>';
+      h += '<div class="v2-review-stat"><span class="v2-review-stat-label">Safety Flags</span><span class="v2-review-stat-value' + (summary.safetyCount > 0 ? ' danger' : '') + '">' + summary.safetyCount + '</span></div>';
+      h += '<div class="v2-review-stat"><span class="v2-review-stat-label">Unlinked Photos</span><span class="v2-review-stat-value' + (summary.unlinkedPhotos > 0 ? ' warn' : '') + '">' + summary.unlinkedPhotos + '</span></div>';
+      statsEl.innerHTML = h;
+    }
+
+    var errEl = document.getElementById('v2ReviewErr');
+    if (errEl) errEl.textContent = '';
+
+    var btn = document.getElementById('v2SubmitBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit Inspection'; }
+
+    v2ShowScreen('screenReview');
+  }
+
+  function v2SubmitInspection() {
+    var btn = document.getElementById('v2SubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+
+    fetch('/.netlify/functions/submit-inspection-v2', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+      body: JSON.stringify({ record_id: v2CurrentJob.id }),
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.error) {
+        var errEl = document.getElementById('v2ReviewErr');
+        if (errEl) errEl.textContent = data.error;
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Inspection'; }
+        return;
+      }
+      // Show confirmation
+      var subEl = document.getElementById('v2ConfirmSub');
+      if (subEl) {
+        subEl.textContent = esc(v2CurrentJob.cust_name || '') + ' — ' + esc(v2CurrentJob.address || '') + ' has been submitted.';
+      }
+      v2ShowScreen('screenConfirm');
+    })
+    .catch(function () {
+      var errEl = document.getElementById('v2ReviewErr');
+      if (errEl) errEl.textContent = 'Submit failed. Check connection and try again.';
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit Inspection'; }
+    });
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+
+  document.addEventListener('DOMContentLoaded', function () {
+    v2Init();
+
+    // Override IWB post-submit: return to V2 picker instead of /admin.html#bookings
+    var goAdminBtn = document.getElementById('iwbGoAdmin');
+    if (goAdminBtn) {
+      goAdminBtn.onclick = function () {
+        document.getElementById('walkinOverlay').style.display = 'none';
+        v2ShowScreen('screenPicker');
+        v2LoadJobs();
+      };
+    }
+  });
+
+  </script>
+</body>
+</html>
