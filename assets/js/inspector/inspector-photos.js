@@ -5,8 +5,8 @@
 (function() {
   'use strict';
 
-  var MAX_WIDTH = 1920;
-  var JPEG_QUALITY = 0.7;
+  var MAX_WIDTH = 1200;
+  var JPEG_QUALITY = 0.75;
   var THUMB_SIZE = 200;
   var SUPABASE_URL = 'https://fusravedbksupcsjfzda.supabase.co';
   var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;

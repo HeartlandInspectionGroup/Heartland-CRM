@@ -15,8 +15,8 @@ rm -f /mnt/user-data/outputs/heartland-website-flat.zip
 zip -qr /mnt/user-data/outputs/heartland-website-flat.zip \
   admin.html inspector-wizard.html inspector.html inspection-wizard.html index.html \
   client-portal.html invoice.html invoice-receipt.html agent-portal.html report.html \
-  report-invoice.html report-receipt.html agreement-receipt.html success.html faq.html \
-  scheduler.html branding-guidelines.html field-photos.html \
+  report-invoice.html report-receipt.html agreement-receipt.html faq.html \
+  scheduler.html branding-guidelines.html field-photos.html narrative-review.html \
   brand.css manifest.json robots.txt sw.js netlify.toml package.json package-lock.json \
   vitest.config.js config.js CLAUDE.md TODO.md \
   functions/ assets/ images/ services/ shared/ scripts/ docs/ tests/
@@ -37,7 +37,7 @@ Backend: Supabase (PostgreSQL + RLS) + Netlify Functions (Node.js serverless).
 ### Key Constants (all set in config.js)
 - `window.SUPABASE_URL` = `https://fusravedbksupcsjfzda.supabase.co`
 - `window.SUPABASE_ANON_KEY` = anon key (safe for client-side reads with RLS)
-- `window.ADMIN_TOKEN` = `3824d37e48745602d2f7de3bffd74fbf98063228b557110d`
+- `ADMIN_TOKEN` — **server-only env var** (removed from client-side config.js in HEA-86). Used only for function-to-function calls.
 - Brand phone: `(815) 329-8583`
 - Logo: `https://i.imgur.com/I1vTiVT.png`
 - Cloudinary: cloud `dmztfzqfm`, preset `slvlwkcf`
@@ -105,7 +105,6 @@ Public-facing pages only. Not loaded by app pages (admin, portals, wizard).
 - `scheduler.html` — Spectora scheduling embed, not currently linked
 - `branding-guidelines.html` — internal reference page, not currently linked
 - `faq.html` — not currently linked
-- `success.html` — not currently linked
 
 ---
 
@@ -139,6 +138,31 @@ create table field_photos (
   created_at timestamptz default now()
 );
 ```
+
+---
+
+## RLS-Protected Tables — Access Pattern
+
+**After HEA-134, these tables have NO anon access. Direct Supabase queries from client-side JS return 0 rows silently:**
+
+| Table | RLS Policy | Client-Side Access |
+|-------|-----------|-------------------|
+| `inspection_findings` | `authenticated` SELECT only | Use `get-report.js` → `v2_findings` |
+| `inspection_finding_photos` | `authenticated` SELECT only | Use `get-report.js` → `v2_finding_photos` |
+| `inspection_finding_recommendations` | `authenticated` SELECT only | Nested in `v2_findings` via join |
+| `inspection_narratives` | `authenticated` SELECT only | Use `get-report.js` → `v2_narratives` or `get-narratives.js` |
+| `property_profiles` | `authenticated` SELECT only | Use Netlify function with service role |
+| `inspection_records` | `authenticated` SELECT | Works with JWT session (admin/inspector pages) |
+| `wizard_sections` | anon SELECT allowed | Direct Supabase query OK |
+| `wizard_fields` | anon SELECT allowed | Direct Supabase query OK |
+| `config_json` | anon SELECT allowed | Direct Supabase query OK |
+
+**Rule: NEVER query RLS-protected tables directly from client-side JavaScript.**
+Always proxy through a Netlify function that uses the service role key (`SUPABASE_SERVICE_KEY`).
+
+**Preferred pattern:** Use `get-report.js?id=<record_id>&include_photos=true` — returns findings, photos, narratives, sections, and config in one call via service role. The `include_photos=true` param bypasses the status gate (allows `narrative`-status records, not just `submitted`).
+
+**Common mistake:** `sb.from('inspection_findings').select('*').eq('record_id', id)` returns `[]` silently from client JS even with a valid JWT — because RLS policies require `service_role`, not just `authenticated`. The query succeeds (200 OK) but returns no rows.
 
 ---
 

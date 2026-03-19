@@ -10,12 +10,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
+const { corsHeaders } = require('./lib/cors');
 async function sbGet(path) {
   var res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
@@ -95,7 +90,6 @@ function substituteTokens(body, record, clientEmail, signingDate) {
   return result;
 }
 
-
 function getStateFromAddress(address) {
   if (!address) return null;
   var upper = address.toUpperCase();
@@ -156,6 +150,7 @@ function buildApplicableKeys(record, bookingServices) {
 }
 
 exports.handler = async function(event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'GET')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 

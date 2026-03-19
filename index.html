@@ -601,20 +601,17 @@
     }
 
     /* ─── New Construction Panel ─── */
-    .wiz-nc-toggle {
-        display: flex; gap: 8px; margin-bottom: 16px;
-    }
-    .wiz-nc-toggle-btn {
-        flex: 1; padding: 12px 14px; border-radius: 10px;
-        border: 2px solid var(--neutral-warm); background: var(--white);
-        cursor: pointer; transition: all 0.2s; text-align: center;
-        font-family: 'Work Sans', sans-serif; font-size: 14px;
-        font-weight: 500; color: var(--text-dark);
-    }
-    .wiz-nc-toggle-btn:hover { border-color: var(--primary-light, var(--primary)); }
-    .wiz-nc-toggle-btn.selected {
-        border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, white);
-        font-weight: 600; color: var(--primary);
+    .wiz-nc-bundle-card { grid-column: 1 / -1; }
+    .wiz-nc-best-value {
+        display: inline-block;
+        background: #27ae60;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.3px;
+        margin-left: 8px;
     }
 
     /* ─── Home Health Check Tier Cards ─── */
@@ -1616,7 +1613,7 @@
                     var rule = rules[r];
                     try {
                         if (evaluateRule(rule, data)) {
-                            var recKey = rule.addonId || rule.id;
+                            var recKey = rule.addon_id || rule.id;
                             if (!recommendations[recKey] || rule.priority > recommendations[recKey].priority) {
                                 recommendations[recKey] = rule;
                             }
@@ -1973,7 +1970,7 @@
                             var rule = rules[r];
                             try {
                                 if (window.evaluateRule(rule, data)) {
-                                    var recKey = rule.addonId || rule.id;
+                                    var recKey = rule.addon_id || rule.id;
                                     if (!recommendations[recKey] || rule.priority > recommendations[recKey].priority) {
                                         recommendations[recKey] = rule;
                                     }
@@ -2201,77 +2198,87 @@
 
                 // ─── NEW CONSTRUCTION PANEL ──────────────────
                 function renderNCPanel() {
-                    var phases = ncItems.filter(function(it) { return !it.isBundle; });
-                    var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+                    var phases = ncItems.filter(function(it) { return !it.is_bundle; });
+                    var bundle = ncItems.filter(function(it) { return it.is_bundle; })[0];
 
                     var html = '<div class="wiz-field-group">';
-                    html += '<label class="wiz-label">Select Inspection Phases</label>';
+                    html += '<label class="wiz-label">Choose Your Phase</label>';
+                    html += '<div class="wiz-hc-grid">';
 
-                    // Toggle: Individual vs Bundle
-                    html += '<div class="wiz-nc-toggle">';
-                    html += '<button type="button" class="wiz-nc-toggle-btn selected" id="wizNCIndividual">Individual Phases</button>';
-                    if (bundle) html += '<button type="button" class="wiz-nc-toggle-btn" id="wizNCBundle">Foundation to Finish Bundle</button>';
-                    html += '</div>';
-
-                    // Individual phases
-                    html += '<div id="wizNCPhases">';
+                    // Individual phase cards (multi-select)
                     phases.forEach(function(item) {
-                        html += '<div class="wiz-addon-item" data-nc-id="' + item.id + '">';
-                        html += '<div class="wiz-checkbox-row">';
-                        html += '<div class="wiz-check-box"><svg class="wiz-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>';
-                        html += '<div class="wiz-addon-info"><span class="wiz-addon-name">' + item.name + '</span></div>';
-                        html += '<span class="wiz-addon-price">$' + item.price + '</span>';
-                        html += '</div></div>';
+                        html += '<div class="wiz-hc-card" data-nc-id="' + item.id + '">';
+                        html += '<div class="wiz-hc-header">';
+                        html += '<span class="wiz-hc-name">' + item.name + '</span>';
+                        html += '<span class="wiz-hc-price">$' + item.price + '</span>';
+                        html += '</div>';
+                        if (item.includes && item.includes.length) {
+                            html += '<ul class="wiz-hc-features">';
+                            item.includes.forEach(function(f) { html += '<li>' + f + '</li>'; });
+                            html += '</ul>';
+                        }
+                        html += '</div>';
                     });
-                    html += '</div>';
 
-                    // Bundle info
+                    // Bundle card — full width, "Best Value" badge
                     if (bundle) {
                         var savings = 0;
                         phases.forEach(function(p) { savings += Number(p.price); });
                         savings = savings - Number(bundle.price);
-                        html += '<div id="wizNCBundleInfo" style="display:none;">';
-                        html += '<div class="wiz-radio-item selected" style="border-color:var(--secondary);background:color-mix(in srgb, var(--secondary) 4%, white);cursor:default;">';
-                        html += '<div class="wiz-radio-info">';
-                        html += '<span class="wiz-radio-name">' + bundle.name + '</span>';
-                        html += '<span class="wiz-radio-desc">All 3 phases included \u2014 save $' + savings + '</span>';
+
+                        html += '<div class="wiz-hc-card wiz-nc-bundle-card" data-nc-bundle="true">';
+                        html += '<div class="wiz-hc-header">';
+                        html += '<span class="wiz-hc-name">' + bundle.name + '</span>';
+                        html += '<span class="wiz-nc-best-value">Best Value — Save $' + savings + '</span>';
+                        html += '<span class="wiz-hc-price">$' + bundle.price + '</span>';
                         html += '</div>';
-                        html += '<span class="wiz-radio-price" style="color:var(--secondary);">$' + bundle.price + '</span>';
-                        html += '</div></div>';
+                        if (bundle.includes && bundle.includes.length) {
+                            html += '<ul class="wiz-hc-features">';
+                            bundle.includes.forEach(function(f) { html += '<li>' + f + '</li>'; });
+                            html += '</ul>';
+                        }
+                        html += '</div>';
                     }
 
-                    html += '</div>';
+                    html += '</div></div>';
                     expansionInner.innerHTML = html;
 
-                    // Wire individual phase checkboxes
-                    var phasesContainer = document.getElementById('wizNCPhases');
-                    phasesContainer.querySelectorAll('.wiz-addon-item').forEach(function(el) {
-                        el.querySelector('.wiz-checkbox-row').addEventListener('click', function() {
-                            var id = parseInt(el.dataset.ncId);
+                    // Wire phase cards — multi-select, mutually exclusive with bundle
+                    expansionInner.querySelectorAll('.wiz-hc-card[data-nc-id]').forEach(function(card) {
+                        card.addEventListener('click', function() {
+                            var id = parseInt(card.dataset.ncId);
                             var idx = selectedNCItems.indexOf(id);
-                            if (idx === -1) { selectedNCItems.push(id); el.classList.add('selected'); }
-                            else { selectedNCItems.splice(idx, 1); el.classList.remove('selected'); }
+                            if (idx === -1) {
+                                selectedNCItems.push(id);
+                                card.classList.add('selected');
+                            } else {
+                                selectedNCItems.splice(idx, 1);
+                                card.classList.remove('selected');
+                            }
+                            // Deselect bundle
+                            ncBundleSelected = false;
+                            var bundleCard = expansionInner.querySelector('.wiz-nc-bundle-card');
+                            if (bundleCard) bundleCard.classList.remove('selected');
                             recalcPrice(); validateStep();
                         });
                     });
 
-                    // Wire toggle buttons
-                    var indBtn = document.getElementById('wizNCIndividual');
-                    var bundleBtn = document.getElementById('wizNCBundle');
-                    var bundleInfo = document.getElementById('wizNCBundleInfo');
-
-                    if (indBtn) indBtn.addEventListener('click', function() {
-                        ncBundleSelected = false;
-                        indBtn.classList.add('selected'); if (bundleBtn) bundleBtn.classList.remove('selected');
-                        phasesContainer.style.display = ''; if (bundleInfo) bundleInfo.style.display = 'none';
-                        recalcPrice(); validateStep();
-                    });
-                    if (bundleBtn) bundleBtn.addEventListener('click', function() {
-                        ncBundleSelected = true;
-                        bundleBtn.classList.add('selected'); indBtn.classList.remove('selected');
-                        phasesContainer.style.display = 'none'; if (bundleInfo) bundleInfo.style.display = '';
-                        recalcPrice(); validateStep();
-                    });
+                    // Wire bundle card — exclusive with individual phases
+                    var bundleCard = expansionInner.querySelector('.wiz-nc-bundle-card');
+                    if (bundleCard) {
+                        bundleCard.addEventListener('click', function() {
+                            ncBundleSelected = !ncBundleSelected;
+                            bundleCard.classList.toggle('selected', ncBundleSelected);
+                            if (ncBundleSelected) {
+                                // Deselect all individual phases
+                                selectedNCItems = [];
+                                expansionInner.querySelectorAll('.wiz-hc-card[data-nc-id]').forEach(function(c) {
+                                    c.classList.remove('selected');
+                                });
+                            }
+                            recalcPrice(); validateStep();
+                        });
+                    }
                 }
 
                 // ─── HOME HEALTH CHECK PANEL ─────────────────
@@ -2283,8 +2290,8 @@
                     hcTiers.forEach(function(tier) {
                         // Collect inherited features
                         var inheritedFeatures = [];
-                        if (tier.inheritsFrom && tier.inheritsFrom.length) {
-                            tier.inheritsFrom.forEach(function(inheritId) {
+                        if (tier.inherits_from && tier.inherits_from.length) {
+                            tier.inherits_from.forEach(function(inheritId) {
                                 var parent = hcTiers.filter(function(t) { return t.id === inheritId; })[0];
                                 if (parent) {
                                     inheritedFeatures.push({ name: parent.name, features: parent.includes || [] });
@@ -2418,7 +2425,7 @@
                 }
                 else if (cat.id === 'new-construction') {
                     if (ncBundleSelected) {
-                        var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+                        var bundle = ncItems.filter(function(it) { return it.is_bundle; })[0];
                         if (bundle) {
                             total = Number(bundle.price);
                             breakdownHtml += '<div class="wiz-price-row"><span>' + bundle.name + '</span><span>$' + bundle.price + '</span></div>';
@@ -2745,7 +2752,7 @@
                 }
                 else if (selectedCategory === 'new-construction') {
                     if (ncBundleSelected) {
-                        var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+                        var bundle = ncItems.filter(function(it) { return it.is_bundle; })[0];
                         if (bundle) { total = Number(bundle.price); svcHtml += '<div class="wiz-review-row"><span>' + bundle.name + '</span><span>$' + bundle.price + '</span></div>'; }
                     } else {
                         selectedNCItems.forEach(function(itemId) {
@@ -2969,7 +2976,7 @@
 
                     selectedAddonIndices.forEach(function(i) {
                         var svc = P.addonServices[i];
-                        services.push({ name: svc.name, price: svc.price });
+                        services.push({ name: svc.name, price: svc.price, id: svc.id });
                         total += svc.price;
                     });
 
@@ -2998,7 +3005,7 @@
                 }
                 else if (selectedCategory === 'new-construction') {
                     if (ncBundleSelected) {
-                        var bundle = ncItems.filter(function(it) { return it.isBundle; })[0];
+                        var bundle = ncItems.filter(function(it) { return it.is_bundle; })[0];
                         if (bundle) { services.push({ name: bundle.name, price: Number(bundle.price) }); total = Number(bundle.price); }
                     } else {
                         selectedNCItems.forEach(function(itemId) {

@@ -488,12 +488,9 @@
     if (!recordId) { showError('No invoice ID provided.'); return; }
 
     try {
-      var res = await fetch(
-        SUPABASE_URL + '/rest/v1/inspection_records?id=eq.' + recordId + '&select=*',
-        { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON } }
-      );
-      var rows = await res.json();
-      var r = rows && rows[0];
+      var res = await fetch('/.netlify/functions/get-record-public?record_id=' + encodeURIComponent(recordId));
+      var resData = await res.json();
+      var r = resData && resData.record;
       if (!r) { showError('Invoice not found. It may have been removed.'); return; }
 
       // Store report URL for button

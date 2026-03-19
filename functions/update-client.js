@@ -1,39 +1,34 @@
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth } = require('./auth');
 
+const { corsHeaders } = require('./lib/cors');
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
-
 exports.handler = async (event) => {
-
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   // ── AUTH CHECK ──
-  const adminToken = process.env.ADMIN_TOKEN;
-  if (event.httpMethod !== 'OPTIONS' && event.headers['x-admin-token'] !== adminToken) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  const authError = await requireAuth(event);
+  if (authError) return authError;
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   let parsed;
   try {
     parsed = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const { id, action, data } = parsed;
   if (!id) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing id' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Missing id' }) };
   }
 
   // ── DELETE ──
@@ -41,17 +36,17 @@ exports.handler = async (event) => {
     try {
       const { error } = await supabase.from('inspection_records').delete().eq('id', id);
       if (error) throw error;
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ success: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ success: true }) };
     } catch (err) {
       console.error('update-client delete error:', err);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
     }
   }
 
   // ── UPDATE ──
   if (action === 'update') {
     if (!data || typeof data !== 'object') {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing data payload' }) };
+      return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Missing data payload' }) };
     }
 
     try {
@@ -79,18 +74,18 @@ exports.handler = async (event) => {
         .eq('id', id);
 
       if (error) throw error;
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ success: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ success: true }) };
 
     } catch (err) {
       console.error('update-client update error:', err);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
     }
   }
 
   // ── UPDATE BOOKING ──
   if (action === 'update_booking') {
     if (!data || typeof data !== 'object') {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing data payload' }) };
+      return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Missing data payload' }) };
     }
     const BOOKING_ALLOWED = ['client_name','client_email','client_phone','property_address'];
     const cleanData = {};
@@ -98,17 +93,17 @@ exports.handler = async (event) => {
     try {
       const { error } = await supabase.from('bookings').update(cleanData).eq('id', id);
       if (error) throw error;
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ success: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ success: true }) };
     } catch (err) {
       console.error('update-client update_booking error:', err);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
     }
   }
 
   // ── ASSIGN AGENT ──
   if (action === 'assign_agent') {
     if (!data || typeof data !== 'object') {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing data payload' }) };
+      return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Missing data payload' }) };
     }
     const { agent_id, agent_name, booking_id } = data;
     try {
@@ -124,12 +119,12 @@ exports.handler = async (event) => {
         await supabase.from('bookings').update({ agent_id: agent_id || null }).eq('id', booking_id);
       }
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ success: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ success: true }) };
     } catch (err) {
       console.error('update-client assign_agent error:', err);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
     }
   }
 
-  return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Unknown action' }) };
+  return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Unknown action' }) };
 };

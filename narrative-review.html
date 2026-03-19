@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrative Review Studio | Heartland Inspection Group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/config.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #121e30; --navy2: #1a2a44; --navy3: #243554;
+    --green: #27ae60; --green2: #2ecc71;
+    --orange: #f59321; --red: #e74c3c; --amber: #f39c12; --blue: #3498db;
+    --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.45);
+    --border: rgba(255,255,255,0.08); --card: rgba(255,255,255,0.04);
+  }
+  body { font-family: 'Barlow', sans-serif; background: var(--navy); color: var(--text); min-height: 100vh; }
+
+  .nr-header { background: var(--navy2); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .nr-back { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 600; }
+  .nr-back:hover { color: var(--text); }
+  .nr-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+  .nr-select { margin-left: auto; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--navy3); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 13px; min-width: min(280px, 100%); max-width: 500px; }
+  .nr-select option { background: var(--navy2); color: var(--text); }
+
+  .nr-gen-bar { padding: 12px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; background: var(--navy2); }
+  .nr-progress { font-size: 12px; color: var(--muted); }
+  .nr-preview-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: var(--green); color: #fff; transition: opacity 0.15s; }
+  .nr-preview-btn:hover:not(:disabled) { opacity: 0.85; }
+  .nr-preview-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .nr-empty { text-align: center; padding: 80px 24px; color: var(--muted); font-size: 15px; }
+  .nr-panels { padding: 24px; display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; }
+  .nr-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .nr-panel-header { background: var(--navy2); padding: 14px 20px; border-bottom: 1px solid var(--border); font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* Subsection headers */
+  .nr-sub { margin: 0; border-bottom: 1px solid var(--border); }
+  .nr-sub-header { display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(255,255,255,0.02); cursor: pointer; user-select: none; }
+  .nr-sub-header:hover { background: rgba(255,255,255,0.04); }
+  .nr-sub-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; }
+  .nr-sub-badge { background: rgba(255,255,255,0.1); color: var(--muted); font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+  .nr-sub-chevron { color: var(--muted); font-size: 11px; }
+  .nr-sub-actions { display: flex; gap: 6px; }
+  .nr-sub-btn { padding: 5px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; transition: opacity 0.15s; }
+  .nr-sub-btn:hover { opacity: 0.85; }
+  .nr-sub-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .nr-sub-btn--gen { background: #8e44ad; color: #fff; }
+  .nr-sub-btn--approve { background: var(--green); color: #fff; }
+  .nr-sub-body { padding: 0; }
+  .nr-sub-collapsed { display: none; }
+
+  /* Finding rows — 3 columns: photo | info | narrative */
+  .nr-frow { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 0; border-bottom: 1px solid var(--border); min-height: 90px; }
+  @media (max-width: 900px) { .nr-frow { grid-template-columns: 80px 1fr; } .nr-frow-narr { grid-column: 1 / -1; } }
+  @media (max-width: 480px) { .nr-header { flex-wrap: wrap; gap: 8px; padding: 12px 14px; } .nr-select { margin-left: 0; width: 100%; min-width: 0; } .nr-panels { padding: 12px; } .nr-frow { grid-template-columns: 1fr; } .nr-frow-photo { border-right: none; border-bottom: 1px solid var(--border); } .nr-gen-bar { flex-wrap: wrap; padding: 10px 14px; } }
+  .nr-frow-photo { padding: 12px; display: flex; align-items: flex-start; justify-content: center; border-right: 1px solid var(--border); }
+  .nr-frow-photo img { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); }
+  .nr-frow-photo-placeholder { width: 96px; height: 72px; border-radius: 6px; background: rgba(255,255,255,0.04); border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 10px; }
+  .nr-frow-info { padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--border); }
+  .nr-frow-narr { padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .nr-severity { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; display: inline-block; width: fit-content; }
+  .nr-sev-safety { background: rgba(231,76,60,0.2); color: #e74c3c; }
+  .nr-sev-repair { background: rgba(243,156,18,0.2); color: #f39c12; }
+  .nr-sev-replace { background: rgba(245,147,33,0.2); color: #f59321; }
+  .nr-sev-monitor { background: rgba(52,152,219,0.2); color: #3498db; }
+  .nr-sev-satisfactory { background: rgba(39,174,96,0.2); color: #27ae60; }
+  .nr-sev-default { background: rgba(255,255,255,0.08); color: var(--muted); }
+  .nr-frow-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .nr-frow-obs { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .nr-narr-ta { width: 100%; min-height: 120px; padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 12px; line-height: 1.6; resize: vertical; overflow-y: hidden; }
+  .nr-narr-ta:focus { border-color: var(--green); outline: none; }
+  .nr-narr-row-actions { display: flex; gap: 6px; align-items: center; }
+  .nr-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
+  .nr-badge-draft { background: rgba(255,255,255,0.1); color: var(--muted); }
+  .nr-badge-approved { background: rgba(39,174,96,0.15); color: var(--green); }
+  .nr-action-btn { padding: 4px 10px; border: none; border-radius: 5px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .nr-action-btn:hover { opacity: 0.85; }
+  .nr-action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .nr-btn-approve { background: var(--green); color: #fff; }
+
+  /* Site docs grid */
+  .nr-sitedocs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding: 12px 20px; }
+  .nr-sitedocs-grid img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); }
+  .nr-sub-empty { color: var(--muted); font-size: 13px; text-align: center; padding: 16px 20px; }
+
+  /* Lightbox + Toast */
+  .nr-lightbox { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
+  .nr-lightbox.active { display: flex; }
+  .nr-lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; }
+  .nr-lightbox-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; z-index: 10000; }
+  .nr-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; color: #fff; }
+  .nr-toast.error { background: var(--red); }
+  .nr-toast.success { background: var(--green); }
+
+</style>
+</head>
+<body>
+
+<div class="nr-header">
+  <a class="nr-back" href="admin.html">← Admin</a>
+  <div class="nr-title">Narrative Review Studio</div>
+  <select class="nr-select" id="nrJobSelect" onchange="nrSelectJob(this.value)" style="margin-left:auto;">
+    <option value="">Select an inspection…</option>
+  </select>
+</div>
+
+<div class="nr-gen-bar" id="nrGenBar" style="display:none;">
+  <div class="nr-progress" id="nrProgress"></div>
+  <button class="nr-preview-btn" id="nrPreviewBtn" onclick="nrPreview()" disabled>Preview Report →</button>
+  <button class="nr-preview-btn" id="nrSendReportBtn" onclick="nrSendReport()" disabled style="background:#27ae60;margin-left:8px;">Send Report to Client</button>
+</div>
+
+<div id="nrContent">
+  <div class="nr-empty" id="nrEmpty">Select an inspection to begin review</div>
+  <div class="nr-panels" id="nrPanels" style="display:none;"></div>
+</div>
+
+<div class="nr-lightbox" id="nrLightbox" onclick="nrCloseLightbox()">
+  <button class="nr-lightbox-close" onclick="nrCloseLightbox()">✕</button>
+  <img id="nrLightboxImg" src="" alt="Photo" onclick="event.stopPropagation()">
+</div>
+
+
+<div class="nr-toast" id="nrToast"></div>
+
+<script>
+(function() {
+  'use strict';
+  console.log('narrative-review version: per-finding-v1');
+
+  var SUPABASE_URL = window.SUPABASE_URL;
+  var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var selectedRecordId = null;
+  var sectionMap = {};
+  var currentFindings = [];
+  var currentPhotos = [];
+  var currentPhotoFindings = []; // HEA-160: photos with severity set (photo-centric findings)
+  var currentNarratives = {};
+  var nrSubsectionState = {};
+  var isPhotoCentric = false; // true when any photo has severity set
+
+  function nrGetSubState(sid) {
+    if (!nrSubsectionState[sid]) nrSubsectionState[sid] = { obsExpanded: true, docsExpanded: false };
+    return nrSubsectionState[sid];
+  }
+
+  async function getAuthHeader() {
+    try {
+      var sess = await sb.auth.getSession();
+      if (sess && sess.data && sess.data.session && sess.data.session.access_token) {
+        return { 'Authorization': 'Bearer ' + sess.data.session.access_token };
+      }
+    } catch (e) {}
+    return {};
+  }
+
+  async function checkAuth() {
+    var sess = await sb.auth.getSession();
+    if (!sess || !sess.data || !sess.data.session) { window.location.href = 'admin.html'; }
+  }
+
+  function qs(id) { return document.getElementById(id); }
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Auto-resize textarea to fit content — eliminates scrolling
+  function nrAutoResize(ta) {
+    if (!ta) return;
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+  }
+  window.nrAutoResize = nrAutoResize;
+
+  function nrToast(msg, type) {
+    var t = qs('nrToast'); t.textContent = msg;
+    t.className = 'nr-toast ' + (type || 'success'); t.style.display = 'block';
+    setTimeout(function() { t.style.display = 'none'; }, 3500);
+  }
+
+  function severityClass(val) {
+    if (!val) return 'nr-sev-default';
+    var v = val.toLowerCase();
+    if (v === 'safety concern' || v === 'safety') return 'nr-sev-safety';
+    if (v === 'repair') return 'nr-sev-repair';
+    if (v === 'replace') return 'nr-sev-replace';
+    if (v === 'monitor') return 'nr-sev-monitor';
+    if (v === 'satisfactory') return 'nr-sev-satisfactory';
+    return 'nr-sev-default';
+  }
+
+  function applyCloudinaryTransform(url) {
+    if (!url || url.indexOf('/upload/') === -1) return url;
+    return url.replace('/upload/', '/upload/w_800,q_auto,f_auto/');
+  }
+
+  // ── Load jobs ─────────────────────────────────────────────
+  async function loadJobs() {
+    var { data } = await sb.from('inspection_records')
+      .select('id, cust_name, address, inspection_date, status')
+      .eq('status', 'narrative')
+      .order('inspection_date', { ascending: false });
+
+    var sel = qs('nrJobSelect');
+    if (!data || !data.length) { sel.innerHTML = '<option value="">No inspections awaiting narrative review</option>'; return; }
+    var html = '<option value="">Select an inspection…</option>';
+    data.forEach(function(r) {
+      var dateStr = r.inspection_date ? new Date(r.inspection_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+      html += '<option value="' + r.id + '">' + esc((r.cust_name || 'Unknown') + ' — ' + (r.address || '') + (dateStr ? ' (' + dateStr + ')' : '')) + '</option>';
+    });
+    sel.innerHTML = html;
+  }
+
+  // ── Select job ────────────────────────────────────────────
+  window.nrSelectJob = async function(recordId) {
+    if (!recordId) { qs('nrEmpty').style.display = ''; qs('nrPanels').style.display = 'none'; qs('nrGenBar').style.display = 'none'; selectedRecordId = null; return; }
+    selectedRecordId = recordId;
+    qs('nrEmpty').textContent = 'Loading…';
+
+    var reportRes = await fetch('/.netlify/functions/get-report?id=' + recordId + '&include_photos=true', { headers: { ...(await getAuthHeader()) } });
+    var reportData = await reportRes.json();
+    if (!reportRes.ok || !reportData.report) { qs('nrEmpty').textContent = 'Failed to load inspection data.'; return; }
+
+    currentFindings = reportData.v2_findings || [];
+    currentPhotos = reportData.v2_finding_photos || [];
+    currentPhotoFindings = reportData.v2_photo_findings || [];
+    currentNarratives = reportData.v2_narratives || {};
+    isPhotoCentric = currentPhotoFindings.length > 0;
+    var sections = reportData.v2_sections || [];
+    sectionMap = {};
+    sections.forEach(function(s) { sectionMap[s.id] = s; });
+    renderPanels(sections);
+  };
+
+  // ── Render ────────────────────────────────────────────────
+  function renderPanels(sections) {
+    // Group old-model findings by section
+    var findingsBySection = {};
+    currentFindings.forEach(function(f) {
+      if (!f.section_id || f.is_section_pass) return;
+      if (!findingsBySection[f.section_id]) findingsBySection[f.section_id] = [];
+      findingsBySection[f.section_id].push(f);
+    });
+
+    // Group all photos by section
+    var photosBySection = {};
+    currentPhotos.forEach(function(p) {
+      if (!p.section_id) return;
+      if (!photosBySection[p.section_id]) photosBySection[p.section_id] = [];
+      photosBySection[p.section_id].push(p);
+    });
+
+    // Group photo-centric findings by section (HEA-160)
+    var photoFindingsBySection = {};
+    currentPhotoFindings.forEach(function(pf) {
+      if (!pf.section_id) return;
+      if (!photoFindingsBySection[pf.section_id]) photoFindingsBySection[pf.section_id] = [];
+      photoFindingsBySection[pf.section_id].push(pf);
+    });
+
+    var activeSections = sections.filter(function(s) {
+      return (findingsBySection[s.id] && findingsBySection[s.id].length) ||
+             (photosBySection[s.id] && photosBySection[s.id].length) ||
+             (photoFindingsBySection[s.id] && photoFindingsBySection[s.id].length);
+    });
+
+    if (!activeSections.length) {
+      qs('nrEmpty').textContent = 'No findings or photos recorded for this inspection.';
+      qs('nrEmpty').style.display = ''; qs('nrPanels').style.display = 'none'; qs('nrGenBar').style.display = 'none'; return;
+    }
+
+    var html = '';
+    activeSections.forEach(function(sec) {
+      var findings = findingsBySection[sec.id] || [];
+      var photos = photosBySection[sec.id] || [];
+      var photoFindings = photoFindingsBySection[sec.id] || [];
+      html += buildPanel(sec, findings, photos, photoFindings);
+    });
+
+    qs('nrPanels').innerHTML = html;
+    qs('nrPanels').style.display = ''; qs('nrEmpty').style.display = 'none'; qs('nrGenBar').style.display = '';
+    updateProgress();
+    // Auto-resize all narrative textareas to fit content
+    document.querySelectorAll('.nr-narr-ta').forEach(nrAutoResize);
+  }
+
+  function buildPanel(sec, findings, photos, photoFindings) {
+    var state = nrGetSubState(sec.id);
+    var siteDocs = photos.filter(function(p) { return !p.severity && !p.finding_id; });
+    // In photo-centric mode, use photoFindings count; else use findings count
+    var obsItems = isPhotoCentric ? photoFindings : findings;
+    var findingCount = obsItems.length;
+
+    var html = '<div class="nr-panel" data-section="' + sec.id + '">';
+    html += '<div class="nr-panel-header">' + esc(sec.name) + '</div>';
+
+    // ── Observations subsection
+    html += '<div class="nr-sub">';
+    html += '<div class="nr-sub-header" onclick="nrToggleSub(\'' + sec.id + '\',\'obs\')">';
+    html += '<span class="nr-sub-title">⚠️ Recommended Observations</span>';
+    html += '<span class="nr-sub-badge">' + findingCount + '</span>';
+    html += '<div class="nr-sub-actions">';
+    html += '<button class="nr-sub-btn nr-sub-btn--gen" onclick="event.stopPropagation();nrGenerateSection(\'' + sec.id + '\')">⚡ Generate</button>';
+    html += '<button class="nr-sub-btn nr-sub-btn--approve" onclick="event.stopPropagation();nrApproveAllSection(\'' + sec.id + '\')">✓ Approve All</button>';
+    html += '</div>';
+    html += '<span class="nr-sub-chevron">' + (state.obsExpanded ? '▲' : '▼') + '</span>';
+    html += '</div>';
+    html += '<div class="nr-sub-body' + (state.obsExpanded ? '' : ' nr-sub-collapsed') + '">';
+
+    if (!obsItems.length) {
+      html += '<div class="nr-sub-empty">No findings for this section</div>';
+    } else if (isPhotoCentric) {
+      // HEA-160: render per-photo rows
+      photoFindings.forEach(function(pf) {
+        html += buildPhotoFindingRow(pf);
+      });
+    } else {
+      findings.forEach(function(f) {
+        html += buildFindingRow(f, photos);
+      });
+    }
+    html += '</div></div>';
+
+    // ── Site Documentation subsection
+    html += '<div class="nr-sub">';
+    html += '<div class="nr-sub-header" onclick="nrToggleSub(\'' + sec.id + '\',\'docs\')">';
+    html += '<span class="nr-sub-title">📷 Site Documentation</span>';
+    html += '<span class="nr-sub-badge">' + siteDocs.length + '</span>';
+    html += '<span class="nr-sub-chevron">' + (state.docsExpanded ? '▲' : '▼') + '</span>';
+    html += '</div>';
+    html += '<div class="nr-sub-body' + (state.docsExpanded ? '' : ' nr-sub-collapsed') + '">';
+    if (!siteDocs.length) {
+      html += '<div class="nr-sub-empty">No site documentation photos</div>';
+    } else {
+      html += '<div class="nr-sitedocs-grid">';
+      siteDocs.forEach(function(p) {
+        var src = p.annotated_url || p.cloudinary_url;
+        if (src) html += '<img src="' + esc(applyCloudinaryTransform(src)) + '" onclick="nrOpenLightbox(\'' + esc(src) + '\')" alt="Photo">';
+      });
+      html += '</div>';
+    }
+    html += '</div></div>';
+
+    html += '</div>';
+    return html;
+  }
+
+  function buildFindingRow(f, sectionPhotos) {
+    var matchPhotos = sectionPhotos.filter(function(p) { return p.finding_id === f.id; });
+    var firstPhoto = matchPhotos.length ? matchPhotos[0] : null;
+    var photoSrc = firstPhoto ? (firstPhoto.annotated_url || firstPhoto.cloudinary_url) : null;
+
+    var sevLabel = f.is_safety ? 'Safety' : (f.condition_value || 'Note');
+    var sevCls = f.is_safety ? 'nr-sev-safety' : severityClass(f.condition_value);
+    var narrText = f.narrative || '';
+    var narrStatus = f.narrative_status || '';
+    var isApproved = narrStatus === 'approved';
+
+    var html = '<div class="nr-frow" data-finding-id="' + f.id + '">';
+
+    // Col 1 — Photo
+    html += '<div class="nr-frow-photo">';
+    if (photoSrc) {
+      html += '<img src="' + esc(applyCloudinaryTransform(photoSrc)) + '" onclick="nrOpenLightbox(\'' + esc(photoSrc) + '\')" alt="Photo">';
+    } else {
+      html += '<div class="nr-frow-photo-placeholder">No photo</div>';
+    }
+    html += '</div>';
+
+    // Col 2 — Info
+    html += '<div class="nr-frow-info">';
+    html += '<span class="nr-severity ' + sevCls + '">' + esc(sevLabel) + '</span>';
+    html += '<div class="nr-frow-label">' + esc(f.custom_label || f.observation || 'Finding') + '</div>';
+    if (f.observation && f.custom_label) html += '<div class="nr-frow-obs">' + esc(f.observation) + '</div>';
+    html += '</div>';
+
+    // Col 3 — Narrative
+    html += '<div class="nr-frow-narr">';
+    html += '<textarea class="nr-narr-ta" id="narr_' + f.id + '"' + (isApproved ? ' disabled' : '') + ' oninput="nrAutoResize(this)">' + esc(narrText) + '</textarea>';
+    html += '<div class="nr-narr-row-actions">';
+    if (isApproved) {
+      html += '<span class="nr-badge nr-badge-approved">✓ Approved</span>';
+    } else if (narrText) {
+      html += '<span class="nr-badge nr-badge-draft">Draft</span>';
+      html += '<button class="nr-action-btn nr-btn-approve" onclick="nrApproveFinding(\'' + f.id + '\')">Approve</button>';
+    } else {
+      html += '<span class="nr-badge nr-badge-draft">—</span>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+    return html;
+  }
+
+  // HEA-160: per-photo finding row
+  function buildPhotoFindingRow(pf) {
+    var photoSrc = pf.annotated_url || pf.cloudinary_url;
+    var sevLabel = pf.is_safety ? 'Safety' : (pf.severity || 'Note');
+    var sevCls = pf.is_safety ? 'nr-sev-safety' : severityClass(pf.severity);
+    var narrText = pf.narrative || '';
+    var isApproved = pf.narrative_status === 'approved';
+
+    var html = '<div class="nr-frow" data-photo-finding-id="' + pf.id + '">';
+
+    // Col 1 — Photo
+    html += '<div class="nr-frow-photo">';
+    if (photoSrc) {
+      html += '<img src="' + esc(applyCloudinaryTransform(photoSrc)) + '" onclick="nrOpenLightbox(\'' + esc(photoSrc) + '\')" alt="Photo">';
+    } else {
+      html += '<div class="nr-frow-photo-placeholder">No photo</div>';
+    }
+    html += '</div>';
+
+    // Col 2 — Info (severity + note/caption)
+    html += '<div class="nr-frow-info">';
+    html += '<span class="nr-severity ' + sevCls + '">' + esc(sevLabel) + '</span>';
+    html += '<div class="nr-frow-label">' + esc(pf.caption || 'Photo finding') + '</div>';
+    html += '</div>';
+
+    // Col 3 — Narrative
+    html += '<div class="nr-frow-narr">';
+    html += '<textarea class="nr-narr-ta" id="pnarr_' + pf.id + '"' + (isApproved ? ' disabled' : '') + ' oninput="nrAutoResize(this)">' + esc(narrText) + '</textarea>';
+    html += '<div class="nr-narr-row-actions">';
+    if (isApproved) {
+      html += '<span class="nr-badge nr-badge-approved">✓ Approved</span>';
+    } else if (narrText) {
+      html += '<span class="nr-badge nr-badge-draft">Draft</span>';
+      html += '<button class="nr-action-btn nr-btn-approve" onclick="nrApprovePhoto(\'' + pf.id + '\')">Approve</button>';
+    } else {
+      html += '<span class="nr-badge nr-badge-draft">—</span>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+    return html;
+  }
+
+  function updateProgress() {
+    if (isPhotoCentric) {
+      // Photo-centric: count photo findings with narratives
+      var withNarr = currentPhotoFindings.filter(function(pf) { return pf.narrative; });
+      var approved = withNarr.filter(function(pf) { return pf.narrative_status === 'approved'; });
+      qs('nrProgress').textContent = approved.length + ' / ' + withNarr.length + ' photo narratives approved';
+      var allDone = withNarr.length > 0 && approved.length >= withNarr.length;
+      var previewBtn = qs('nrPreviewBtn');
+      if (previewBtn) previewBtn.disabled = !allDone;
+      var sendBtn = qs('nrSendReportBtn');
+      if (sendBtn) sendBtn.disabled = !allDone;
+      return;
+    }
+    var withNarrative = currentFindings.filter(function(f) { return !f.is_section_pass && f.narrative; });
+    var approved = withNarrative.filter(function(f) { return f.narrative_status === 'approved'; });
+    var total = withNarrative.length;
+    qs('nrProgress').textContent = approved.length + ' / ' + total + ' findings approved';
+    var allDone = total > 0 && approved.length >= total;
+    var previewBtn = qs('nrPreviewBtn');
+    if (previewBtn) previewBtn.disabled = !allDone;
+    var sendBtn = qs('nrSendReportBtn');
+    if (sendBtn) sendBtn.disabled = !allDone;
+  }
+
+  // ── Toggle subsections ────────────────────────────────────
+  window.nrToggleSub = function(sid, which) {
+    var state = nrGetSubState(sid);
+    if (which === 'obs') state.obsExpanded = !state.obsExpanded;
+    if (which === 'docs') state.docsExpanded = !state.docsExpanded;
+    var sections = Object.values(sectionMap);
+    sections.sort(function(a,b) { return (a.order_index||0) - (b.order_index||0); });
+    renderPanels(sections);
+  };
+
+  // ── Lightbox ──────────────────────────────────────────────
+  window.nrOpenLightbox = function(url) { qs('nrLightboxImg').src = url; qs('nrLightbox').classList.add('active'); };
+  window.nrCloseLightbox = function() { qs('nrLightbox').classList.remove('active'); qs('nrLightboxImg').src = ''; };
+
+  // ── Generate per section ──────────────────────────────────
+  window.nrGenerateSection = async function(sectionId) {
+    if (!selectedRecordId) return;
+
+    // HEA-160: photo-centric mode
+    if (isPhotoCentric) {
+      var sectionPFs = currentPhotoFindings.filter(function(pf) {
+        return pf.section_id === sectionId && pf.narrative_status !== 'approved';
+      });
+      if (!sectionPFs.length) { nrToast('No unapproved photos to generate', 'error'); return; }
+
+      var photosPayload = sectionPFs.map(function(pf) {
+        return { id: pf.id, photo_url: pf.annotated_url || pf.cloudinary_url, caption: pf.caption, severity: pf.severity, is_safety: pf.is_safety };
+      });
+
+      nrToast('Generating narratives...', 'success');
+      try {
+        var res = await fetch('/.netlify/functions/generate-narrative', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify({ record_id: selectedRecordId, photo_findings: photosPayload }),
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Generation failed');
+        var narratives = data.narratives || {};
+        Object.keys(narratives).forEach(function(pid) {
+          var ta = qs('pnarr_' + pid);
+          if (ta) { ta.value = narratives[pid]; ta.disabled = false; nrAutoResize(ta); }
+          var pf = currentPhotoFindings.find(function(x) { return x.id === pid; });
+          if (pf) { pf.narrative = narratives[pid]; pf.narrative_status = 'draft'; }
+        });
+        updateProgress();
+        nrToast('Narratives generated for ' + Object.keys(narratives).length + ' photos', 'success');
+      } catch (err) {
+        nrToast('Generation failed: ' + err.message, 'error');
+      }
+      return;
+    }
+
+    // Old per-finding mode
+    var sectionFindings = currentFindings.filter(function(f) {
+      return f.section_id === sectionId && !f.is_section_pass && f.narrative_status !== 'approved';
+    });
+    if (!sectionFindings.length) { nrToast('No unapproved findings to generate', 'error'); return; }
+
+    var findingsPayload = sectionFindings.map(function(f) {
+      var photos = currentPhotos.filter(function(p) { return p.finding_id === f.id; });
+      var urls = photos.slice(0, 3).map(function(p) { return p.annotated_url || p.cloudinary_url; }).filter(Boolean);
+      return { id: f.id, section_id: f.section_id, observation: f.observation, condition_value: f.condition_value, is_safety: f.is_safety, custom_label: f.custom_label, photo_urls: urls };
+    });
+
+    nrToast('Generating narratives...', 'success');
+
+    try {
+      var res = await fetch('/.netlify/functions/generate-narrative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+        body: JSON.stringify({ record_id: selectedRecordId, findings: findingsPayload }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Generation failed');
+      var narratives = data.narratives || {};
+      Object.keys(narratives).forEach(function(fid) {
+        var ta = qs('narr_' + fid);
+        if (ta) { ta.value = narratives[fid]; ta.disabled = false; nrAutoResize(ta); }
+        var finding = currentFindings.find(function(f) { return f.id === fid; });
+        if (finding) { finding.narrative = narratives[fid]; finding.narrative_status = 'draft'; }
+      });
+      updateProgress();
+      nrToast('Narratives generated for ' + Object.keys(narratives).length + ' findings', 'success');
+    } catch (err) {
+      nrToast('Generation failed: ' + err.message, 'error');
+    }
+  };
+
+  // ── Approve single finding ────────────────────────────────
+  window.nrApproveFinding = async function(findingId) {
+    if (!selectedRecordId) return;
+    try {
+      var res = await fetch('/.netlify/functions/save-narrative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+        body: JSON.stringify({ record_id: selectedRecordId, section_id: '_', action: 'approve_finding', finding_id: findingId }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Approve failed');
+      // Update in-memory
+      var f = currentFindings.find(function(x) { return x.id === findingId; });
+      if (f) { f.narrative_status = 'approved'; f.narrative_approved_at = new Date().toISOString(); }
+      var sections = Object.values(sectionMap);
+      sections.sort(function(a,b) { return (a.order_index||0) - (b.order_index||0); });
+      renderPanels(sections);
+      nrToast('Finding narrative approved', 'success');
+    } catch (err) {
+      nrToast('Approve failed: ' + err.message, 'error');
+    }
+  };
+
+  // ── Approve single photo finding (HEA-160) ─────────────────
+  window.nrApprovePhoto = async function(photoId) {
+    if (!selectedRecordId) return;
+    try {
+      var res = await fetch('/.netlify/functions/save-narrative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+        body: JSON.stringify({ record_id: selectedRecordId, section_id: '_', action: 'approve_photo', photo_id: photoId }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Approve failed');
+      var pf = currentPhotoFindings.find(function(x) { return x.id === photoId; });
+      if (pf) { pf.narrative_status = 'approved'; pf.narrative_approved_at = new Date().toISOString(); }
+      var sections = Object.values(sectionMap);
+      sections.sort(function(a,b) { return (a.order_index||0) - (b.order_index||0); });
+      renderPanels(sections);
+      nrToast('Photo narrative approved', 'success');
+    } catch (err) {
+      nrToast('Approve failed: ' + err.message, 'error');
+    }
+  };
+
+  // ── Approve all in section ────────────────────────────────
+  window.nrApproveAllSection = async function(sectionId) {
+    if (!selectedRecordId) return;
+
+    if (isPhotoCentric) {
+      var toApprove = currentPhotoFindings.filter(function(pf) {
+        return pf.section_id === sectionId && pf.narrative && pf.narrative_status !== 'approved';
+      });
+      if (!toApprove.length) { nrToast('Nothing to approve', 'error'); return; }
+      try {
+        await Promise.all(toApprove.map(async function(pf) {
+          return fetch('/.netlify/functions/save-narrative', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+            body: JSON.stringify({ record_id: selectedRecordId, section_id: '_', action: 'approve_photo', photo_id: pf.id }),
+          }).then(function(r) {
+            if (r.ok) { pf.narrative_status = 'approved'; pf.narrative_approved_at = new Date().toISOString(); }
+          });
+        }));
+        var sections = Object.values(sectionMap);
+        sections.sort(function(a,b) { return (a.order_index||0) - (b.order_index||0); });
+        renderPanels(sections);
+        nrToast(toApprove.length + ' photo narratives approved', 'success');
+      } catch (err) {
+        nrToast('Approve all failed: ' + err.message, 'error');
+      }
+      return;
+    }
+
+    var toApprove = currentFindings.filter(function(f) {
+      return f.section_id === sectionId && !f.is_section_pass && f.narrative && f.narrative_status !== 'approved';
+    });
+    if (!toApprove.length) { nrToast('Nothing to approve', 'error'); return; }
+
+    try {
+      await Promise.all(toApprove.map(async function(f) {
+        return fetch('/.netlify/functions/save-narrative', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify({ record_id: selectedRecordId, section_id: '_', action: 'approve_finding', finding_id: f.id }),
+        }).then(function(r) {
+          if (r.ok) { f.narrative_status = 'approved'; f.narrative_approved_at = new Date().toISOString(); }
+        });
+      }));
+      var sections = Object.values(sectionMap);
+      sections.sort(function(a,b) { return (a.order_index||0) - (b.order_index||0); });
+      renderPanels(sections);
+      nrToast(toApprove.length + ' findings approved', 'success');
+    } catch (err) {
+      nrToast('Approve all failed: ' + err.message, 'error');
+    }
+  };
+
+  // ── Preview ───────────────────────────────────────────────
+  window.nrPreview = function() {
+    if (!selectedRecordId) return;
+    window.open('report.html?id=' + selectedRecordId + '&preview=1', '_blank');
+  };
+
+  // ── Send Report to Client ────────────────────────────────
+  window.nrSendReport = async function() {
+    if (!selectedRecordId) return;
+    var btn = qs('nrSendReportBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+    try {
+      var res = await fetch('/.netlify/functions/send-report-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+        body: JSON.stringify({ id: selectedRecordId }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Send failed');
+      nrToast('Report sent to client!', 'success');
+      if (btn) btn.textContent = 'Sent!';
+    } catch (err) {
+      nrToast('Send failed: ' + err.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Send Report to Client'; }
+    }
+  };
+
+  checkAuth().then(loadJobs);
+})();
+</script>
+</body>
+</html>

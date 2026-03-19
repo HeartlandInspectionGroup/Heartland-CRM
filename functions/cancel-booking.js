@@ -12,6 +12,7 @@
  * POST body: { token, booking_id }
  */
 
+const { resolveTemplate } = require('./lib/template-utils');
 const RESEND_API_KEY      = process.env.RESEND_API_KEY;
 const SUPABASE_URL        = process.env.SUPABASE_URL;
 const SUPABASE_KEY        = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -30,11 +31,7 @@ const CALENDAR_USER = 'jake@heartlandinspectiongroup.com';
 const { emailWrap, emailBtn, emailInfoTable, esc } = require('./lib/email-template');
 const { writeAuditLog } = require('./write-audit-log');
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const { corsHeaders } = require('./lib/cors');
 
 function fmtDate(d) {
   if (!d) return '—';
@@ -103,6 +100,7 @@ async function sendEmail(to, subject, html) {
 }
 
 exports.handler = async function(event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
@@ -154,7 +152,7 @@ exports.handler = async function(event) {
   if (rec.status === 'cancelled') {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Already cancelled' }) };
   }
-  if (rec.status === 'submitted') {
+  if (rec.status === 'submitted' || rec.status === 'narrative') {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Cannot cancel a completed inspection' }) };
   }
 
@@ -193,7 +191,7 @@ exports.handler = async function(event) {
   var jakeHtml = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f7f9;">'
     + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f9;padding:32px 0;"><tr><td align="center">'
     + '<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">'
-    + '<tr><td style="background:#c0392b;padding:20px 32px;">'
+    + '<tr><td style="background:#1a2a44;padding:20px 32px;">'
     + '<h1 style="margin:0;font-family:sans-serif;font-size:18px;font-weight:700;color:#fff;">&#10060; Booking Cancelled</h1>'
     + '</td></tr>'
     + '<tr><td style="padding:28px 32px;font-family:sans-serif;">'
@@ -233,7 +231,8 @@ exports.handler = async function(event) {
       </div>`;
 
     var clientHtml = emailWrap({ subtitle: 'Booking Cancelled', preheader: 'Your inspection at ' + clientAddr + ' has been cancelled.' }, clientBodyHtml);
-    await sendEmail(custEmail, 'Your Inspection Has Been Cancelled — ' + clientAddr, clientHtml);
+    var cancelTpl = await resolveTemplate('cancel_client', { subject: 'Your Inspection Has Been Cancelled — {{address}}', body: '' }, { client_name: clientName || '', address: clientAddr || '', date: '' });
+    await sendEmail(custEmail, cancelTpl.subject, clientHtml);
   }
 
   // ── Audit log (fire and forget) ──

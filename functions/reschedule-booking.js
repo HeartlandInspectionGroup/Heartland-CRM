@@ -27,11 +27,7 @@ const CALENDAR_USER = 'jake@heartlandinspectiongroup.com';
 
 const { writeAuditLog } = require('./write-audit-log');
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const { corsHeaders } = require('./lib/cors');
 
 async function sbGet(path) {
   var res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
@@ -98,6 +94,7 @@ async function deleteCalendarEvent(azureToken, eventId) {
 }
 
 exports.handler = async function(event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
@@ -142,7 +139,7 @@ exports.handler = async function(event) {
   if (!isAdmin && rec.payment_status === 'paid') {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Paid bookings cannot be rescheduled online. Please call us.' }) };
   }
-  if (rec.status === 'cancelled' || rec.status === 'submitted') {
+  if (rec.status === 'cancelled' || rec.status === 'submitted' || rec.status === 'narrative') {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Cannot reschedule this record.' }) };
   }
 

@@ -16,11 +16,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { sendEmail, hasCredentials } = require('./lib/ms-graph');
 
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const { corsHeaders } = require('./lib/cors');
 
 let _supabase = null;
 function getSupabase() {
@@ -33,13 +29,14 @@ function getSupabase() {
 }
 
 const { emailWrap, emailBtn, esc: escTpl } = require('./lib/email-template');
+const { resolveTemplate } = require('./lib/template-utils');
 
-function buildPortalEmailHtml(firstName, portalUrl) {
+function buildPortalEmailHtml(firstName, portalUrl, customBody) {
   var body = ''
     + '<div style="padding:32px 40px;">'
     + '<p style="font-family:\'Segoe UI\',Arial,sans-serif;font-size:15px;color:#4a5568;line-height:1.7;margin:0 0 24px;">'
     + 'Hi ' + escTpl(firstName) + ',<br><br>'
-    + 'Here\'s your personal link to access your Home Health Record. View your inspection findings, track what you\'ve addressed, and download your reports.'
+    + escTpl(customBody || 'Here\'s your personal link to access your Home Health Record. View your inspection findings, track what you\'ve addressed, and download your reports.')
     + '</p>'
     + '<div style="text-align:center;margin-bottom:20px;">'
     + emailBtn(portalUrl, 'View Your Portal')
@@ -59,6 +56,7 @@ function buildPortalEmailHtml(firstName, portalUrl) {
 }
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }
@@ -105,11 +103,13 @@ exports.handler = async function (event) {
     const siteUrl = process.env.URL || 'https://heartlandinspectiongroup.netlify.app';
     const portalUrl = `${siteUrl}/client-portal.html?token=${tokenRow.token}`;
 
+    var tplVars = { client_name: client.first_name || '', address: '' };
+    var tpl = await resolveTemplate('send_portal_link', { subject: 'Your Heartland Home Health Record', body: '' }, tplVars);
     await sendEmail({
       to: client.email,
       toName: client.first_name,
-      subject: 'Your Heartland Home Health Record',
-      htmlBody: buildPortalEmailHtml(client.first_name, portalUrl),
+      subject: tpl.subject,
+      htmlBody: buildPortalEmailHtml(client.first_name, portalUrl, tpl.body || null),
     });
 
     return okResponse;

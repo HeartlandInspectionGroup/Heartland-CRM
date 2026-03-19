@@ -8,16 +8,12 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth } = require('./auth');
 const { sendEmail, hasCredentials } = require('./lib/ms-graph');
 const { emailWrap, emailBtn, esc } = require('./lib/email-template');
 
+const { corsHeaders } = require('./lib/cors');
 const SITE_URL = process.env.SITE_URL || 'https://heartlandinspectiongroup.com';
-
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, x-admin-token',
-};
 
 function getSupabase() {
   return createClient(
@@ -54,19 +50,19 @@ function buildAgentPortalEmail(firstName, portalUrl) {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
+  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
-  if (event.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  const authError = await requireAuth(event);
+  if (authError) return authError;
 
   let body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   const { agent_id } = body;
-  if (!agent_id) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'agent_id required' }) };
+  if (!agent_id) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'agent_id required' }) };
 
   const sb = getSupabase();
 
@@ -79,20 +75,20 @@ exports.handler = async (event) => {
       .single();
 
     if (error || !agent) {
-      return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Agent not found' }) };
+      return { statusCode: 404, headers: headers, body: JSON.stringify({ error: 'Agent not found' }) };
     }
     if (!agent.portal_token) {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Agent has no portal token. Please edit and re-save the agent.' }) };
+      return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Agent has no portal token. Please edit and re-save the agent.' }) };
     }
     if (!agent.email) {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Agent has no email address.' }) };
+      return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Agent has no email address.' }) };
     }
 
     const portalUrl = `${SITE_URL}/agent-portal.html?token=${agent.portal_token}`;
     const firstName = (agent.name || 'there').split(' ')[0];
 
     if (!hasCredentials()) {
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Email not configured on server.' }) };
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Email not configured on server.' }) };
     }
 
     await sendEmail({
@@ -103,10 +99,10 @@ exports.handler = async (event) => {
     });
 
     console.log('[send-agent-portal-link] Sent to', (agent.email || '').replace(/^(.).*@/, '$1***@'));
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
 
   } catch (err) {
     console.error('[send-agent-portal-link] error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

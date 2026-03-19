@@ -1,10 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth } = require('./auth');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
+const { corsHeaders } = require('./lib/cors');
 
 var _supabase;
 function db() {
@@ -15,28 +12,29 @@ function db() {
 exports._setClient = function (c) { _supabase = c; };
 
 exports.handler = async (event) => {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
 
-  const authError = requireAuth(event);
+  const authError = await requireAuth(event);
   if (authError) return authError;
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   var body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch (e) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   var { record_id, start_time, weather_conditions } = body;
 
   if (!record_id) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'record_id required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'record_id required' }) };
   }
 
   var updates = {};
@@ -44,7 +42,7 @@ exports.handler = async (event) => {
   if (weather_conditions !== undefined) updates.weather_conditions = weather_conditions;
 
   if (Object.keys(updates).length === 0) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'No fields to update' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'No fields to update' }) };
   }
 
   try {
@@ -55,9 +53,9 @@ exports.handler = async (event) => {
 
     if (error) throw error;
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
   } catch (err) {
     console.error('save-inspection-meta error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

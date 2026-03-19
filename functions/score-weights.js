@@ -4,15 +4,12 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
+const { corsHeaders } = require('./lib/cors');
+const { requireAuth } = require('./auth');
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
-
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
 
 const DEFAULT_WEIGHTS = {
   electrical: 15, plumbing: 15, furnace: 15, ac: 15,
@@ -47,7 +44,8 @@ async function getConfigJson() {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
 
   if (event.httpMethod === 'GET') {
     try {
@@ -74,7 +72,7 @@ exports.handler = async (event) => {
       }
 
       return {
-        statusCode: 200, headers: HEADERS,
+        statusCode: 200, headers: headers,
         body: JSON.stringify({
           weights,
           conditionScores: ss.conditionScores || DEFAULT_CONDITION_SCORES,
@@ -86,14 +84,17 @@ exports.handler = async (event) => {
       };
     } catch (err) {
       console.error('score-weights GET error:', err);
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify(FALLBACK) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify(FALLBACK) };
     }
   }
 
   if (event.httpMethod === 'POST') {
+    const authError = await requireAuth(event);
+    if (authError) return authError;
+
     let parsed;
     try { parsed = JSON.parse(event.body || '{}'); }
-    catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+    catch { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
     try {
       const existing = await getConfigJson() || {};
@@ -107,12 +108,12 @@ exports.handler = async (event) => {
         .from('config_json')
         .upsert({ id: 1, config: { ...existing, scoreSettings } }, { onConflict: 'id' });
       if (error) throw error;
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ success: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ success: true }) };
     } catch (err) {
       console.error('score-weights POST error:', err);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ success: false, error: err.message }) };
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ success: false, error: err.message }) };
     }
   }
 
-  return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+  return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 };

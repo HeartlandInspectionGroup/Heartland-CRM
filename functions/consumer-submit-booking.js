@@ -15,12 +15,7 @@
  * Returns: { ok: true, booking_id }
  */
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
+const { corsHeaders } = require('./lib/cors');
 function getEnv() {
   return {
     SUPABASE_URL: process.env.SUPABASE_URL,
@@ -51,21 +46,22 @@ function pick(obj, allowed) {
 }
 
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
   if (event.httpMethod !== 'POST')
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   const { SUPABASE_URL, SUPABASE_KEY } = getEnv();
   if (!SUPABASE_URL || !SUPABASE_KEY)
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Database not configured' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Database not configured' }) };
 
   var body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch(e) { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch(e) { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { booking } = body;
   if (!booking || typeof booking !== 'object')
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'booking payload required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'booking payload required' }) };
 
   // Sanitise and force known-safe values
   var cleanBooking = pick(booking, BOOKING_ALLOWED);
@@ -91,13 +87,13 @@ exports.handler = async function(event) {
 
   if (!res.ok || !Array.isArray(rows) || !rows[0]) {
     console.error('[consumer-submit-booking] insert failed:', text);
-    return { statusCode: 500, headers: HEADERS,
+    return { statusCode: 500, headers: headers,
       body: JSON.stringify({ error: 'Failed to create booking: ' + text }) };
   }
 
   return {
     statusCode: 200,
-    headers: HEADERS,
+    headers: headers,
     body: JSON.stringify({ ok: true, booking_id: rows[0].id }),
   };
 };

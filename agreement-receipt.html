@@ -341,9 +341,6 @@ body {
 </div>
 
 <script>
-var SUPABASE_URL  = window.SUPABASE_URL;
-var SUPABASE_ANON = window.SUPABASE_ANON_KEY;
-
 function fmtDate(iso) {
   if (!iso) return '—';
   return new Date(iso + (iso.includes('T') ? '' : 'T12:00:00'))
@@ -421,44 +418,10 @@ async function loadPortal(token, recordId, waiverVersionId) {
   var agr = data.agreements.find(function(a) { return a.id === waiverVersionId; });
   if (!agr) throw new Error('agreement not found');
 
-  // Also need record details — fetch inline from Supabase (anon key ok, same as invoice-receipt)
-  var rRes = await fetch(SUPABASE_URL + '/rest/v1/inspection_records?id=eq.' + encodeURIComponent(recordId) + '&select=cust_name,address,inspection_date,inspector_name&limit=1', {
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
-  });
-  var rRows = await rRes.json();
-  var record = (rRows && rRows[0]) || {};
-
-  renderAgreement(agr, record);
-}
-
-async function loadAdmin(recordId, waiverVersionId) {
-  // Admin path: fetch waiver version + signature directly with anon key
-  var headers = { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON };
-
-  var wRes = await fetch(SUPABASE_URL + '/rest/v1/waiver_versions?id=eq.' + encodeURIComponent(waiverVersionId) + '&select=id,name,version,body,checkboxes&limit=1', { headers: headers });
-  var wRows = await wRes.json();
-  var wv = wRows && wRows[0];
-  if (!wv) throw new Error('waiver not found');
-
-  var sRes = await fetch(SUPABASE_URL + '/rest/v1/waiver_signatures?waiver_version_id=eq.' + encodeURIComponent(waiverVersionId) + '&inspection_record_id=eq.' + encodeURIComponent(recordId) + '&select=signed_name,signed_at,signature_method,signature_data&limit=1', { headers: headers });
-  var sRows = await sRes.json();
-  var sig = sRows && sRows[0];
-
-  var rRes = await fetch(SUPABASE_URL + '/rest/v1/inspection_records?id=eq.' + encodeURIComponent(recordId) + '&select=cust_name,address,inspection_date,inspector_name&limit=1', { headers: headers });
-  var rRows = await rRes.json();
-  var record = (rRows && rRows[0]) || {};
-
-  var agr = {
-    id:               wv.id,
-    name:             wv.name,
-    version:          wv.version,
-    body:             wv.body,
-    signed:           !!sig,
-    signed_name:      sig ? sig.signed_name      : null,
-    signed_at:        sig ? sig.signed_at        : null,
-    signature_data:   sig ? sig.signature_data   : null,
-    signature_method: sig ? sig.signature_method : null,
-  };
+  // Fetch record details via proxy function (no direct Supabase access)
+  var rRes = await fetch('/.netlify/functions/get-record-public?record_id=' + encodeURIComponent(recordId));
+  var rData = await rRes.json();
+  var record = (rData && rData.record) || {};
 
   renderAgreement(agr, record);
 }
@@ -468,17 +431,11 @@ async function loadAgreement() {
   var token          = params.get('token');
   var recordId       = params.get('record_id');
   var waiverVersionId= params.get('waiver_version_id');
-  var isAdmin        = params.get('admin') === '1';
 
-  if (!recordId || !waiverVersionId) { showNotFound(); return; }
+  if (!recordId || !waiverVersionId || !token) { showNotFound(); return; }
 
   try {
-    if (isAdmin) {
-      await loadAdmin(recordId, waiverVersionId);
-    } else {
-      if (!token) { showNotFound(); return; }
-      await loadPortal(token, recordId, waiverVersionId);
-    }
+    await loadPortal(token, recordId, waiverVersionId);
   } catch(e) {
     console.error('agreement-receipt error:', e);
     showNotFound();

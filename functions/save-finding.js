@@ -1,12 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth } = require('./auth');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
-
-// Whitelist of allowed finding columns
+const { corsHeaders } = require('./lib/cors');// Whitelist of allowed finding columns
 const FINDING_FIELDS = [
   'record_id', 'section_id', 'field_id',
   'condition_value', 'is_safety', 'priority', 'observation',
@@ -30,31 +25,32 @@ function db() {
 exports._setClient = function (c) { _supabase = c; };
 
 exports.handler = async (event) => {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
 
-  const authError = requireAuth(event);
+  const authError = await requireAuth(event);
   if (authError) return authError;
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   var body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch (e) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   var { record_id, section_id, recommendation_ids } = body;
 
   if (!record_id) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'record_id required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'record_id required' }) };
   }
   if (!section_id) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'section_id required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'section_id required' }) };
   }
 
   var findingRow = pick(body, FINDING_FIELDS);
@@ -103,9 +99,9 @@ exports.handler = async (event) => {
       }
     }
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ id: findingId }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ id: findingId }) };
   } catch (err) {
     console.error('save-finding error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

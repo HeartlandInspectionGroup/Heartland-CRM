@@ -25,12 +25,7 @@ const PASS   = process.env.ADMIN_PASSWORD;
 const PATH   = process.env.CONFIG_FILE_PATH || 'assets/js/availability-config.js';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
 
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-};
-
+const { corsHeaders } = require('./lib/cors');
 const ghHeaders = {
   Authorization: `token ${TOKEN}`,
   Accept: 'application/vnd.github.v3+json',
@@ -38,6 +33,8 @@ const ghHeaders = {
 };
 
 exports.handler = async (event) => {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  headers['Access-Control-Allow-Headers'] += ', X-Admin-Password';
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
@@ -135,7 +132,6 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
 };
-
 
 // ——— Helpers ———————————————————————————————
 function esc(str) {

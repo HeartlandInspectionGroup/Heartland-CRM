@@ -202,45 +202,11 @@
 
   .inv-payment-body { padding: 24px; }
 
-  .inv-field { margin-bottom: 18px; }
-  .inv-field-label {
-    display: block;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--label);
-    margin-bottom: 8px;
+  .inv-payment-element-wrap {
+    min-height: 100px;
   }
-  .inv-field-input {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid rgba(255,255,255,0.12);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.05);
-    font-family: 'Barlow', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .inv-field-input:focus { border-color: var(--green); }
-  .inv-field-input::placeholder { color: rgba(255,255,255,0.2); }
 
-  .inv-card-wrap {
-    padding: 12px 14px;
-    border: 1.5px solid rgba(255,255,255,0.12);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.05);
-    transition: border-color 0.15s;
-  }
-  .inv-card-wrap.focused { border-color: var(--green); }
-
-  /* Override Stripe iframe text color for dark bg */
-  .inv-card-wrap .StripeElement { color: white; }
-
-  .inv-card-error {
+  .inv-pay-error {
     font-size: 12px;
     color: var(--red);
     margin-top: 8px;
@@ -413,24 +379,16 @@
   <div class="inv-payment" id="invPayment">
 
     <div class="inv-payment-header">
-      <h2>Pay by Card</h2>
-      <p>Secured by Stripe — your card info is never stored on our servers</p>
+      <h2>Pay Now</h2>
+      <p>Secured by Stripe — Apple Pay, Google Pay, or card</p>
     </div>
 
     <div class="inv-payment-body" id="invPaymentBody">
 
-      <div class="inv-field">
-        <label class="inv-field-label" for="invName">Name on Card</label>
-        <input class="inv-field-input" type="text" id="invName" placeholder="Full name" autocomplete="cc-name">
+      <div class="inv-payment-element-wrap">
+        <div id="paymentElement"></div>
       </div>
-
-      <div class="inv-field">
-        <label class="inv-field-label">Card Details</label>
-        <div class="inv-card-wrap" id="invCardWrap">
-          <div id="cardElement"></div>
-        </div>
-        <div class="inv-card-error" id="cardError"></div>
-      </div>
+      <div class="inv-pay-error" id="payError"></div>
 
       <button class="inv-pay-btn" id="invPayBtn" onclick="handlePay()">
         <span id="invPayBtnText">Pay Now</span>
@@ -439,6 +397,11 @@
 
       <div class="inv-secure">
         🔒 Encrypted &amp; secured by Stripe
+      </div>
+
+      <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.08);">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;font-weight:600;margin-bottom:8px;">Or pay with</div>
+        <button onclick="showVenmoQr()" style="padding:12px 28px;background:#008CFF;color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">Venmo</button>
       </div>
     </div>
 
@@ -464,10 +427,11 @@
   var SUPABASE_URL  = 'https://fusravedbksupcsjfzda.supabase.co';
   var SUPABASE_ANON = window.SUPABASE_ANON_KEY;
 
-  var bookingId   = null;
-  var bookingData = null;
-  var stripeInstance = null;
-  var cardElement    = null;
+  var bookingId      = null;
+  var bookingData    = null;
+  var stripeInstance  = null;
+  var stripeElements  = null;
+  var clientSecret    = null;
 
   function qs(id) { return document.getElementById(id); }
   function fmt(n) { return '$' + Number(n || 0).toFixed(0); }
@@ -484,7 +448,6 @@
     }
 
     try {
-      // Read from inspection_records via function — no anon key
       var res = await fetch('/.netlify/functions/get-report?booking_id=' + encodeURIComponent(bookingId));
       var data = await res.json();
       var rows = data && data.report ? [data.report] : null;
@@ -509,7 +472,6 @@
     qs('invLoading').style.display = 'none';
     qs('invSummaryContent').style.display = '';
 
-    // inspection_records: address/cust_name  |  bookings: property_address/client_name
     qs('invAddress').textContent = b.address || b.property_address || '—';
     qs('invClient').textContent  = b.cust_name || b.client_name || '';
 
@@ -523,7 +485,6 @@
           + '</div>';
       });
     } else {
-      // inspection_records fallback — show tier/category as single line item
       var svcLabel = b.tier || b.category || 'Home Inspection';
       svcLabel = svcLabel.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, function(l){ return l.toUpperCase(); });
       html += '<div class="inv-line">'
@@ -557,84 +518,82 @@
     qs('invPayBtnText').textContent = 'Pay ' + fmt(b.final_total) + ' Now';
   }
 
-  // ── STRIPE INIT ────────────────────────────────────────────
+  // ── STRIPE INIT (Payment Element) ────────────────────────
   async function initStripe() {
     try {
+      // 1. Get publishable key
       var keyRes  = await fetch('/.netlify/functions/get-stripe-key');
       var keyData = await keyRes.json();
       var pk = keyData.publishableKey || keyData.key;
       if (!pk) throw new Error('No Stripe key');
 
-      stripeInstance = Stripe(pk);
-      var elements = stripeInstance.elements({
-        fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&display=swap' }]
-      });
-
-      cardElement = elements.create('card', {
-        style: {
-          base: {
-            fontFamily: "'Barlow', sans-serif",
-            fontSize: '15px',
-            color: 'rgba(255,255,255,0.92)',
-            '::placeholder': { color: 'rgba(255,255,255,0.2)' },
-            iconColor: 'rgba(255,255,255,0.4)',
-          },
-          invalid: { color: '#e74c3c' }
-        }
-      });
-      cardElement.mount('#cardElement');
-      cardElement.on('focus', function() { qs('invCardWrap').classList.add('focused'); });
-      cardElement.on('blur',  function() { qs('invCardWrap').classList.remove('focused'); });
-      cardElement.on('change', function(e) {
-        qs('cardError').textContent = e.error ? e.error.message : '';
-      });
-    } catch(e) {
-      console.error('Stripe init error:', e);
-      qs('cardError').textContent = 'Could not load payment form. Please refresh.';
-    }
-  }
-
-  // ── PAY ────────────────────────────────────────────────────
-  window.handlePay = async function() {
-    if (!stripeInstance || !cardElement || !bookingData) return;
-
-    var name = qs('invName').value.trim();
-    if (!name) { qs('cardError').textContent = 'Please enter the name on your card.'; return; }
-
-    setLoading(true);
-    qs('cardError').textContent = '';
-
-    try {
-      var res = await fetch('/.netlify/functions/create-payment', {
+      // 2. Create PaymentIntent upfront to get clientSecret
+      var piRes = await fetch('/.netlify/functions/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           booking_id:   bookingId,
           amount_cents: Math.round((bookingData.final_total || 0) * 100),
-          clientName:   bookingData.client_name  || '',
-          clientEmail:  bookingData.client_email || '',
-          clientPhone:  bookingData.client_phone || '',
-          address:      bookingData.property_address || '',
+          clientName:   bookingData.cust_name  || bookingData.client_name  || '',
+          clientEmail:  bookingData.cust_email || bookingData.client_email || '',
+          clientPhone:  bookingData.cust_phone || bookingData.client_phone || '',
+          address:      bookingData.address    || bookingData.property_address || '',
         })
       });
-      var data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Payment setup failed');
+      var piData = await piRes.json();
+      if (!piRes.ok) throw new Error(piData.error || 'Payment setup failed');
+      clientSecret = piData.clientSecret;
 
-      var result = await stripeInstance.confirmCardPayment(data.clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: { name: name, email: bookingData.client_email || '' }
+      // 3. Create Elements group with clientSecret + appearance
+      stripeInstance = Stripe(pk);
+      stripeElements = stripeInstance.elements({
+        clientSecret: clientSecret,
+        fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&display=swap' }],
+        appearance: {
+          theme: 'night',
+          variables: {
+            colorPrimary: '#27ae60',
+            colorBackground: '#1a2332',
+            colorText: 'rgba(255,255,255,0.92)',
+            fontFamily: 'Barlow, sans-serif',
+          }
         }
       });
 
+      // 4. Create and mount Payment Element
+      var paymentElement = stripeElements.create('payment');
+      paymentElement.mount('#paymentElement');
+    } catch(e) {
+      console.error('Stripe init error:', e);
+      var errEl = qs('payError');
+      if (errEl) errEl.textContent = 'Could not load payment form. Please refresh.';
+    }
+  }
+
+  // ── PAY ────────────────────────────────────────────────────
+  window.handlePay = async function() {
+    if (!stripeInstance || !stripeElements || !bookingData || !clientSecret) return;
+
+    setLoading(true);
+    var errEl = qs('payError');
+    if (errEl) errEl.textContent = '';
+
+    try {
+      var result = await stripeInstance.confirmPayment({
+        elements: stripeElements,
+        confirmParams: {
+          return_url: window.location.href,
+        },
+        redirect: 'if_required',
+      });
+
       if (result.error) {
-        qs('cardError').textContent = result.error.message;
+        if (errEl) errEl.textContent = result.error.message;
         setLoading(false);
         return;
       }
 
-      if (result.paymentIntent.status === 'succeeded') {
-        // Record payment server-side (service key) — updates booking + record + sets invoice_url
+      if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
         var payRes = await fetch('/.netlify/functions/record-online-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -645,7 +604,6 @@
         });
         var payData = await payRes.json();
 
-        // Redirect back to portal so client sees cleared notification immediately
         if (payData.portal_url) {
           window.location.href = payData.portal_url;
         } else {
@@ -654,7 +612,7 @@
       }
 
     } catch(e) {
-      qs('cardError').textContent = e.message || 'Payment failed. Please try again.';
+      if (errEl) errEl.textContent = e.message || 'Payment failed. Please try again.';
       setLoading(false);
     }
   };
@@ -677,8 +635,8 @@
   function showAlreadyPaid() {
     qs('invLoading').style.display = 'none';
     qs('invSummaryContent').style.display = '';
-    qs('invAddress').textContent = bookingData.property_address || '—';
-    qs('invClient').textContent  = bookingData.client_name || '';
+    qs('invAddress').textContent = bookingData.address || bookingData.property_address || '—';
+    qs('invClient').textContent  = bookingData.cust_name || bookingData.client_name || '';
     qs('invLineItems').innerHTML = '<div style="padding:8px 0;font-size:14px;color:#27ae60;font-weight:600;">✓ Payment already received</div>';
     qs('invTotal').textContent = fmt(bookingData.final_total);
     qs('invPaymentBody').style.display = 'none';
@@ -696,6 +654,26 @@
 
   loadBooking();
 })();
+</script>
+
+<!-- Venmo QR Modal -->
+<div id="venmoQrModal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;max-width:min(400px,calc(100vw - 32px));width:100%;text-align:center;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#121e30,#1a2a44);padding:18px 24px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;">Scan to Pay with Venmo</div>
+    </div>
+    <div style="padding:24px;">
+      <img src="https://res.cloudinary.com/dmztfzqfm/image/upload/v1773689761/Venmo_QR_Code_vqhfvb.jpg" alt="Venmo QR Code" style="width:100%;max-width:280px;border-radius:12px;">
+      <div style="margin-top:12px;font-size:13px;color:#555;">@heartlandinspectiongroup</div>
+    </div>
+    <div style="padding:12px 24px 20px;">
+      <button onclick="closeVenmoQr()" style="padding:12px 28px;background:#121e30;color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Close</button>
+    </div>
+  </div>
+</div>
+<script>
+function showVenmoQr() { var m = document.getElementById('venmoQrModal'); if (m) m.style.display = 'flex'; }
+function closeVenmoQr() { var m = document.getElementById('venmoQrModal'); if (m) m.style.display = 'none'; }
 </script>
 
 </body>

@@ -287,15 +287,15 @@ function iwbBuildHIPanel() {
 function iwbBuildNCPanel() {
   var cfg     = iwb.cfg || {};
   var ncItems = (cfg.newConstructionItems || []).filter(function (it) { return it.active !== false; });
-  var phases  = ncItems.filter(function (it) { return !it.isBundle; });
-  var bundle  = ncItems.find(function (it)  { return  it.isBundle; }) || null;
+  var phases  = ncItems.filter(function (it) { return !it.is_bundle; });
+  var bundle  = ncItems.find(function (it)  { return  it.is_bundle; }) || null;
   var ncIcons = { 'Pre Pour': '🪨', 'Pre Drywall': '🔨', 'Final Walkthrough': '🏁' };
   var grid    = document.getElementById('iwbNCGrid');
 
   var items = phases.slice();
   if (bundle) {
     var savings = phases.reduce(function (s, p) { return s + Number(p.price || 0); }, 0) - Number(bundle.price || 0);
-    items.push({ id: '__bundle__', name: bundle.name || 'Full Bundle', price: bundle.price || 0, _savings: savings, isBundle: true });
+    items.push({ id: '__bundle__', name: bundle.name || 'Full Bundle', price: bundle.price || 0, _savings: savings, is_bundle: true });
   }
   if (!items.length) {
     items = [
@@ -306,8 +306,8 @@ function iwbBuildNCPanel() {
   }
 
   grid.innerHTML = items.map(function (it) {
-    var icon = ncIcons[it.name] || (it.isBundle ? '📦' : '🏗️');
-    var sub  = (it.isBundle && it._savings > 0)
+    var icon = ncIcons[it.name] || (it.is_bundle ? '📦' : '🏗️');
+    var sub  = (it.is_bundle && it._savings > 0)
       ? '<span style="font-size:11px;color:rgba(255,255,255,0.4);">All 3 phases · save $' + it._savings + '</span>'
       : '';
     return '<button class="apw-phase-btn"' +
@@ -743,9 +743,11 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // Single server-side call — no anon key touches the bookings table
+        // Use JWT auth if getAuthHeader is available (V2 wizard), fall back to ADMIN_TOKEN
+        var iwbAuthHeaders = typeof getAuthHeader === 'function' ? await getAuthHeader() : {};
         var bRes = await fetch('/.netlify/functions/iwb-submit-booking', {
           method:  'POST',
-          headers: { 'Content-Type': 'application/json', 'x-admin-token': window.ADMIN_TOKEN },
+          headers: Object.assign({ 'Content-Type': 'application/json' }, iwbAuthHeaders),
           body:    JSON.stringify({ booking: booking, calendar: calPayload }),
         });
         var bData = await bRes.json();

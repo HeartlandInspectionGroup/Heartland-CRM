@@ -14,12 +14,9 @@
 
 const RENTCAST_API_KEY = process.env.RENTCAST_API_KEY;
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
-
+const { corsHeaders } = require('./lib/cors');
 exports.handler = async function(event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers };
   }

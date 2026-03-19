@@ -1,15 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth } = require('./auth');
 const { writeAuditLog } = require('./write-audit-log');
 
+const { corsHeaders } = require('./lib/cors');
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
-
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
 
 const SITE_URL = process.env.SITE_URL || 'https://heartlandinspectiongroup.com';
 
@@ -39,21 +36,19 @@ async function fireReportEmail({ id, cust_name, cust_email, address, tier, categ
 }
 
 exports.handler = async (event) => {
-
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  const adminToken = process.env.ADMIN_TOKEN;
-  if (event.headers['x-admin-token'] !== adminToken) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
+  const authError = await requireAuth(event);
+  if (authError) return authError;
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   let parsed;
   try {
     parsed = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const {
@@ -107,7 +102,7 @@ exports.handler = async (event) => {
     if (id) {
       // Update existing record by id — never downgrade status
       const { data: cur } = await supabase.from('inspection_records').select('status').eq('id', id).single();
-      const STATUS_RANK = { scheduled: 1, in_progress: 2, submitted: 3, delivered: 4, approved: 5 };
+      const STATUS_RANK = { scheduled: 1, in_progress: 2, narrative: 3, submitted: 4, delivered: 5, approved: 6 };
       const safeFields = { ...fields };
       if (cur && (STATUS_RANK[fields.status] || 0) <= (STATUS_RANK[cur.status] || 0) && fields.status !== 'submitted') {
         delete safeFields.status;
@@ -130,7 +125,7 @@ exports.handler = async (event) => {
 
       if (existing) {
         // Never downgrade status — confirmed stays confirmed until submitted
-        const STATUS_RANK = { scheduled: 1, in_progress: 2, submitted: 3, delivered: 4, approved: 5 };
+        const STATUS_RANK = { scheduled: 1, in_progress: 2, narrative: 3, submitted: 4, delivered: 5, approved: 6 };
         const incomingRank = STATUS_RANK[fields.status] || 0;
         const existingRank = STATUS_RANK[existing.status] || 0;
         const safeFields = { ...fields };
@@ -193,10 +188,10 @@ exports.handler = async (event) => {
       });
     }
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ id: recordId }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ id: recordId }) };
 
   } catch (err) {
     console.error('save-draft error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

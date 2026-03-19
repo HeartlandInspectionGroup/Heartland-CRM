@@ -54,7 +54,7 @@ Needed for Section 3 (Heartland Clients tab) to query inspection_records directl
 - Zip command:
 ```bash
 cd /home/claude/heartland-website
-zip -qr /mnt/user-data/outputs/heartland-website-flat.zip admin.html inspector-wizard.html inspector.html inspection-wizard.html index.html client-portal.html invoice.html invoice-receipt.html agent-portal.html report.html success.html faq.html scheduler.html branding-guidelines.html brand.css manifest.json robots.txt sw.js netlify.toml package.json package-lock.json vitest.config.js CLAUDE.md TODO.md functions/ assets/ images/ services/ shared/ scripts/ docs/ tests/
+zip -qr /mnt/user-data/outputs/heartland-website-flat.zip admin.html inspector-wizard.html inspector.html inspection-wizard.html index.html client-portal.html invoice.html invoice-receipt.html agent-portal.html report.html faq.html scheduler.html branding-guidelines.html brand.css manifest.json robots.txt sw.js netlify.toml package.json package-lock.json vitest.config.js CLAUDE.md TODO.md functions/ assets/ images/ services/ shared/ scripts/ docs/ tests/
 ```
 
 ---

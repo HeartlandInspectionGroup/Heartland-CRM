@@ -14,11 +14,7 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const { corsHeaders } = require('./lib/cors');
 
 let _supabase = null;
 function getSupabase() {
@@ -31,6 +27,7 @@ function getSupabase() {
 }
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }

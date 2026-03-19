@@ -11,15 +11,12 @@
 
 const { sendEmail, hasCredentials } = require("./lib/ms-graph");
 const { writeAuditLog } = require("./write-audit-log");
+const { emailWrap, esc: escHtml } = require("./lib/email-template");
+const { resolveTemplate } = require("./lib/template-utils");
 
+const { corsHeaders } = require('./lib/cors');
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-const headers = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
-};
 
 function sbHeaders() {
   return {
@@ -54,6 +51,7 @@ async function sbInsert(table, payload) {
 function esc(s) { return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers, body: "" };
   if (event.httpMethod !== "POST")    return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
 
@@ -106,6 +104,11 @@ exports.handler = async function (event) {
       return { statusCode: 409, headers, body: JSON.stringify({ error: "Already signed", signature_id: existing[0].id }) };
     }
 
+    var ip_address = (event.headers['x-forwarded-for'] || '').split(',')[0].trim()
+                  || event.headers['client-ip']
+                  || null;
+    var user_agent = event.headers['user-agent'] || null;
+
     var { status, data: sigData } = await sbInsert("waiver_signatures", {
       waiver_version_id,
       client_email,
@@ -113,6 +116,8 @@ exports.handler = async function (event) {
       signed_name,
       signature_data:       signature_data        || null,
       signature_method,
+      ip_address,
+      user_agent,
     });
 
     if (status === 409) {
@@ -172,12 +177,18 @@ exports.handler = async function (event) {
     // Confirmation email (non-fatal)
     if (hasCredentials()) {
       try {
-        var signedDate = new Date((sigRecord && sigRecord.signed_at) || new Date()).toLocaleString("en-US", { timeZone: "America/Chicago" });
         var firstName  = signed_name.split(" ")[0] || "there";
+        var tplVars = { client_name: signed_name, address: '', date: '' };
+        var tpl = await resolveTemplate('agreement_signed', { subject: 'Agreement Signed — Heartland Inspection Group', body: 'Your inspection agreement has been signed. We look forward to seeing you at your inspection!' }, tplVars);
+        var bodyHtml = ''
+          + '<div style="padding:32px 40px;">'
+          + '<p style="font-family:\'Segoe UI\',Arial,sans-serif;font-size:16px;color:#1a2530;margin:0 0 12px;">Hi ' + escHtml(firstName) + ',</p>'
+          + '<p style="font-family:\'Segoe UI\',Arial,sans-serif;font-size:15px;color:#4a5568;line-height:1.7;margin:0;">' + escHtml(tpl.body) + '</p>'
+          + '</div>';
         await sendEmail({
           to: client_email, toName: signed_name,
-          subject: "Agreement Signed — Heartland Inspection Group",
-          htmlBody: "<p>Hi " + esc(firstName) + ", you signed " + esc(waiver.name) + " on " + signedDate + ". Questions? Call (815) 329-8583.</p>",
+          subject: tpl.subject,
+          htmlBody: emailWrap({ subtitle: 'Agreement Signed' }, bodyHtml),
         });
       } catch (emailErr) {
         console.error("[sign-waiver] Email failed (non-fatal):", emailErr.message);

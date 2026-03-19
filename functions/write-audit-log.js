@@ -19,28 +19,24 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, x-admin-token',
-};
-
+const { corsHeaders } = require('./lib/cors');
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
+  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Database not configured' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Database not configured' }) };
   }
 
   var body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { record_id, action, category, details, actor } = body;
 
   if (!action || !category) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'action and category required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'action and category required' }) };
   }
 
   try {
@@ -64,14 +60,14 @@ exports.handler = async function(event) {
     if (!res.ok) {
       var errText = await res.text();
       console.error('[write-audit-log] Supabase error:', errText);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: errText }) };
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: errText }) };
     }
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
 
   } catch(err) {
     console.error('[write-audit-log] Error:', err.message);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };
 

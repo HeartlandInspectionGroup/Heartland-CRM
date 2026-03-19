@@ -18,14 +18,11 @@ const SUPABASE_KEY        = process.env.SUPABASE_SERVICE_KEY || process.env.SUPA
 const AZURE_TENANT_ID     = process.env.AZURE_TENANT_ID;
 const AZURE_CLIENT_ID     = process.env.AZURE_CLIENT_ID;
 const AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
-const ADMIN_TOKEN         = process.env.ADMIN_TOKEN;
 const CALENDAR_USER       = 'jake@heartlandinspectiongroup.com';
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, x-admin-token',
-};
+const { requireAuth } = require('./auth');
+
+const { corsHeaders } = require('./lib/cors');
 
 async function getAzureToken() {
   if (!AZURE_TENANT_ID || !AZURE_CLIENT_ID || !AZURE_CLIENT_SECRET) return null;
@@ -134,20 +131,22 @@ async function updateBooking(bookingId, updates) {
 }
 
 exports.handler = async function(event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
-  // Accept either admin token OR a valid agent portal token
-  var isAdmin = event.headers['x-admin-token'] === ADMIN_TOKEN;
-  var agentToken = event.headers['x-portal-token'] || '';
+  // Accept either admin auth (JWT or legacy token) OR a valid agent portal token
+  var isAdmin = !(await requireAuth(event)); // null = auth passed
   var isAgent = false;
-  if (!isAdmin && agentToken) {
-    // Validate the agent token against the agents table
-    var aRes = await fetch(SUPABASE_URL + '/rest/v1/agents?portal_token=eq.' + encodeURIComponent(agentToken) + '&role=eq.agent&active=eq.true&select=id&limit=1', {
-      headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-    });
-    var aRows = aRes.ok ? await aRes.json() : [];
-    isAgent = Array.isArray(aRows) && aRows.length > 0;
+  if (!isAdmin) {
+    var agentToken = event.headers['x-portal-token'] || '';
+    if (agentToken) {
+      var aRes = await fetch(SUPABASE_URL + '/rest/v1/agents?portal_token=eq.' + encodeURIComponent(agentToken) + '&role=eq.agent&active=eq.true&select=id&limit=1', {
+        headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+      });
+      var aRows = aRes.ok ? await aRes.json() : [];
+      isAgent = Array.isArray(aRows) && aRows.length > 0;
+    }
   }
   if (!isAdmin && !isAgent) {
     return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };

@@ -16,38 +16,69 @@ function makeEvent(body, token) {
   };
 }
 
-var mockFetchResult, mockUpdateResult;
+var mockRecord, mockSigs, mockActiveVersions, mockUpdateResult;
 
 function mockClient() {
   return {
-    from: function () {
-      return {
-        select: function () {
-          return {
-            eq: function () {
-              return {
-                maybeSingle: function () {
-                  return Promise.resolve(mockFetchResult);
-                },
-              };
-            },
-          };
-        },
-        update: function () {
-          return {
-            eq: function () {
-              return Promise.resolve(mockUpdateResult);
-            },
-          };
-        },
-      };
+    from: function (table) {
+      if (table === 'inspection_records') {
+        return {
+          select: function () {
+            return {
+              eq: function () {
+                return {
+                  maybeSingle: function () {
+                    return Promise.resolve(mockRecord);
+                  },
+                };
+              },
+            };
+          },
+          update: function () {
+            return {
+              eq: function () {
+                return Promise.resolve(mockUpdateResult);
+              },
+            };
+          },
+        };
+      }
+      if (table === 'waiver_signatures') {
+        return {
+          select: function () {
+            return {
+              eq: function () {
+                return Promise.resolve(mockSigs);
+              },
+            };
+          },
+        };
+      }
+      if (table === 'waiver_versions') {
+        return {
+          select: function () {
+            return {
+              in: function () {
+                return {
+                  eq: function () {
+                    return Promise.resolve(mockActiveVersions);
+                  },
+                };
+              },
+            };
+          },
+        };
+      }
     },
   };
 }
 
+// Default: paid + agreement signed → should pass both gates
 beforeEach(() => {
   process.env.ADMIN_TOKEN = 'test-token';
-  mockFetchResult = { data: { id: 'rec-1', status: 'scheduled' }, error: null };
+  mockRecord = { data: { id: 'rec-1', status: 'scheduled', payment_status: 'paid', final_total: 375 }, error: null };
+  mockSigs = { data: [{ id: 'sig-1', waiver_version_id: 'wv-1' }], error: null };
+  mockActiveVersions = { data: [{ id: 'wv-1' }], error: null };
   mockUpdateResult = { error: null };
   mod._setClient(mockClient());
 });
@@ -78,16 +109,24 @@ describe('submit-inspection-v2 — validation', () => {
 });
 
 describe('submit-inspection-v2 — success', () => {
-  it('sets status to submitted and returns ok', async () => {
+  it('sets status to submitted and returns ok when both gates pass', async () => {
     var res = await handler(makeEvent({ record_id: 'rec-1' }));
     expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body).ok).toBe(true);
+  });
+
+  it('passes when final_total is 0 regardless of payment_status', async () => {
+    mockRecord = { data: { id: 'rec-1', status: 'scheduled', payment_status: 'unpaid', final_total: 0 }, error: null };
+    mod._setClient(mockClient());
+
+    var res = await handler(makeEvent({ record_id: 'rec-1' }));
+    expect(res.statusCode).toBe(200);
   });
 });
 
 describe('submit-inspection-v2 — 404', () => {
   it('returns 404 when record not found', async () => {
-    mockFetchResult = { data: null, error: null };
+    mockRecord = { data: null, error: null };
     mod._setClient(mockClient());
 
     var res = await handler(makeEvent({ record_id: 'nonexistent' }));
@@ -97,12 +136,50 @@ describe('submit-inspection-v2 — 404', () => {
 
 describe('submit-inspection-v2 — 409', () => {
   it('returns 409 when already submitted', async () => {
-    mockFetchResult = { data: { id: 'rec-1', status: 'submitted' }, error: null };
+    mockRecord = { data: { id: 'rec-1', status: 'submitted', payment_status: 'paid' }, error: null };
     mod._setClient(mockClient());
 
     var res = await handler(makeEvent({ record_id: 'rec-1' }));
     expect(res.statusCode).toBe(409);
     expect(JSON.parse(res.body).error).toMatch(/already submitted/i);
+  });
+});
+
+describe('submit-inspection-v2 — payment gate', () => {
+  it('returns 402 when payment_status is unpaid and final_total > 0', async () => {
+    mockRecord = { data: { id: 'rec-1', status: 'scheduled', payment_status: 'unpaid', final_total: 375 }, error: null };
+    mod._setClient(mockClient());
+
+    var res = await handler(makeEvent({ record_id: 'rec-1' }));
+    expect(res.statusCode).toBe(402);
+    expect(JSON.parse(res.body).error).toMatch(/payment required/i);
+  });
+
+  it('returns 402 when payment_status is null and final_total > 0', async () => {
+    mockRecord = { data: { id: 'rec-1', status: 'scheduled', payment_status: null, final_total: 375 }, error: null };
+    mod._setClient(mockClient());
+
+    var res = await handler(makeEvent({ record_id: 'rec-1' }));
+    expect(res.statusCode).toBe(402);
+  });
+});
+
+describe('submit-inspection-v2 — agreement gate', () => {
+  it('returns 403 when no waiver signatures exist', async () => {
+    mockSigs = { data: [], error: null };
+    mod._setClient(mockClient());
+
+    var res = await handler(makeEvent({ record_id: 'rec-1' }));
+    expect(res.statusCode).toBe(403);
+    expect(JSON.parse(res.body).error).toMatch(/agreement must be signed/i);
+  });
+
+  it('returns 403 when signatures exist but waiver_version is inactive', async () => {
+    mockActiveVersions = { data: [], error: null };
+    mod._setClient(mockClient());
+
+    var res = await handler(makeEvent({ record_id: 'rec-1' }));
+    expect(res.statusCode).toBe(403);
   });
 });
 

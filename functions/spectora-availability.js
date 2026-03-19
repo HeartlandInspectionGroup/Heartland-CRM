@@ -10,17 +10,12 @@
 
 const ical = require('node-ical');
 
+const { corsHeaders } = require('./lib/cors');
 const ICAL_URL =
   'https://outlook.office365.com/owa/calendar/73c1ee7d9fee493c9f67057d88373d84@heartlandinspectiongroup.com/44be9cd44aa640cb985fd5778946b8e35271852733375210576/calendar.ics';
 
 exports.handler = async function (event, context) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store, no-cache, must-revalidate',
-  };
-
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event), 'Cache-Control': 'no-store, no-cache, must-revalidate' };
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }

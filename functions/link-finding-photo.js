@@ -1,10 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth } = require('./auth');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
+const { corsHeaders } = require('./lib/cors');
 
 var _supabase;
 function db() {
@@ -15,28 +12,29 @@ function db() {
 exports._setClient = function (c) { _supabase = c; };
 
 exports.handler = async (event) => {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
 
-  const authError = requireAuth(event);
+  const authError = await requireAuth(event);
   if (authError) return authError;
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   var body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch (e) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   var { photo_id, finding_id } = body;
 
   if (!photo_id) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'photo_id required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'photo_id required' }) };
   }
 
   try {
@@ -49,7 +47,7 @@ exports.handler = async (event) => {
 
     if (photoErr) throw photoErr;
     if (!photo) {
-      return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Photo not found' }) };
+      return { statusCode: 404, headers: headers, body: JSON.stringify({ error: 'Photo not found' }) };
     }
 
     // If linking (not unlinking), validate the finding belongs to the same record
@@ -62,11 +60,11 @@ exports.handler = async (event) => {
 
       if (findErr) throw findErr;
       if (!finding) {
-        return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Finding not found' }) };
+        return { statusCode: 404, headers: headers, body: JSON.stringify({ error: 'Finding not found' }) };
       }
 
       if (photo.record_id !== finding.record_id) {
-        return { statusCode: 403, headers: HEADERS, body: JSON.stringify({ error: 'Photo and finding belong to different records' }) };
+        return { statusCode: 403, headers: headers, body: JSON.stringify({ error: 'Photo and finding belong to different records' }) };
       }
     }
 
@@ -78,9 +76,9 @@ exports.handler = async (event) => {
 
     if (updErr) throw updErr;
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
   } catch (err) {
     console.error('link-finding-photo error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

@@ -306,6 +306,7 @@ body {
   .sec-header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .photo-thumb { page-break-inside:avoid; }
   .sec-card { page-break-inside:avoid; break-inside:avoid; }
+  .street-view-photo { display: block !important; width: 100% !important; }
 }
   </style>
 </head>
@@ -362,6 +363,10 @@ body {
       <div class="rpt-property-address" id="rptAddress">—</div>
       <div class="rpt-property-sub" id="rptPropertySub"></div>
     </div>
+
+    <img id="rptStreetView" class="street-view-photo" src="" alt="Property Street View"
+        style="display:none; max-height:300px; object-fit:cover; border-radius:8px; margin:16px 28px 0; width:calc(100% - 56px);"
+        onerror="this.style.display='none'">
 
     <div id="rptScoreBlock" style="display:none;"><!-- filled by JS --></div>
 
@@ -561,6 +566,13 @@ function getScoreSub(score, cls) {
   return 'This home has systems that require prompt attention or repair.';
 }
 
+function showStreetView(address) {
+  var svEl = document.getElementById('rptStreetView');
+  if (!svEl || !address) return;
+  svEl.src = '/.netlify/functions/street-view?address=' + encodeURIComponent(address);
+  svEl.style.display = 'block';
+}
+
 function renderReport(r) {
   var fd   = r.form_data || {};
   var tier = r.tier || 'Standard';
@@ -571,6 +583,7 @@ function renderReport(r) {
   document.getElementById('rptClient').textContent     = r.cust_name || '—';
   document.getElementById('rptInspector').textContent  = r.inspector_name || '—';
   document.getElementById('rptAddress').textContent    = r.address || '—';
+  showStreetView(r.address);
   document.getElementById('rptPropertySub').textContent = r.cust_name ? 'Prepared for ' + r.cust_name : '';
 
   // Score

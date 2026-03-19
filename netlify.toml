@@ -8,6 +8,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions."check-agreement-reminders"]
+  schedule = "0 * * * *"
+
 [[redirects]]
   from = "/api/save-config"
   to = "/.netlify/functions/save-config"
@@ -122,14 +125,20 @@
     X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
-  for = "/inspector.html"
+  for = "/invoice.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
-  for = "/invoice.html"
+  for = "/narrative-review.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/.well-known/apple-developer-merchantid-domain-association"
+  [headers.values]
+    Content-Type = "application/octet-stream"
+    Access-Control-Allow-Origin = "*"
 
 [[redirects]]
   from = "/heartland-site/*"

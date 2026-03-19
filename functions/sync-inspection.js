@@ -10,11 +10,8 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const { corsHeaders } = require('./lib/cors');
+const { requireAuth } = require('./auth');
 
 async function sbFetch(path, opts = {}) {
   const h = {
@@ -30,6 +27,7 @@ async function sbFetch(path, opts = {}) {
 }
 
 exports.handler = async (event) => {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers };
   }
@@ -37,6 +35,9 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
+
+  const authError = await requireAuth(event);
+  if (authError) return authError;
 
   try {
     const { inspection_id, inspector_email, changes } = JSON.parse(event.body);

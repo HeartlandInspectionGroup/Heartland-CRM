@@ -11,22 +11,19 @@ const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const { writeAuditLog } = require('./write-audit-log');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const { corsHeaders } = require('./lib/cors');
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
+  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   let body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   const { booking_id, stripe_payment_intent_id } = body;
-  if (!booking_id) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'booking_id required' }) };
+  if (!booking_id) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'booking_id required' }) };
 
   const sb = createClient(
     process.env.SUPABASE_URL,
@@ -47,7 +44,7 @@ exports.handler = async (event) => {
 
     if (!record) {
       console.error('record-online-payment: no inspection record found for booking_id', booking_id);
-      return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'No inspection record found for this booking' }) };
+      return { statusCode: 404, headers: headers, body: JSON.stringify({ error: 'No inspection record found for this booking' }) };
     }
 
     // Build invoice URL if not already set
@@ -108,7 +105,7 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: HEADERS,
+      headers: headers,
       body: JSON.stringify({
         ok: true,
         portal_token: portalToken,
@@ -117,6 +114,6 @@ exports.handler = async (event) => {
     };
   } catch (err) {
     console.error('record-online-payment error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

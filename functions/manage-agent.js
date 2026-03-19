@@ -11,21 +11,10 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth } = require('./auth');
 const crypto = require('crypto');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, x-admin-token',
-};
-
-function requireAuth(event) {
-  const token = process.env.ADMIN_TOKEN;
-  if (event.headers['x-admin-token'] !== token) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
-  return null;
-}
+const { corsHeaders } = require('./lib/cors');
 
 function getSupabase() {
   return createClient(
@@ -35,14 +24,15 @@ function getSupabase() {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
 
-  const authError = requireAuth(event);
+  const authError = await requireAuth(event);
   if (authError) return authError;
 
   let body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   const { action, id, name, email, phone, company, active, booking_discount } = body;
   const sb = getSupabase();
@@ -52,7 +42,7 @@ exports.handler = async (event) => {
     // ── CREATE ──────────────────────────────────────────────
     if (action === 'create') {
       if (!name || !email) {
-        return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'name and email are required' }) };
+        return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'name and email are required' }) };
       }
 
       // Check for duplicate email
@@ -64,7 +54,7 @@ exports.handler = async (event) => {
         .maybeSingle();
 
       if (existing) {
-        return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'An agent with this email already exists.' }) };
+        return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'An agent with this email already exists.' }) };
       }
 
       // Generate a permanent portal token
@@ -81,14 +71,14 @@ exports.handler = async (event) => {
         portal_token,
       }).select('id').single();
 
-      if (error) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: error.message }) };
+      if (error) return { statusCode: 500, headers: headers, body: JSON.stringify({ error: error.message }) };
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true, id: data.id, portal_token }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true, id: data.id, portal_token }) };
     }
 
     // ── UPDATE ──────────────────────────────────────────────
     if (action === 'update') {
-      if (!id) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'id is required' }) };
+      if (!id) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'id is required' }) };
 
       const payload = {};
       if (name             !== undefined) payload.name             = name;
@@ -99,25 +89,25 @@ exports.handler = async (event) => {
       if (booking_discount !== undefined) payload.booking_discount = Number(booking_discount) || 0;
 
       const { error } = await sb.from('agents').update(payload).eq('id', id).eq('role', 'agent');
-      if (error) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: error.message }) };
+      if (error) return { statusCode: 500, headers: headers, body: JSON.stringify({ error: error.message }) };
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
     }
 
     // ── DELETE ──────────────────────────────────────────────
     if (action === 'delete') {
-      if (!id) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'id is required' }) };
+      if (!id) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'id is required' }) };
 
       const { error } = await sb.from('agents').delete().eq('id', id).eq('role', 'agent');
-      if (error) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: error.message }) };
+      if (error) return { statusCode: 500, headers: headers, body: JSON.stringify({ error: error.message }) };
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
     }
 
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Unknown action' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Unknown action' }) };
 
   } catch (err) {
     console.error('[manage-agent] error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

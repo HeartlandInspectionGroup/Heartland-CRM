@@ -9,14 +9,11 @@
  * Body: { booking_id, amount, payment_method, reference_number?, notes? }
  */
 
+const { requireAuth } = require('./auth');
+const { corsHeaders } = require('./lib/cors');
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const SUPABASE_URL   = process.env.SUPABASE_URL;
 const SUPABASE_KEY   = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
 
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function fmt(n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -24,14 +21,13 @@ function fmt(n) { return '$' + Number(n || 0).toLocaleString('en-US', { minimumF
 const METHOD_LABELS = { cash: 'Cash', check: 'Check', other: 'Other' };
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   // Admin auth
-  const adminToken = process.env.ADMIN_TOKEN;
-  if (event.headers['x-admin-token'] !== adminToken) {
-    return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  const authError = await requireAuth(event);
+  if (authError) return authError;
 
   let body;
   try { body = JSON.parse(event.body || '{}'); }

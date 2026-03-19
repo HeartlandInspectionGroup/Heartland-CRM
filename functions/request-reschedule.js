@@ -20,12 +20,7 @@ const FROM_EMAIL = 'no-reply@heartlandinspectiongroup.com';
 const FROM_NAME  = 'Heartland Inspection Group';
 const JAKE_EMAIL = 'jake@heartlandinspectiongroup.com';
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
+const { corsHeaders } = require('./lib/cors');
 function fmtDate(d) {
   if (!d) return '';
   return new Date(d + 'T12:00:00').toLocaleDateString('en-US', {
@@ -54,6 +49,7 @@ async function sbPatch(path, body) {
 }
 
 exports.handler = async function(event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
@@ -100,7 +96,7 @@ exports.handler = async function(event) {
     var html = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f7f9;">'
       + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f9;padding:32px 0;"><tr><td align="center">'
       + '<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">'
-      + '<tr><td style="background:#f59321;padding:20px 32px;">'
+      + '<tr><td style="background:#1a2a44;padding:20px 32px;">'
       + '<h1 style="margin:0;font-family:sans-serif;font-size:18px;font-weight:700;color:#fff;">\u23f0 Reschedule Requested</h1>'
       + '</td></tr>'
       + '<tr><td style="padding:28px 32px;font-family:sans-serif;">'

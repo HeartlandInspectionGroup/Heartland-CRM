@@ -20,12 +20,7 @@ const AZURE_CLIENT_ID     = process.env.AZURE_CLIENT_ID;
 const AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
 const CALENDAR_USER       = 'jake@heartlandinspectiongroup.com';
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Cache-Control': 'no-store', // never cache — availability must always be fresh
-};
-
+const { corsHeaders } = require('./lib/cors');
 async function getAzureToken() {
   if (!AZURE_TENANT_ID || !AZURE_CLIENT_ID || !AZURE_CLIENT_SECRET) return null;
   var res = await fetch(
@@ -47,6 +42,7 @@ async function getAzureToken() {
 }
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event), 'Cache-Control': 'no-store' };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'GET')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 

@@ -12,13 +12,8 @@
 
 const { createClient } = require('@supabase/supabase-js');
 const { writeAuditLog } = require('./write-audit-log');
+const { corsHeaders } = require('./lib/cors');
 // Reminders handled manually via Broadcasts tab — not auto-scheduled
-
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
 
 let _supabase = null;
 function getSupabase() {
@@ -47,6 +42,7 @@ function parseClientName(name) {
 }
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }

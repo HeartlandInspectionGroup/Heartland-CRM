@@ -26,12 +26,7 @@ function getEnv() {
   };
 }
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
+const { corsHeaders } = require('./lib/cors');
 // ── Supabase helpers ─────────────────────────────────────────────────────────
 
 async function sbGet(path) {
@@ -109,33 +104,34 @@ function pick(obj, allowed) {
 // ── Main handler ─────────────────────────────────────────────────────────────
 
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
   if (event.httpMethod !== 'POST')
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   const { SUPABASE_URL, SUPABASE_KEY, SITE_URL } = getEnv();
 
   if (!SUPABASE_URL || !SUPABASE_KEY)
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Database not configured' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Database not configured' }) };
 
   // Parse body
   var body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch(e) { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch(e) { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { portal_token, booking, record, calendar } = body;
 
   // Validate token
   var agent = await validateAgentToken(portal_token);
   if (!agent) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Invalid or expired portal token' }) };
+    return { statusCode: 401, headers: headers, body: JSON.stringify({ error: 'Invalid or expired portal token' }) };
   }
 
   // Require booking payload
   if (!booking || typeof booking !== 'object')
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'booking payload required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'booking payload required' }) };
   if (!record || typeof record !== 'object')
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'record payload required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'record payload required' }) };
 
   // Sanitise and force agent_id to match authenticated agent (never trust client-sent agent_id)
   var cleanBooking = pick(booking, BOOKING_ALLOWED);
@@ -152,7 +148,7 @@ exports.handler = async function(event) {
   if (!bResult.ok || !Array.isArray(bResult.data) || !bResult.data[0]) {
     console.error('[agent-submit-booking] bookings insert failed:', JSON.stringify(bResult.data));
     return {
-      statusCode: 500, headers: HEADERS,
+      statusCode: 500, headers: headers,
       body: JSON.stringify({ error: 'Failed to create booking: ' + JSON.stringify(bResult.data) }),
     };
   }
@@ -169,7 +165,7 @@ exports.handler = async function(event) {
       headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
     }).catch(function() {});
     return {
-      statusCode: 500, headers: HEADERS,
+      statusCode: 500, headers: headers,
       body: JSON.stringify({ error: 'Failed to create inspection record' }),
     };
   }
@@ -210,7 +206,7 @@ exports.handler = async function(event) {
 
   return {
     statusCode: 200,
-    headers: HEADERS,
+    headers: headers,
     body: JSON.stringify({ ok: true, booking_id: bookingId, record_id: recordId }),
   };
 };

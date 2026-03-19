@@ -5,6 +5,8 @@
  * Called from the admin Broadcasts tab.
  */
 
+const { requireAuth } = require('./auth');
+const { corsHeaders } = require('./lib/cors');
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const SUPABASE_URL   = process.env.SUPABASE_URL;
 const SUPABASE_KEY   = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -13,31 +15,25 @@ const FROM_EMAIL = 'no-reply@heartlandinspectiongroup.com';
 const FROM_NAME  = 'Heartland Inspection Group';
 const BCC_EMAIL  = 'jake@heartlandinspectiongroup.com';
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
-
 const { emailWrap, esc } = require('./lib/email-template');
 
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
+  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
-  var adminToken = process.env.ADMIN_TOKEN;
-  if (event.headers['x-admin-token'] !== adminToken) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  var authError = await requireAuth(event);
+  if (authError) return authError;
 
   var parsed;
   try { parsed = JSON.parse(event.body || '{}'); }
-  catch(e) { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch(e) { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { type, subject, body, recipients } = parsed;
   // recipients: [{ name, email }]
 
   if (!type || !subject || !body || !recipients || !recipients.length) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing required fields' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Missing required fields' }) };
   }
 
   var sent   = [];
@@ -58,6 +54,10 @@ exports.handler = async function(event) {
       + '<div style="padding:32px 40px;">'
       + '<div style="font-family:\'Segoe UI\',Arial,sans-serif;font-size:15px;color:#333;line-height:1.8;white-space:pre-line;">'
       + esc(personalBody)
+      + '</div>'
+      + '<div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center;">'
+      + 'You received this email because you are a client of Heartland Inspection Group. '
+      + 'To opt out of future messages, reply with "unsubscribe".'
       + '</div>'
       + '</div>';
 
@@ -115,7 +115,7 @@ exports.handler = async function(event) {
 
   return {
     statusCode: 200,
-    headers: HEADERS,
+    headers: headers,
     body: JSON.stringify({ success: true, sent: sent.length, failed: failed.length }),
   };
 };

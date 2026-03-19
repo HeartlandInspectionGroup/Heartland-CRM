@@ -7,15 +7,13 @@
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth } = require('./auth');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
+const { corsHeaders } = require('./lib/cors');
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
 
-  const authError = requireAuth(event);
+  const authError = await requireAuth(event);
   if (authError) return authError;
 
   // Use service key — needed to create/delete auth users
@@ -28,7 +26,7 @@ exports.handler = async (event) => {
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
   const { action, id, name, email, password, role, active, phone } = body;
@@ -37,7 +35,7 @@ exports.handler = async (event) => {
     // ── CREATE ──────────────────────────────────────────────
     if (action === 'create') {
       if (!name || !email || !password) {
-        return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'name, email and password are required' }) };
+        return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'name, email and password are required' }) };
       }
 
       // 1. Check if auth user already exists (handles partial failures)
@@ -52,7 +50,7 @@ exports.handler = async (event) => {
         // Auth exists — check if agents row also exists
         const { data: existingAgent } = await sb.from('agents').select('id').eq('id', existingAuthUser.id).single();
         if (existingAgent) {
-          return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'An inspector with this email already exists.' }) };
+          return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'An inspector with this email already exists.' }) };
         }
         // Auth exists but no agents row — reuse auth, reset password
         userId = existingAuthUser.id;
@@ -65,7 +63,7 @@ exports.handler = async (event) => {
           email_confirm: true,
         });
         if (authErr) {
-          return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: authErr.message }) };
+          return { statusCode: 400, headers: headers, body: JSON.stringify({ error: authErr.message }) };
         }
         userId = authData.user.id;
       }
@@ -82,15 +80,15 @@ exports.handler = async (event) => {
       if (agentErr) {
         // Roll back auth user if agents insert fails
         await sb.auth.admin.deleteUser(userId);
-        return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: agentErr.message }) };
+        return { statusCode: 500, headers: headers, body: JSON.stringify({ error: agentErr.message }) };
       }
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true, id: userId }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true, id: userId }) };
     }
 
     // ── UPDATE ──────────────────────────────────────────────
     if (action === 'update') {
-      if (!id) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'id is required' }) };
+      if (!id) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'id is required' }) };
 
       // Update agents row
       const agentPayload = {};
@@ -101,12 +99,12 @@ exports.handler = async (event) => {
       if (phone !== undefined)  agentPayload.phone  = phone;
 
       const { error: agentErr } = await sb.from('agents').update(agentPayload).eq('id', id);
-      if (agentErr) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: agentErr.message }) };
+      if (agentErr) return { statusCode: 500, headers: headers, body: JSON.stringify({ error: agentErr.message }) };
 
       // Optionally reset password
       if (password) {
         const { error: pwErr } = await sb.auth.admin.updateUserById(id, { password });
-        if (pwErr) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: pwErr.message }) };
+        if (pwErr) return { statusCode: 500, headers: headers, body: JSON.stringify({ error: pwErr.message }) };
       }
 
       // Optionally update email in auth too
@@ -114,28 +112,28 @@ exports.handler = async (event) => {
         await sb.auth.admin.updateUserById(id, { email });
       }
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
     }
 
     // ── DELETE ──────────────────────────────────────────────
     if (action === 'delete') {
-      if (!id) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'id is required' }) };
+      if (!id) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'id is required' }) };
 
       // Delete agents row first
       const { error: agentErr } = await sb.from('agents').delete().eq('id', id);
-      if (agentErr) return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: agentErr.message }) };
+      if (agentErr) return { statusCode: 500, headers: headers, body: JSON.stringify({ error: agentErr.message }) };
 
       // Delete Supabase auth user
       const { error: authErr } = await sb.auth.admin.deleteUser(id);
       if (authErr) console.error('Auth delete error (agents row already deleted):', authErr.message);
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
     }
 
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Unknown action' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Unknown action' }) };
 
   } catch (err) {
     console.error('manage-inspector error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

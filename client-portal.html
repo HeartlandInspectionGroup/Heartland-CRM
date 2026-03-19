@@ -415,6 +415,15 @@
       .cp-card-actions { flex-wrap: wrap; }
       .cp-action-btn { min-width: 0; flex: 1 1 auto; }
     }
+    @media (max-width: 480px) {
+      .cp-tab-btn { min-height: 44px; padding: 12px 16px; }
+      .cp-btn { min-height: 44px; }
+      .cp-btn-sm { min-height: 44px; padding: 10px 14px; }
+      .cp-notification-action { min-height: 44px; padding: 10px 16px; }
+      .cp-release-btn { min-height: 44px; padding: 10px 16px; }
+      .cp-main { padding: 16px 12px; }
+      .cp-invalid p { max-width: 100%; }
+    }
 @media print {
   /* When printing a signed agreement, hide everything except the view modal */
   body > *:not(#cpViewAgrModal) { display:none !important; }
@@ -430,7 +439,7 @@
 /* ═══ HEARTLAND BRANDED MODALS & TOASTS (hw-*) ═══ */
 .hw-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; align-items:center; justify-content:center; padding:20px; }
 .hw-overlay.hw-active { display:flex; }
-.hw-modal { background:#fff; border-radius:16px; width:100%; max-width:420px; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.35); animation:hwModalIn 0.22s ease; }
+.hw-modal { background:#fff; border-radius:16px; width:100%; max-width:min(420px, calc(100vw - 32px)); overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.35); animation:hwModalIn 0.22s ease; }
 @keyframes hwModalIn { from { opacity:0; transform:translateY(18px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
 .hw-modal-header { background:linear-gradient(135deg,#1a2a44 0%,#243652 100%); padding:26px 24px 20px; text-align:center; }
 .hw-modal-logo { width:120px; margin-bottom:12px; display:block; margin-left:auto; margin-right:auto; }
@@ -824,7 +833,14 @@
       html += '<div class="cp-card-row"><span class="cp-card-label">Date</span><span class="cp-card-value">' + esc(dateStr) + (timeStr ? ' at ' + esc(timeStr) : '') + '</span></div>';
     }
     if (r.tier || r.category) {
-      html += '<div class="cp-card-row"><span class="cp-card-label">Service</span><span class="cp-card-value">' + esc(categoryLabel(r.category)) + (r.tier ? ' \u2014 ' + esc(r.tier) : '') + '</span></div>';
+      var tierDisplay = r.category === 'addon' ? addonTierLabel(r.tier) : r.tier;
+      var bundleLabel = '';
+      if (r.category === 'addon' && r.is_bundle !== undefined && r.is_bundle !== null) {
+        bundleLabel = r.is_bundle
+          ? ' <span style="background:rgba(39,174,96,0.15);color:#27ae60;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Bundle</span>'
+          : ' <span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">Standalone</span>';
+      }
+      html += '<div class="cp-card-row"><span class="cp-card-label">Service</span><span class="cp-card-value">' + esc(categoryLabel(r.category)) + (tierDisplay ? ' \u2014 ' + esc(tierDisplay) : '') + bundleLabel + '</span></div>';
     }
     if (r.inspector_name) {
       html += '<div class="cp-card-row"><span class="cp-card-label">Inspector</span><span class="cp-card-value">' + esc(r.inspector_name) + '</span></div>';
@@ -952,8 +968,8 @@
   function renderInvoices() {
     var el = document.getElementById('cpInvoicesList');
 
-    // Only show records that have an invoice (submitted or later)
-    var invoiced = recordsData.filter(function(r) { return r.invoice_url && r.status !== 'cancelled'; });
+    // Show all non-cancelled records that have a total (invoice_url set at confirm time, fallback to record ID)
+    var invoiced = recordsData.filter(function(r) { return r.status !== 'cancelled' && Number(r.final_total || 0) > 0; });
 
     if (!invoiced.length) {
       el.innerHTML = emptyState('\ud83e\uddfe', 'No invoices on file yet.');
@@ -975,11 +991,12 @@
       if (r.inspection_date) html += '<div class="cp-card-row"><span class="cp-card-label">Date</span><span class="cp-card-value">' + fmtDate(r.inspection_date) + '</span></div>';
       html += '<div class="cp-card-row"><span class="cp-card-label">Total</span><span class="cp-card-value" style="font-weight:700;color:' + (isPaid(r) ? '#27ae60' : '#f59321') + ';">$' + total + '</span></div>';
       html += '<hr class="cp-divider">';
+      var invUrl = fixInvoiceUrl(r.invoice_url) || ('/invoice-receipt.html?id=' + r.id);
       if (isPaid(r)) {
-        html += '<a href="' + esc(fixInvoiceUrl(r.invoice_url)) + '" target="_blank" class="cp-btn cp-btn-secondary cp-btn-sm">\ud83e\uddfe View Receipt</a>';
+        html += '<a href="' + esc(invUrl) + '" target="_blank" class="cp-btn cp-btn-secondary cp-btn-sm">\ud83e\uddfe View Receipt</a>';
       } else {
         html += '<div style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:10px;">Go to the Inspections tab to pay this invoice.</div>';
-        html += '<a href="' + esc(fixInvoiceUrl(r.invoice_url)) + '" target="_blank" class="cp-btn cp-btn-secondary cp-btn-sm">\ud83e\uddfe View Invoice</a>';
+        html += '<a href="' + esc(invUrl) + '" target="_blank" class="cp-btn cp-btn-secondary cp-btn-sm">\ud83e\uddfe View Invoice</a>';
       }
       html += '</div></div>';
 
@@ -1215,7 +1232,7 @@
     modal.id = 'cpRescheduleModal';
     modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
     modal.innerHTML = [
-      '<div style="background:#1a2530;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.6);">',
+      '<div style="background:#1a2530;border-radius:16px;width:100%;max-width:min(520px,calc(100vw - 32px));max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.6);">',
         // Header
         '<div style="background:linear-gradient(135deg,#15516d,#1a2a44);border-radius:16px 16px 0 0;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;">',
           '<div>',
@@ -1563,6 +1580,18 @@
     return new Date().toISOString().split('T')[0];
   }
 
+  function addonTierLabel(tier) {
+    var map = {
+      radon: 'Radon Testing', radon_testing: 'Radon Testing',
+      wdo: 'WDO / Termite',
+      sewer_scope: 'Sewer Scope',
+      mold: 'Mold / Air Sampling', mold_air_sampling: 'Mold / Air Sampling',
+      thermal: 'Thermal Imaging', thermal_imaging: 'Thermal Imaging',
+      water: 'Water Quality', water_quality: 'Water Quality'
+    };
+    return map[tier] || tier;
+  }
+
   function categoryLabel(cat) {
     var labels = {
       home_inspection:   'Home Inspection',
@@ -1593,7 +1622,7 @@
 
 <!-- ═══ AGREEMENTS MODAL ═══ -->
 <div id="cpAgreementsModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);overflow-y:auto;padding:20px;">
-  <div style="max-width:680px;margin:40px auto;background:#0d1a2e;border-radius:16px;border:1.5px solid rgba(255,255,255,0.1);overflow:hidden;">
+  <div style="max-width:min(680px,calc(100vw - 32px));margin:40px auto;background:#0d1a2e;border-radius:16px;border:1.5px solid rgba(255,255,255,0.1);overflow:hidden;">
     <div style="background:rgba(255,255,255,0.05);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);">
       <div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:1px;">INSPECTION AGREEMENTS</div>
@@ -1798,9 +1827,11 @@
     if (!canvas || canvas._initialized) return;
     canvas._initialized = true;
     var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     var drawing = false;
     var lastX = 0, lastY = 0;
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -1832,7 +1863,7 @@
     if (!canvas) return true;
     var ctx = canvas.getContext('2d');
     var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    for (var i = 3; i < data.length; i += 4) { if (data[i] > 0) return false; }
+    for (var i = 0; i < data.length; i += 4) { if (data[i] < 255 || data[i+1] < 255 || data[i+2] < 255) return false; }
     return true;
   }
 
@@ -1845,13 +1876,19 @@
   window.clearAgrCanvas = function(id) {
     var canvas = document.getElementById('cpAgrCanvas-' + id);
     if (!canvas) return;
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
   window.clearSignAllCanvas = function() {
     var canvas = document.getElementById('cpSignAllCanvas');
     if (!canvas) return;
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
   // ── Sign one agreement ───────────────────────────────────
@@ -2001,7 +2038,7 @@
     sigBlock += '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px;">' + dt + '</div>';
     sigBlock += '</div></div></div>';
 
-    modal.innerHTML = '<div style="max-width:700px;margin:40px auto;background:#0d1a2e;border-radius:16px;border:1.5px solid rgba(255,255,255,0.1);overflow:hidden;">'
+    modal.innerHTML = '<div style="max-width:min(700px,calc(100vw - 32px));margin:40px auto;background:#0d1a2e;border-radius:16px;border:1.5px solid rgba(255,255,255,0.1);overflow:hidden;">'
       + '<div style="background:rgba(255,255,255,0.05);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,0.1);">'
       + '<div style="font-family:&quot;Barlow Condensed&quot;,sans-serif;font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:1px;flex:1;min-width:0;">' + (a.name || '') + '</div>'
       + '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'

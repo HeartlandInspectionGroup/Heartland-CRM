@@ -20,6 +20,8 @@ const FROM_NAME     = 'Heartland Inspection Group';
 const JAKE_EMAIL    = 'jake@heartlandinspectiongroup.com';
 const CALENDAR_USER = 'jake@heartlandinspectiongroup.com';
 const ADMIN_URL     = 'https://heartlandinspectiongroup.com/admin.html';
+const { emailWrap, emailInfoTable, esc: escHtml } = require('./lib/email-template');
+const { resolveTemplate } = require('./lib/template-utils');
 
 // AZURE GRAPH - get access token
 async function getAzureToken() {
@@ -85,12 +87,7 @@ async function writeCalendarEvent(token, dtStart, dtEnd, address, clientName, ph
   return await res.json();
 }
 
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
-
+const { corsHeaders } = require('./lib/cors');
 // ICS BUILDER
 function buildIcs(uid, dtStart, dtEnd, summary, description, location) {
   const now = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z';
@@ -158,65 +155,26 @@ function fmtMoney(n) {
 }
 
 // CLIENT CONFIRMATION EMAIL
-function buildClientEmail(p) {
+function buildClientEmail(p, customBody) {
   var firstName = p.firstName || '';
   var address   = p.address   || '';
   var date      = p.date      || '';
   var time      = p.time      || '';
-  var services  = p.services  || [];
-  var total         = p.total         || 0;
-  var discount      = p.discount      || 0;
-  var discountPct   = p.discountPct   || 0;
-  var couponCode    = p.couponCode    || '';
-  var couponDiscount= p.couponDiscount|| 0;
-  var taxAmount     = p.taxAmount     || 0;
-
   var dateFormatted = fmtDisplayDate(date);
 
-  var serviceRows = services.map(function(s) {
-    return '<tr><td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#1a2530;border-bottom:1px solid #eaeef0;">' + s.name + '</td>'
-         + '<td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#1a2530;text-align:right;border-bottom:1px solid #eaeef0;">' + (s.price ? fmtMoney(s.price) : 'Included') + '</td></tr>';
-  }).join('');
+  var rows = [{ label: 'Property', value: escHtml(address) }, { label: 'Preferred Date', value: escHtml(dateFormatted) }];
+  if (time) rows.push({ label: 'Preferred Time', value: escHtml(time) });
 
-  var discountRow = discountPct > 0
-    ? '<tr><td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#3d7a3c;border-bottom:1px solid #eaeef0;"><strong>Bundle Discount (' + discountPct + '%)</strong></td><td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#3d7a3c;text-align:right;border-bottom:1px solid #eaeef0;">-' + fmtMoney(discount) + '</td></tr>'
-    : '';
+  var msgText = customBody || 'We received your inspection request! We\'ll review it and send a confirmation within 1 business day.';
 
-  var couponRow = (couponCode && couponDiscount > 0)
-    ? '<tr><td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#3d7a3c;border-bottom:1px solid #eaeef0;"><strong>Coupon (' + couponCode + ')</strong></td><td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#3d7a3c;text-align:right;border-bottom:1px solid #eaeef0;">-' + fmtMoney(couponDiscount) + '</td></tr>'
-    : '';
+  var bodyHtml = ''
+    + '<div style="padding:32px 40px 8px;">'
+    + '<p style="font-family:\'Segoe UI\',Arial,sans-serif;font-size:16px;color:#1a2530;margin:0 0 12px;">Hi ' + escHtml(firstName) + ',</p>'
+    + '<p style="font-family:\'Segoe UI\',Arial,sans-serif;font-size:15px;color:#4a5568;line-height:1.7;margin:0 0 24px;">' + escHtml(msgText) + '</p>'
+    + emailInfoTable(rows)
+    + '</div>';
 
-  var taxRow = taxAmount > 0
-    ? '<tr><td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#6b7d8a;border-bottom:1px solid #eaeef0;">State Tax</td><td style="padding:8px 12px;font-family:sans-serif;font-size:14px;color:#6b7d8a;text-align:right;border-bottom:1px solid #eaeef0;">' + fmtMoney(taxAmount) + '</td></tr>'
-    : '';
-
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f7f9;">'
-    + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f9;padding:32px 0;"><tr><td align="center">'
-    + '<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">'
-    + '<tr><td style="background:#15516d;padding:32px 40px;text-align:center;">'
-    + '<img src="https://i.imgur.com/I1vTiVT.png" alt="Heartland Inspection Group" style="height:48px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">'
-    + '<h1 style="margin:0;font-family:Georgia,serif;font-size:24px;color:#ffffff;font-weight:400;">Booking Request Received</h1>'
-    + '</td></tr>'
-    + '<tr><td style="padding:36px 40px;">'
-    + '<p style="margin:0 0 20px;font-family:sans-serif;font-size:16px;color:#1a2530;">Hi ' + firstName + ',</p>'
-    + '<p style="margin:0 0 28px;font-family:sans-serif;font-size:15px;color:#4a5568;line-height:1.6;">Thanks for booking with Heartland Inspection Group! We\'ve received your request and will confirm your appointment within <strong>1 business day</strong>.</p>'
-    + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f6f9;border-radius:10px;margin-bottom:28px;"><tr><td style="padding:20px 24px;">'
-    + '<h3 style="margin:0 0 14px;font-family:sans-serif;font-size:12px;color:#15516d;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Appointment Details</h3>'
-    + '<table cellpadding="0" cellspacing="0" style="width:100%;">'
-    + '<tr><td style="font-family:sans-serif;font-size:14px;color:#6b7d8a;padding:4px 0;width:120px;">Property</td><td style="font-family:sans-serif;font-size:14px;color:#1a2530;font-weight:600;padding:4px 0;">' + address + '</td></tr>'
-    + '<tr><td style="font-family:sans-serif;font-size:14px;color:#6b7d8a;padding:4px 0;">Preferred Date</td><td style="font-family:sans-serif;font-size:14px;color:#1a2530;font-weight:600;padding:4px 0;">' + dateFormatted + '</td></tr>'
-    + '<tr><td style="font-family:sans-serif;font-size:14px;color:#6b7d8a;padding:4px 0;">Preferred Time</td><td style="font-family:sans-serif;font-size:14px;color:#1a2530;font-weight:600;padding:4px 0;">' + time + '</td></tr>'
-    + '</table></td></tr></table>'
-    + '<h3 style="margin:0 0 12px;font-family:sans-serif;font-size:12px;color:#15516d;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Services Requested</h3>'
-    + '<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eaeef0;border-radius:10px;overflow:hidden;margin-bottom:28px;">'
-    + serviceRows + discountRow + couponRow + taxRow
-    + '<tr style="background:#f0f6f9;"><td style="padding:12px;font-family:sans-serif;font-size:15px;color:#1a2530;font-weight:700;">Estimated Total</td><td style="padding:12px;font-family:sans-serif;font-size:18px;color:#15516d;font-weight:700;text-align:right;">' + fmtMoney(total) + '</td></tr>'
-    + '</table>'
-    + '<p style="margin:0 0 8px;font-family:sans-serif;font-size:13px;color:#6b7d8a;">Questions? Reach us at:</p>'
-    + '<p style="margin:0;font-family:sans-serif;font-size:14px;"><a href="tel:8153298583" style="color:#15516d;text-decoration:none;">(815) 329-8583</a> &nbsp;&middot;&nbsp; <a href="mailto:info@heartlandinspectiongroup.com" style="color:#15516d;text-decoration:none;">info@heartlandinspectiongroup.com</a></p>'
-    + '</td></tr>'
-    + '<tr><td style="background:#f0f6f9;padding:20px 40px;text-align:center;"><p style="margin:0;font-family:sans-serif;font-size:12px;color:#9aabb5;">Heartland Inspection Group &nbsp;&middot;&nbsp; Roscoe, IL &nbsp;&middot;&nbsp; heartlandinspectiongroup.com</p></td></tr>'
-    + '</table></td></tr></table></body></html>';
+  return emailWrap({ subtitle: 'Booking Request Received' }, bodyHtml);
 }
 
 // JAKE NOTIFICATION EMAIL
@@ -309,6 +267,7 @@ async function flagBooking(bookingId, status, eventUid) {
 
 // HANDLER
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
@@ -352,12 +311,15 @@ exports.handler = async function (event) {
     var clientRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from:    FROM_NAME + ' <' + FROM_EMAIL + '>',
-        to:      [email],
-        subject: 'Booking Request Received - ' + address,
-        html:    buildClientEmail(payload),
-      }),
+      body: await (async function() {
+        var tpl = await resolveTemplate('booking_received', { subject: 'Booking Request Received — {{address}}', body: '' }, { address: address, date: payload.date || '', time: payload.time || '' });
+        return JSON.stringify({
+          from:    FROM_NAME + ' <' + FROM_EMAIL + '>',
+          to:      [email],
+          subject: tpl.subject,
+          html:    buildClientEmail(payload, tpl.body || null),
+        });
+      })(),
     });
     clientEmailOk = clientRes.ok;
     if (!clientRes.ok) console.error('Client email failed:', await clientRes.text());

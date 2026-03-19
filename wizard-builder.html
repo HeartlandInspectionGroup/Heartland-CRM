@@ -360,7 +360,7 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       width: 100%;
-      max-width: 520px;
+      max-width: min(520px, calc(100vw - 32px));
       max-height: 85vh;
       overflow-y: auto;
       padding: 28px;
@@ -528,13 +528,50 @@
       padding: 6px 20px 2px;
       flex-shrink: 0;
     }
+
+    /* ── MOBILE: TABLET ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .wb-layout { grid-template-columns: 1fr; }
+      .wb-left { border-right: none; border-bottom: 1px solid var(--border); max-height: 40vh; }
+      .wb-right { min-height: 60vh; }
+      .wb-header { padding: 0 16px; }
+      .wb-header-right { flex-wrap: wrap; gap: 6px; }
+      .wb-header-right .wb-btn { font-size: 11px; padding: 6px 10px; }
+    }
+
+    /* ── MOBILE: PHONE ──────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .wb-header { height: auto; min-height: 56px; padding: 8px 12px; flex-wrap: wrap; gap: 8px; }
+      .wb-header-left { width: 100%; }
+      .wb-header-right { width: 100%; justify-content: flex-start; }
+      .wb-logo { font-size: 16px; }
+      .wb-left { max-height: 35vh; }
+      .wb-panel-header { padding: 12px 14px; }
+      .wb-section-item { padding: 10px 12px; gap: 8px; }
+      .wb-section-icon { width: 30px; height: 30px; font-size: 14px; }
+      .wb-section-actions { opacity: 1; }
+      .wb-icon-btn { width: 36px; height: 36px; min-height: 44px; min-width: 44px; }
+      .wb-detail-header { padding: 14px 16px; }
+      .wb-detail-title { font-size: 18px; }
+      .wb-detail-actions { flex-wrap: wrap; gap: 6px; }
+      .wb-fields-area { padding: 14px 16px; }
+      .wb-field-card { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+      .wb-field-actions { width: 100%; justify-content: flex-end; }
+      .wb-filter-bar { padding: 8px 10px; }
+      .wb-filter-btn { min-height: 44px; padding: 8px 12px; }
+      .wb-cat-check { grid-template-columns: 1fr; }
+      .wb-modal-body { padding: 16px; }
+      .wb-modal-body div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+      .wb-toast { left: 12px; right: 12px; bottom: 12px; }
+      .wb-empty-sub { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
 
   <!-- ── LOGIN SCREEN ───────────────────────────────────────────────────────── -->
   <div id="wbLoginScreen" style="display:none;position:fixed;inset:0;background:var(--navy);z-index:999;align-items:center;justify-content:center;">
-    <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:400px;margin:20px;">
+    <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:min(400px,calc(100vw - 32px));margin:20px;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--white);margin-bottom:6px;">Wizard <span style="color:var(--red);">Builder</span></div>
       <div style="font-size:13px;color:var(--text-muted);margin-bottom:28px;">Admin access required</div>
       <div style="margin-bottom:14px;">
@@ -586,6 +623,9 @@
         <button class="wb-filter-btn" data-filter="home_health_check" onclick="wbSetFilter('home_health_check',this)">Health</button>
         <button class="wb-filter-btn" data-filter="new_construction" onclick="wbSetFilter('new_construction',this)">New Con</button>
         <button class="wb-filter-btn" data-filter="addon" onclick="wbSetFilter('addon',this)">Add-on</button>
+      </div>
+      <!-- Tier filter — visible for HHC and New Construction -->
+      <div class="wb-filter-bar" id="wbTierFilterBar" style="display:none;padding-top:0;">
       </div>
 
       <div class="wb-section-list" id="sectionList">
@@ -684,6 +724,21 @@
         </label>
       </div>
 
+      <!-- Dropdown Options (HEA-162) -->
+      <div class="wb-form-row" style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:8px;">
+        <label class="wb-label">Dropdown Options</label>
+        <div id="fieldOptionsContainer" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+        <button type="button" class="wb-btn wb-btn--ghost" style="font-size:12px;padding:4px 10px;" onclick="wbAddOptionRow()">+ Add Option</button>
+      </div>
+
+      <!-- Questions (HEA-175 — Tier 3) -->
+      <div class="wb-form-row" style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:8px;">
+        <label class="wb-label">Questions (Tier 3 — multiple questions per subcard)</label>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;">Use Dropdown Options OR Questions — not both.</div>
+        <div id="fieldQuestionsContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+        <button type="button" class="wb-btn wb-btn--ghost" style="font-size:12px;padding:4px 10px;" onclick="wbAddQuestionRow()">+ Add Question</button>
+      </div>
+
       <div class="wb-modal-actions">
         <button class="wb-btn wb-btn--ghost" onclick="wbCloseModal('fieldModal')">Cancel</button>
         <button class="wb-btn wb-btn--primary" onclick="wbSaveField()">Save Field</button>
@@ -695,7 +750,7 @@
 
   <!-- ── RECOMMENDATIONS MODAL ──────────────────────────────────────────────── -->
   <div class="wb-overlay" id="recsModal">
-    <div class="wb-modal" style="max-width:600px;">
+    <div class="wb-modal" style="max-width:min(600px,calc(100vw - 32px));">
       <div class="wb-modal-title">Recommendations</div>
       <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
         These are available to inspectors on every finding. Add your own or edit the defaults.
@@ -733,6 +788,7 @@
   var ADMIN_TOKEN = window.ADMIN_TOKEN;
   var wbSections  = [];
   var wbFilter    = 'all';
+  var wbTierFilter = 'all';
   var wbActiveSectionId = null;
   var wbFields    = [];
 
@@ -780,9 +836,44 @@
   };
 
   // ── Filter ────────────────────────────────────────────────────────────────
+  var WB_TIER_BUTTONS = {
+    home_health_check: [
+      { tier: 'all', label: 'All Tiers' },
+      { tier: 'Standard', label: 'Standard' },
+      { tier: 'Premium', label: 'Premium' },
+      { tier: 'Signature', label: 'Signature' },
+    ],
+    new_construction: [
+      { tier: 'all', label: 'All Tiers' },
+      { tier: 'pre_pour', label: 'Pre-Pour' },
+      { tier: 'pre_drywall', label: 'Pre-Drywall' },
+      { tier: 'final_walkthrough', label: 'Final Walkthrough' },
+    ],
+  };
+
+  function wbBuildTierBar(filter) {
+    var tierBar = document.getElementById('wbTierFilterBar');
+    if (!tierBar) return;
+    var tiers = WB_TIER_BUTTONS[filter];
+    if (!tiers) { tierBar.style.display = 'none'; tierBar.innerHTML = ''; return; }
+    tierBar.style.display = '';
+    tierBar.innerHTML = tiers.map(function(t, i) {
+      return '<button class="wb-filter-btn' + (i === 0 ? ' active' : '') + '" data-tier="' + t.tier + '" onclick="wbSetTierFilter(\'' + t.tier + '\',this)">' + t.label + '</button>';
+    }).join('');
+  }
+
   function wbSetFilter(filter, btn) {
     wbFilter = filter;
-    document.querySelectorAll('.wb-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    wbTierFilter = 'all';
+    document.querySelectorAll('.wb-filter-bar:first-child .wb-filter-btn, [data-filter]').forEach(function(b){ if (b.dataset.filter !== undefined) b.classList.remove('active'); });
+    btn.classList.add('active');
+    wbBuildTierBar(filter);
+    wbRenderSections();
+  }
+
+  function wbSetTierFilter(tier, btn) {
+    wbTierFilter = tier;
+    document.querySelectorAll('#wbTierFilterBar .wb-filter-btn').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
     wbRenderSections();
   }
@@ -801,6 +892,9 @@
     var filtered = wbFilter === 'all'
       ? wbSections
       : wbSections.filter(function(s){ return s.category_ids && s.category_ids.includes(wbFilter); });
+    if (wbTierFilter !== 'all') {
+      filtered = filtered.filter(function(s){ return s.tier_ids && s.tier_ids.includes(wbTierFilter); });
+    }
 
     document.getElementById('sectionCount').textContent = filtered.length + ' section' + (filtered.length !== 1 ? 's' : '');
 
@@ -975,7 +1069,7 @@
   }
 
   // ── Field modal ───────────────────────────────────────────────────────────
-  function wbOpenFieldModal(id, sectionId) {
+  async function wbOpenFieldModal(id, sectionId) {
     var field = id ? wbFields.find(function(f){ return f.id === id; }) : null;
     document.getElementById('fieldModalTitle').textContent = field ? 'Edit Field' : 'Add Field';
     document.getElementById('fieldModalId').value        = field ? field.id           : '';
@@ -986,6 +1080,23 @@
     document.getElementById('fieldModalUnit').value      = field ? (field.unit || '')  : '';
     document.getElementById('fieldModalActive').checked  = field ? field.active        : true;
     wbFieldTypeChange();
+
+    // Load existing options for this field (HEA-162)
+    if (id) {
+      var { data: opts } = await sb.from('wizard_field_options')
+        .select('*').eq('field_id', id).eq('active', true).is('question_id', null).order('order_index');
+      wbRenderOptionRows(opts || []);
+      // Load existing questions + their options (HEA-175)
+      var { data: questions } = await sb.from('wizard_field_questions')
+        .select('*').eq('field_id', id).eq('active', true).order('order_index');
+      var { data: qOpts } = await sb.from('wizard_field_options')
+        .select('*').eq('field_id', id).eq('active', true).not('question_id', 'is', null).order('order_index');
+      wbRenderQuestionRows(questions || [], qOpts || []);
+    } else {
+      wbRenderOptionRows([]);
+      wbRenderQuestionRows([], []);
+    }
+
     document.getElementById('fieldModal').classList.add('open');
     setTimeout(function(){ document.getElementById('fieldModalName').focus(); }, 50);
   }
@@ -1017,11 +1128,226 @@
     }
 
     if (error) { wbToast('Error saving field: ' + error.message, 'error'); return; }
+
+    // Save field options (HEA-162)
+    var fieldId = id;
+    if (!fieldId) {
+      // New field — need to get the ID from the freshly inserted row
+      var { data: newFields } = await sb.from('wizard_fields')
+        .select('id').eq('section_id', sectionId).eq('name', name).order('created_at', { ascending: false }).limit(1);
+      if (newFields && newFields[0]) fieldId = newFields[0].id;
+    }
+    if (fieldId) {
+      var options = wbGetOptionRows();
+      try {
+        var authHdr = {};
+        var sess = await sb.auth.getSession();
+        if (sess && sess.data && sess.data.session) {
+          authHdr = { 'Authorization': 'Bearer ' + sess.data.session.access_token };
+        }
+        await fetch('/.netlify/functions/save-field-options', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHdr },
+          body: JSON.stringify({ field_id: fieldId, options: options }),
+        });
+      } catch (e) { console.error('Save options error:', e); }
+
+      // Save questions (HEA-175 — Tier 3)
+      var questions = wbGetQuestionRows();
+      if (questions.length) {
+        try {
+          await fetch('/.netlify/functions/save-field-questions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHdr },
+            body: JSON.stringify({ field_id: fieldId, questions: questions }),
+          });
+        } catch (e) { console.error('Save questions error:', e); }
+      }
+    }
+
     wbCloseModal('fieldModal');
     wbToast(id ? 'Field updated' : 'Field added', 'success');
     var section = wbSections.find(function(s){ return s.id === sectionId; });
     if (section) await wbLoadFields(sectionId, section);
   }
+
+  // ── Field Options helpers (HEA-162) ──────────────────────────────────────
+
+  function wbRenderOptionRows(options) {
+    var container = document.getElementById('fieldOptionsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    (options || []).forEach(function (o) { wbAddOptionRow(o); });
+  }
+
+  function wbAddOptionRow(opt) {
+    var container = document.getElementById('fieldOptionsContainer');
+    if (!container) return;
+    var row = document.createElement('div');
+    row.className = 'wb-option-row';
+    row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+    row.innerHTML =
+      '<input class="wb-input wb-opt-label" placeholder="Label" value="' + ((opt && opt.label) || '') + '" style="flex:2;font-size:12px;padding:6px 8px;" oninput="wbAutoSlugify(this)">' +
+      '<input class="wb-input wb-opt-value" placeholder="value" value="' + ((opt && opt.value) || '') + '" style="flex:2;font-size:12px;padding:6px 8px;">' +
+      '<label style="display:flex;align-items:center;gap:3px;font-size:11px;color:#94a3b8;white-space:nowrap;cursor:pointer;">' +
+        '<input type="checkbox" class="wb-opt-text"' + (opt && opt.requires_text ? ' checked' : '') + '> Text' +
+      '</label>' +
+      '<button type="button" onclick="wbMoveOptionRow(this,-1)" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;" title="Move up">↑</button>' +
+      '<button type="button" onclick="wbMoveOptionRow(this,1)" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;" title="Move down">↓</button>' +
+      '<button type="button" onclick="wbRemoveOptionRow(this)" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;" title="Delete">🗑</button>';
+    container.appendChild(row);
+  }
+
+  function wbRemoveOptionRow(btn) {
+    var row = btn.closest('.wb-option-row');
+    if (row) row.remove();
+  }
+
+  function wbMoveOptionRow(btn, dir) {
+    var row = btn.closest('.wb-option-row');
+    if (!row) return;
+    var container = row.parentElement;
+    if (dir === -1 && row.previousElementSibling) {
+      container.insertBefore(row, row.previousElementSibling);
+    } else if (dir === 1 && row.nextElementSibling) {
+      container.insertBefore(row.nextElementSibling, row);
+    }
+  }
+
+  window.wbAutoSlugify = function (labelInput) {
+    var row = labelInput.closest('.wb-option-row');
+    if (!row) return;
+    var valInput = row.querySelector('.wb-opt-value');
+    if (valInput && !valInput._userEdited) {
+      valInput.value = labelInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    }
+  };
+
+  function wbGetOptionRows() {
+    var container = document.getElementById('fieldOptionsContainer');
+    if (!container) return [];
+    var rows = container.querySelectorAll('.wb-option-row');
+    var options = [];
+    rows.forEach(function (row, idx) {
+      var label = row.querySelector('.wb-opt-label').value.trim();
+      var value = row.querySelector('.wb-opt-value').value.trim();
+      if (!label && !value) return; // skip empty rows
+      options.push({
+        label: label,
+        value: value || label.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+        requires_text: row.querySelector('.wb-opt-text').checked,
+        order_index: idx,
+      });
+    });
+    return options;
+  }
+
+  // Expose for onclick handlers
+  window.wbAddOptionRow = wbAddOptionRow;
+  window.wbRemoveOptionRow = wbRemoveOptionRow;
+  window.wbMoveOptionRow = wbMoveOptionRow;
+
+  // ── Question helpers (HEA-175) ──────────────────────────────────────────
+
+  function wbRenderQuestionRows(questions, allQOpts) {
+    var container = document.getElementById('fieldQuestionsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    (questions || []).forEach(function (q) {
+      var qOpts = (allQOpts || []).filter(function (o) { return o.question_id === q.id; });
+      wbAddQuestionRow(q, qOpts);
+    });
+  }
+
+  function wbAddQuestionRow(q, qOpts) {
+    var container = document.getElementById('fieldQuestionsContainer');
+    if (!container) return;
+    var row = document.createElement('div');
+    row.className = 'wb-question-row';
+    row.style.cssText = 'border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;';
+
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px;';
+    header.innerHTML =
+      '<input class="wb-input wb-q-label" placeholder="Question label" value="' + ((q && q.label) || '') + '" style="flex:1;font-size:12px;padding:5px 8px;">' +
+      '<button type="button" onclick="wbMoveQuestionRow(this,-1)" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;">↑</button>' +
+      '<button type="button" onclick="wbMoveQuestionRow(this,1)" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;">↓</button>' +
+      '<button type="button" onclick="wbRemoveQuestionRow(this)" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;">🗑</button>';
+    row.appendChild(header);
+
+    var optsContainer = document.createElement('div');
+    optsContainer.className = 'wb-q-opts';
+    optsContainer.style.cssText = 'display:flex;flex-direction:column;gap:4px;margin-left:12px;';
+    (qOpts || []).forEach(function (o) { wbAddQuestionOptionRow(optsContainer, o); });
+    row.appendChild(optsContainer);
+
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'wb-btn wb-btn--ghost';
+    addBtn.style.cssText = 'font-size:11px;padding:2px 8px;margin-left:12px;margin-top:4px;';
+    addBtn.textContent = '+ Option';
+    addBtn.onclick = function () { wbAddQuestionOptionRow(optsContainer); };
+    row.appendChild(addBtn);
+
+    container.appendChild(row);
+  }
+
+  function wbAddQuestionOptionRow(container, opt) {
+    var row = document.createElement('div');
+    row.className = 'wb-qo-row';
+    row.style.cssText = 'display:flex;gap:4px;align-items:center;';
+    row.innerHTML =
+      '<input class="wb-input wb-qo-label" placeholder="Label" value="' + ((opt && opt.label) || '') + '" style="flex:2;font-size:11px;padding:4px 6px;" oninput="wbAutoSlugify(this)">' +
+      '<input class="wb-input wb-qo-value" placeholder="value" value="' + ((opt && opt.value) || '') + '" style="flex:2;font-size:11px;padding:4px 6px;">' +
+      '<label style="font-size:10px;color:#94a3b8;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:2px;"><input type="checkbox" class="wb-qo-text"' + (opt && opt.requires_text ? ' checked' : '') + '> Txt</label>' +
+      '<button type="button" onclick="this.closest(\'.wb-qo-row\').remove()" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:12px;">✕</button>';
+    container.appendChild(row);
+  }
+
+  function wbRemoveQuestionRow(btn) {
+    var row = btn.closest('.wb-question-row');
+    if (row) row.remove();
+  }
+
+  function wbMoveQuestionRow(btn, dir) {
+    var row = btn.closest('.wb-question-row');
+    if (!row) return;
+    var container = row.parentElement;
+    if (dir === -1 && row.previousElementSibling) {
+      container.insertBefore(row, row.previousElementSibling);
+    } else if (dir === 1 && row.nextElementSibling) {
+      container.insertBefore(row.nextElementSibling, row);
+    }
+  }
+
+  function wbGetQuestionRows() {
+    var container = document.getElementById('fieldQuestionsContainer');
+    if (!container) return [];
+    var rows = container.querySelectorAll('.wb-question-row');
+    var questions = [];
+    rows.forEach(function (row, qIdx) {
+      var label = row.querySelector('.wb-q-label').value.trim();
+      if (!label) return;
+      var optRows = row.querySelectorAll('.wb-qo-row');
+      var options = [];
+      optRows.forEach(function (oRow, oIdx) {
+        var oLabel = oRow.querySelector('.wb-qo-label').value.trim();
+        var oValue = oRow.querySelector('.wb-qo-value').value.trim();
+        if (!oLabel && !oValue) return;
+        options.push({
+          label: oLabel,
+          value: oValue || oLabel.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+          requires_text: oRow.querySelector('.wb-qo-text').checked,
+        });
+      });
+      questions.push({ label: label, order_index: qIdx, options: options });
+    });
+    return questions;
+  }
+
+  window.wbAddQuestionRow = wbAddQuestionRow;
+  window.wbRemoveQuestionRow = wbRemoveQuestionRow;
+  window.wbMoveQuestionRow = wbMoveQuestionRow;
 
   async function wbDeleteField(id) {
     var field = wbFields.find(function(f){ return f.id === id; });
@@ -1194,19 +1520,15 @@
       { name: 'Attached Garage',                 icon: 'car',           cats: [HI,HHC],     desc: 'Structure, door, opener, fire separation', order: 2 },
       { name: 'Basement & Foundation',           icon: 'layers',        cats: [HI,HHC],     desc: 'Foundation, structure, moisture, crawlspace', order: 3 },
       { name: 'Attic, Insulation & Ventilation', icon: 'wind',          cats: [HI,HHC],     desc: 'Insulation depth, ventilation, roof structure', order: 4 },
-      { name: 'Electrical',                      icon: 'zap',           cats: [HI,HHC,NC],  desc: 'Service, panel, wiring, outlets, GFCI/AFCI', order: 5 },
-      { name: 'Heating',                         icon: 'thermometer',   cats: [HI,HHC,NC],  desc: 'Furnace, heat pump, boiler, distribution', order: 6 },
-      { name: 'Cooling',                         icon: 'snowflake',     cats: [HI,HHC,NC],  desc: 'AC system, mini-split, refrigerant lines', order: 7 },
-      { name: 'Plumbing',                        icon: 'droplets',      cats: [HI,HHC,NC],  desc: 'Supply, drain, water heater, fixtures', order: 8 },
+      { name: 'Electrical',                      icon: 'zap',           cats: [HI,HHC],     desc: 'Service, panel, wiring, outlets, GFCI/AFCI', order: 5 },
+      { name: 'Heating',                         icon: 'thermometer',   cats: [HI,HHC],     desc: 'Furnace, heat pump, boiler, distribution', order: 6 },
+      { name: 'Cooling',                         icon: 'snowflake',     cats: [HI,HHC],     desc: 'AC system, mini-split, refrigerant lines', order: 7 },
+      { name: 'Plumbing',                        icon: 'droplets',      cats: [HI,HHC],     desc: 'Supply, drain, water heater, fixtures', order: 8 },
       { name: 'Fireplace & Chimney',             icon: 'flame',         cats: [HI,HHC],     desc: 'Firebox, flue, damper, exterior chimney', order: 9 },
-      { name: 'Doors, Windows & Interior',       icon: 'layout-panel-left', cats: [HI,HHC,NC], desc: 'Walls, ceilings, floors, doors, windows, stairs', order: 10 },
+      { name: 'Doors, Windows & Interior',       icon: 'layout-panel-left', cats: [HI,HHC], desc: 'Walls, ceilings, floors, doors, windows, stairs', order: 10 },
       { name: 'Kitchen',                         icon: 'utensils',      cats: [HI,HHC],     desc: 'Appliances, cabinets, counters, ventilation', order: 11 },
       { name: 'Bathrooms',                       icon: 'bath',          cats: [HI,HHC],     desc: 'Fixtures, ventilation, water pressure, sealing', order: 12 },
       { name: 'Built-in Appliances',             icon: 'plug',          cats: [HI,HHC],     desc: 'Dishwasher, disposal, range, microwave', order: 13 },
-      // New Construction phases
-      { name: 'Pre-Pour',                        icon: 'grid-3x3',      cats: [NC],          desc: 'Footings, rebar, forms, soil preparation', order: 14 },
-      { name: 'Pre-Drywall',                     icon: 'frame',         cats: [NC],          desc: 'Framing, MEP rough-in, sheathing, windows', order: 15 },
-      { name: 'Final Walkthrough',               icon: 'clipboard-check', cats: [NC],        desc: 'Completed construction, punch list items', order: 16 },
     ];
 
     for (var i = 0; i < sections.length; i++) {

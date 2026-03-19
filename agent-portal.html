@@ -41,7 +41,7 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--navy);
 .ap-card-sub { font-size:14px; color:rgba(255,255,255,0.45); margin-bottom:24px; }
 .ap-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:90; }
 .ap-overlay.visible { display:block; }
-.ap-contact-card { background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 100%); border-radius:16px; padding:40px; color:#fff; max-width:480px; }
+.ap-contact-card { background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 100%); border-radius:16px; padding:40px; color:#fff; max-width:min(480px, calc(100vw - 32px)); }
 .ap-contact-logo { height:52px; margin-bottom:20px; display:block; }
 .ap-contact-name { font-family:'Crimson Pro',serif; font-size:28px; font-weight:700; margin-bottom:6px; }
 .ap-contact-tagline { font-size:14px; color:rgba(255,255,255,0.55); margin-bottom:28px; }
@@ -1113,7 +1113,7 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--navy);
 
           <!-- ── Documents Modal ── -->
           <div class="apc-modal-overlay" id="apcoDocsOverlay" style="display:none;">
-            <div class="apc-history-modal" style="max-width:480px;">
+            <div class="apc-history-modal" style="max-width:min(480px,calc(100vw - 32px));">
               <button class="apc-modal-close" id="apcoDocsClose">&#x2715;</button>
               <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Documents</div>
               <div class="apc-modal-name" style="font-size:20px;margin-bottom:4px;" id="apcoDocsClientName"></div>
@@ -1125,7 +1125,7 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--navy);
 
           <!-- ── Upload Doc Modal ── -->
           <div class="apc-modal-overlay" id="apcoUploadOverlay" style="display:none;">
-            <div class="apc-history-modal" style="max-width:420px;">
+            <div class="apc-history-modal" style="max-width:min(420px,calc(100vw - 32px));">
               <button class="apc-modal-close" id="apcoUploadClose">&#x2715;</button>
               <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Upload Document</div>
               <div class="apc-modal-name" style="font-size:20px;margin-bottom:20px;" id="apcoUploadClientName"></div>
@@ -1155,7 +1155,7 @@ body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--navy);
 
           <!-- Edit/reschedule modal -->
           <div class="apc-modal-overlay" id="apcEditOverlay" style="display:none;">
-            <div class="apc-history-modal" id="apcEditModal" style="max-width:480px;">
+            <div class="apc-history-modal" id="apcEditModal" style="max-width:min(480px,calc(100vw - 32px));">
               <button class="apc-modal-close" id="apcEditClose">&#x2715;</button>
               <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Edit Appointment</div>
               <div class="apc-modal-name" style="font-size:20px;margin-bottom:6px;">Select New Date &amp; Time</div>
@@ -1426,9 +1426,22 @@ function apcLoad() {
   });
 }
 
+function addonTierLabel(tier) {
+  var map = {
+    radon: 'Radon Testing', radon_testing: 'Radon Testing',
+    wdo: 'WDO / Termite',
+    sewer_scope: 'Sewer Scope',
+    mold: 'Mold / Air Sampling', mold_air_sampling: 'Mold / Air Sampling',
+    thermal: 'Thermal Imaging', thermal_imaging: 'Thermal Imaging',
+    water: 'Water Quality', water_quality: 'Water Quality'
+  };
+  return map[tier] || tier;
+}
+
 function apcFormatJobType(r) {
   var cat  = r.category || '';
   var tier = r.tier || '';
+  if (cat === 'addon')             return addonTierLabel(tier) + ' (Add-On)';
   if (cat === 'home_health_check') return 'Home Health Check' + (tier ? ' — ' + tier : '');
   if (cat === 'home_inspection')   return (tier || 'Home Inspection');
   if (cat === 'new_construction')  return 'New Construction' + (tier ? ' — ' + tier : '');
@@ -1552,19 +1565,28 @@ function apcRenderScheduled(records) {
     var jobType = apcE(apcFormatJobType(r));
     var dateStr = apcFormatDate(r.inspection_date);
     var timeStr = r.inspection_time ? ' at ' + apcE(r.inspection_time) : '';
-    var tier    = (r.tier || '').toUpperCase();
+    var isAddon = r.category === 'addon';
+    var tier    = isAddon ? addonTierLabel(r.tier || '') : (r.tier || '').toUpperCase();
     var payBadge = r.payment_status === 'paid'
       ? '<span class="apcs-badge apcs-badge-paid">✓ Paid</span>'
       : '<span class="apcs-badge apcs-badge-unpaid">Unpaid</span>';
     var sigBadge = apcSigBadge(r);
+    var addonBadge = isAddon ? '<span class="apcs-badge" style="background:#8e44ad;color:#fff;">ADD-ON</span>' : '';
+    var bundleBadge = '';
+    if (isAddon && r.is_bundle !== undefined && r.is_bundle !== null) {
+      bundleBadge = r.is_bundle
+        ? '<span class="apcs-badge" style="background:rgba(39,174,96,0.25);color:#27ae60;">Bundle</span>'
+        : '<span class="apcs-badge" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);">Standalone</span>';
+    }
 
     html += '<div class="apcs-card" data-rid="' + apcE(r.id) + '">' +
       '<div class="apcs-card-body">' +
         '<div class="apcs-card-top">' +
           '<div class="apcs-card-name">' + name + '</div>' +
           '<div class="apcs-card-badges">' +
+            addonBadge +
             (tier ? '<span class="apcs-badge apcs-badge-tier">' + tier + '</span>' : '') +
-            payBadge + sigBadge +
+            bundleBadge + payBadge + sigBadge +
           '</div>' +
         '</div>' +
         '<div class="apcs-card-addr">' + addr + '</div>' +
@@ -3146,15 +3168,15 @@ function apwPreselectHI() {
 function apwBuildNCPanel() {
   var cfg = apw.cfg || {};
   var ncItems = (cfg.newConstructionItems || []).filter(function(it) { return it.active !== false; });
-  var phases = ncItems.filter(function(it) { return !it.isBundle; });
-  var bundle = ncItems.find(function(it) { return it.isBundle; }) || null;
+  var phases = ncItems.filter(function(it) { return !it.is_bundle; });
+  var bundle = ncItems.find(function(it) { return it.is_bundle; }) || null;
   var ncIcons = { 'Pre Pour':'\ud83e\udea8','Pre Drywall':'\ud83d\udd28','Final Walkthrough':'\ud83c\udfc1' };
   var grid = document.getElementById('apwNCGrid');
 
   var items = phases.slice();
   if (bundle) {
     var savings = phases.reduce(function(s,p){return s+Number(p.price||0);},0) - Number(bundle.price||0);
-    items.push({ id:'__bundle__', name:(bundle.name||'Full Bundle'), price:bundle.price||0, _savings:savings, isBundle:true });
+    items.push({ id:'__bundle__', name:(bundle.name||'Full Bundle'), price:bundle.price||0, _savings:savings, is_bundle:true });
   }
   if (!items.length) {
     // Fallback
@@ -3164,8 +3186,8 @@ function apwBuildNCPanel() {
   }
 
   grid.innerHTML = items.map(function(it) {
-    var icon = ncIcons[it.name] || (it.isBundle ? '\ud83d\udce6' : '\ud83c\udfd7\ufe0f');
-    var sub = it.isBundle && it._savings > 0 ? '<span style="font-size:11px;color:rgba(255,255,255,0.4);">All 3 phases \u00b7 save $' + it._savings + '</span>' : '';
+    var icon = ncIcons[it.name] || (it.is_bundle ? '\ud83d\udce6' : '\ud83c\udfd7\ufe0f');
+    var sub = it.is_bundle && it._savings > 0 ? '<span style="font-size:11px;color:rgba(255,255,255,0.4);">All 3 phases \u00b7 save $' + it._savings + '</span>' : '';
     return '<button class="apw-phase-btn" data-pid="' + it.id + '" data-plabel="' + (it.name||'').replace(/"/g,'&quot;') + '" data-pprice="' + (it.price||0) + '">' +
       '<span>' + icon + ' ' + (it.name||'') + (sub ? '<br>' + sub : '') + '</span>' +
       '<span class="apw-phase-price">$' + (it.price||0) + '</span>' +

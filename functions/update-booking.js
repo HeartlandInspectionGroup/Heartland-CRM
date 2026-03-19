@@ -10,13 +10,10 @@
 
 const { createClient } = require('@supabase/supabase-js');
 const { sendEmail, hasCredentials } = require('./lib/ms-graph');
+const { resolveTemplate } = require('./lib/template-utils');
 const { emailWrap, emailInfoTable, esc } = require('./lib/email-template');
 
-const headers = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
+const { corsHeaders } = require('./lib/cors');
 
 let _supabase = null;
 function getSupabase() {
@@ -40,6 +37,7 @@ function bodyPad(html) {
 }
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
   if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
@@ -97,7 +95,7 @@ exports.handler = async function (event) {
         var adminHtml = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f7f9;">'
           + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f9;padding:32px 0;"><tr><td align="center">'
           + '<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">'
-          + '<tr><td style="background:#c0392b;padding:20px 32px;">'
+          + '<tr><td style="background:#1a2a44;padding:20px 32px;">'
           + '<h1 style="margin:0;font-family:sans-serif;font-size:18px;font-weight:700;color:#fff;">\u274c Booking Cancelled</h1>'
           + '</td></tr>'
           + '<tr><td style="padding:28px 32px;font-family:sans-serif;">'
@@ -147,10 +145,11 @@ exports.handler = async function (event) {
             + emailInfoTable(reschedRows)
             + '<p style="font-family:\'Segoe UI\',Arial,sans-serif;font-size:14px;color:#6b7280;margin:0;">If you have any questions, please don\'t hesitate to contact us.</p>'
           );
+          var rsTpl = await resolveTemplate('reschedule_client', { subject: 'Inspection Rescheduled \u2014 Heartland Inspection Group', body: '' }, { client_name: clientName || '', address: '', old_date: '', new_date: '' });
           await sendEmail({
             to:       clientEmail,
             toName:   clientName,
-            subject:  'Inspection Rescheduled \u2014 Heartland Inspection Group',
+            subject:  rsTpl.subject,
             htmlBody: emailWrap({ subtitle: 'Inspection Rescheduled' }, clientBody2),
           });
         }
@@ -159,7 +158,7 @@ exports.handler = async function (event) {
         var adminHtml2 = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f7f9;">'
           + '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f9;padding:32px 0;"><tr><td align="center">'
           + '<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;">'
-          + '<tr><td style="background:#f59321;padding:20px 32px;">'
+          + '<tr><td style="background:#1a2a44;padding:20px 32px;">'
           + '<h1 style="margin:0;font-family:sans-serif;font-size:18px;font-weight:700;color:#fff;">\u23f0 Reschedule Request</h1>'
           + '</td></tr>'
           + '<tr><td style="padding:28px 32px;font-family:sans-serif;">'

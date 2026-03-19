@@ -2,7 +2,7 @@
   "name": "Heartland Inspector",
   "short_name": "Inspector",
   "description": "Heartland Inspection Group — Field Inspection Wizard",
-  "start_url": "/inspector.html",
+  "start_url": "/inspector-wizard-v2.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#15516d",

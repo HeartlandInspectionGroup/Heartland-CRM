@@ -75,27 +75,27 @@ body {
 .header-contact-item:hover { color:rgba(255,255,255,0.9); }
 .header-contact-icon { flex-shrink:0; }
 .header-divider {
-    width:40px; height:2px; background:var(--green);
+    width:64px; height:3px; background:var(--green);
     margin:16px auto; border-radius:2px;
 }
-.header-report-info { position:relative; z-index:1; }
+.header-report-info { position:relative; z-index:1; text-align:center; padding:0 20px; }
 .header-date {
     font-family:'Barlow Condensed',sans-serif;
-    font-size:11px; font-weight:600; letter-spacing:1.5px;
-    text-transform:uppercase; color:rgba(255,255,255,0.4);
+    font-size:11px; font-weight:600; letter-spacing:2px;
+    text-transform:uppercase; color:#4cd47e;
     margin-bottom:8px;
 }
 .header-address {
     font-family:'Barlow Condensed',sans-serif;
-    font-size:22px; font-weight:700; color:white;
+    font-size:26px; font-weight:700; color:white;
     letter-spacing:0.5px; margin-bottom:4px;
     line-height:1.2;
 }
 .header-client {
-    font-size:14px; color:rgba(255,255,255,0.6); margin-bottom:16px;
+    font-size:15px; color:rgba(255,255,255,0.8); margin-bottom:16px;
 }
 .header-badges {
-    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center;
 }
 .tier-badge {
     font-family:'Barlow Condensed',sans-serif;
@@ -110,8 +110,7 @@ body {
 .score-hero {
     background:white;
     margin: 0 16px;
-    margin-top: -1px;
-    border-radius: 0 0 16px 16px;
+    border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     display:flex; align-items:center; gap:20px;
@@ -232,6 +231,15 @@ body {
 .detail-row:last-of-type { border-bottom:none; }
 .detail-label { color:var(--muted); font-weight:500; flex-shrink:0; }
 .detail-value { color:var(--navy); font-weight:600; text-align:right; word-break:break-word; max-width:65%; }
+
+/* ── EQUIPMENT DETAILS (HEA-220) ── */
+.equip-details-block { margin: 12px 0 16px; padding: 14px 18px; background: rgba(52,152,219,0.04); border: 1px solid rgba(52,152,219,0.15); border-radius: 10px; }
+.equip-details-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid rgba(52,152,219,0.12); padding-bottom: 6px; }
+.equip-details-block .detail-row { padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; }
+.equip-details-block .detail-row:last-child { border-bottom: none; }
+.equip-recall-ok { color: #27ae60 !important; }
+.equip-recall-warn { color: #e67e22 !important; font-weight: 700 !important; }
+.equip-recall-link { color: #3498db; text-decoration: underline; }
 
 /* ── NOTES BOX ── */
 .notes-box {
@@ -391,22 +399,237 @@ body {
 .print-btn:hover { background:#f5f5f5; }
 @media (max-width: 480px) {
     .report-body { padding: 0 10px 40px; }
-    .section-card-header { padding: 14px 12px; }
+    .section-card-header { padding: 14px 12px; min-height: 44px; }
     .section-body-inner { padding: 0 12px 12px; }
     .detail-row { flex-wrap: wrap; }
     .detail-value { max-width: 100%; text-align: left; }
-    .print-btn { margin: 0 10px 12px; width: calc(100% - 20px); }
+    .print-btn { margin: 0 10px 12px; width: calc(100% - 20px); min-height: 44px; }
+    .header-address { font-size: 20px; }
+    .contact-social { display: none; }
+    .lightbox-close { width: 44px; height: 44px; font-size: 24px; }
+    .pc-finding-card { flex-direction: column; }
+    .pc-finding-photo, .pc-finding-photo img { width: 100%; }
 }
+/* ── V2 REPORT SECTIONS ── */
+.v2-summary-box {
+    background:#fff3f3; border:1.5px solid #e8c0bb; border-radius:12px;
+    margin:0 16px 20px; max-width:768px; padding:18px 20px;
+}
+.v2-summary-title {
+    font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700;
+    text-transform:uppercase; letter-spacing:1px; color:#c0392b; margin-bottom:12px;
+    display:flex; align-items:center; gap:8px;
+}
+.v2-summary-item {
+    padding:10px 0; border-bottom:1px solid rgba(192,57,43,0.1);
+    font-size:13px; line-height:1.6; color:#333;
+}
+.v2-summary-item:last-child { border-bottom:none; }
+.v2-summary-section { font-weight:700; color:#c0392b; }
+.v2-summary-obs { margin-top:3px; color:#555; }
+.v2-summary-recs { margin-top:4px; font-size:12px; color:#888; font-style:italic; }
+
+.v2-section { margin:0 16px 16px; max-width:768px; }
+.v2-section-header {
+    display:flex; align-items:center; gap:10px; padding:14px 16px;
+    background:white; border:1.5px solid var(--border); border-radius:12px 12px 0 0;
+    cursor:pointer;
+}
+.v2-section-icon { font-size:22px; flex-shrink:0; }
+.v2-section-name {
+    font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700;
+    color:var(--navy); flex:1;
+}
+.v2-section-chevron { color:var(--muted); transition:transform 0.2s; font-size:14px; }
+.v2-section.open .v2-section-chevron { transform:rotate(180deg); }
+.v2-section-body {
+    background:white; border:1.5px solid var(--border); border-top:none;
+    border-radius:0 0 12px 12px; max-height:0; overflow:hidden; transition:max-height 0.3s;
+}
+.v2-section.open .v2-section-body { max-height:5000px; }
+.v2-section-inner { padding:16px; }
+.v2-narrative {
+    font-size:14px; line-height:1.8; color:#444; margin-bottom:16px;
+    padding:14px 16px; background:#f8f9fb; border-radius:8px; border:1px solid #eee;
+}
+.v2-finding-card {
+    border:1px solid #eee; border-radius:10px; padding:14px 16px; margin-bottom:10px;
+    background:#fff;
+}
+.v2-finding-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.v2-finding-name { font-weight:700; font-size:14px; color:var(--navy); }
+.v2-cond-badge {
+    display:inline-block; padding:2px 10px; border-radius:12px;
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px;
+}
+.v2-cond-satisfactory { background:rgba(39,174,96,0.12); color:var(--green); }
+.v2-cond-monitor { background:rgba(230,126,34,0.12); color:var(--amber); }
+.v2-cond-repair { background:rgba(231,76,60,0.12); color:#e74c3c; }
+.v2-cond-replace { background:rgba(192,57,43,0.15); color:#c0392b; }
+.v2-cond-safety { background:rgba(142,68,173,0.12); color:#8e44ad; }
+.v2-cond-na { background:#f0f2f5; color:#aaa; }
+.v2-finding-obs { font-size:13px; color:#555; line-height:1.6; margin-bottom:6px; }
+.v2-finding-recs { font-size:12px; color:#888; }
+.v2-finding-recs li { margin-left:16px; margin-bottom:3px; }
+.v2-finding-safety { color:#8e44ad; font-weight:700; font-size:12px; margin-bottom:4px; }
+.v2-finding-photos { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.v2-finding-photos img {
+    width:100px; height:75px; object-fit:cover; border-radius:6px;
+    border:1px solid #eee; cursor:pointer;
+}
+
+/* Radon + Sewer add-on styles */
+.v2-radon-result { text-align:center; padding:16px; }
+.v2-radon-value { font-size:36px; font-weight:700; font-family:'Barlow Condensed',sans-serif; }
+.v2-radon-pass { color:var(--green); }
+.v2-radon-fail { color:#c0392b; }
+.v2-radon-threshold { font-size:13px; color:#888; margin-top:4px; }
+.v2-radon-badge { display:inline-block; padding:4px 16px; border-radius:20px; font-size:13px; font-weight:700; margin-top:8px; }
+.v2-radon-badge-pass { background:rgba(39,174,96,0.12); color:var(--green); }
+.v2-radon-badge-fail { background:rgba(192,57,43,0.12); color:#c0392b; }
+.v2-sewer-video { width:100%; max-width:640px; border-radius:10px; margin-bottom:16px; }
+
 @media print {
     .print-btn { display:none; }
     .print-bar { display:none; }
     .section-body { max-height:none !important; }
     .section-card.open .section-body,
     .section-body { max-height:none !important; overflow:visible !important; }
+    .v2-section-body { max-height:none !important; overflow:visible !important; }
     body { background:white; }
     .report-header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    /* Photo-centric report print (HEA-161) */
+    .v2-section { page-break-inside: avoid; }
+    img { max-height: 300px !important; }
+    .street-view-photo { display: block !important; width: 100% !important; }
+}
+
+/* Photo-centric finding cards — horizontal layout (HEA-161) */
+.pc-finding-card { display: flex; flex-direction: row; align-items: flex-start; gap: 16px; }
+.pc-finding-photo { width: 160px; flex-shrink: 0; }
+.pc-finding-photo img { width: 160px; height: auto; display: block; border-radius: 6px; cursor: pointer; }
+.pc-finding-content { flex: 1; min-width: 0; }
+
+@media (max-width: 600px) {
+  .pc-finding-card { flex-direction: column; }
+  .pc-finding-photo, .pc-finding-photo img { width: 100%; }
+}
+
+/* ── ADD-ON REPORT (HEA-213) ─────────────────────────────────────────── */
+.addon-report-section {
+    background: white; border-radius: 12px; border: 1px solid #eee;
+    padding: 20px; margin-bottom: 16px;
+}
+.addon-report-section-title {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--navy);
+    margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0;
+}
+.addon-report-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 8px 0; border-bottom: 1px solid #f8f8f8; font-size: 14px; gap: 12px;
+}
+.addon-report-row:last-child { border-bottom: none; }
+.addon-report-row .ar-label { color: var(--muted); font-weight: 500; flex-shrink: 0; }
+.addon-report-row .ar-value { color: var(--navy); font-weight: 600; text-align: right; word-break: break-word; max-width: 65%; }
+.addon-report-badge-pass {
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    background: rgba(39,174,96,0.12); color: var(--green);
+}
+.addon-report-badge-concern {
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    background: rgba(230,126,34,0.12); color: var(--amber);
+}
+.addon-report-badge-info {
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    background: rgba(52,152,219,0.12); color: #3498db;
+}
+.addon-report-table {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px;
+}
+.addon-report-table th {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+    text-align: left; padding: 8px 10px; border-bottom: 2px solid #eee;
+}
+.addon-report-table td {
+    padding: 8px 10px; border-bottom: 1px solid #f5f5f5; color: var(--navy);
+}
+.addon-report-table tr:nth-child(even) td { background: #fafbfc; }
+.addon-report-finding-card {
+    border: 1px solid #eee; border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 10px; background: #fff;
+}
+.addon-report-finding-card .ar-finding-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.addon-report-finding-card .ar-finding-label {
+    font-weight: 700; font-size: 14px; color: var(--navy); flex: 1;
+}
+.addon-report-photo-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px; margin-top: 12px;
+}
+.addon-report-photo-grid img {
+    width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px;
+    border: 1px solid #eee; cursor: pointer;
+}
+.addon-report-lab-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px; border: 1.5px solid var(--green);
+    background: rgba(39,174,96,0.08); color: var(--green);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none;
+    cursor: pointer; margin-top: 12px; transition: background 0.15s;
+}
+.addon-report-lab-btn:hover { background: rgba(39,174,96,0.15); }
+.addon-report-checklist {
+    display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px;
+}
+.addon-report-checklist .ar-check-item {
+    display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--navy);
+}
+.addon-report-checklist .ar-check-item::before {
+    content: '\2713'; color: var(--green); font-weight: 700; font-size: 14px;
+}
+.addon-report-warning {
+    background: rgba(230,126,34,0.08); border: 1px solid rgba(230,126,34,0.25);
+    border-left: 4px solid var(--amber); border-radius: 8px;
+    padding: 12px 14px; margin-top: 10px; font-size: 13px; color: #7a4a10; line-height: 1.5;
+}
+.addon-report-result-hero {
+    text-align: center; padding: 20px 16px; margin-bottom: 12px;
+}
+.addon-report-result-value {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 42px; font-weight: 900; line-height: 1;
+}
+.addon-report-result-unit {
+    font-size: 14px; color: var(--muted); margin-top: 4px;
+}
+.addon-report-result-badge { margin-top: 10px; }
+.addon-report-photo-pair {
+    display: flex; gap: 10px; margin-top: 10px;
+}
+.addon-report-photo-pair img {
+    flex: 1; min-width: 0; max-width: 50%; aspect-ratio: 4/3; object-fit: cover;
+    border-radius: 8px; border: 1px solid #eee; cursor: pointer;
+}
+.addon-report-photo-pair .ar-pair-label {
+    font-size: 10px; color: var(--muted); text-align: center; margin-top: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
+}
+@media (max-width: 480px) {
+    .addon-report-photo-pair { flex-direction: column; }
+    .addon-report-photo-pair img { max-width: 100%; }
 }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/config.js"></script>
 </head>
 <body>
@@ -444,15 +667,15 @@ body {
                     <svg class="header-contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="rgba(255,255,255,0.65)"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
                     <span>(815) 329-8583</span>
                 </a>
-                <a href="https://www.facebook.com/heartlandinspectiongroup" class="header-contact-item" target="_blank">
+                <a href="https://www.facebook.com/heartlandinspectiongroup" class="header-contact-item contact-social" target="_blank">
                     <img src="https://s.magecdn.com/social/tc-facebook.svg" class="header-contact-icon" width="15" height="15" alt="Facebook">
                     <span>@heartlandinspectiongroup</span>
                 </a>
-                <a href="https://www.instagram.com/heartlandinspectiongroup" class="header-contact-item" target="_blank">
+                <a href="https://www.instagram.com/heartlandinspectiongroup" class="header-contact-item contact-social" target="_blank">
                     <img src="https://s.magecdn.com/social/tc-instagram.svg" class="header-contact-icon" width="15" height="15" alt="Instagram">
                     <span>@heartlandinspectiongroup</span>
                 </a>
-                <a href="https://www.youtube.com/@heartlandinspectiongroup" class="header-contact-item" target="_blank">
+                <a href="https://www.youtube.com/@heartlandinspectiongroup" class="header-contact-item contact-social" target="_blank">
                     <img src="https://s.magecdn.com/social/tc-youtube.svg" class="header-contact-icon" width="15" height="15" alt="YouTube">
                     <span>@heartlandinspectiongroup</span>
                 </a>
@@ -473,6 +696,13 @@ body {
 
     </div>
 
+    <!-- STREET VIEW -->
+    <div style="max-width:800px;margin:0 auto;padding:0 16px;">
+        <img id="rptStreetView" class="street-view-photo" src="" alt="Property Street View"
+            style="display:none; width:100%; max-height:300px; object-fit:cover; border-radius:12px; margin:16px 0 0;"
+            onerror="this.style.display='none'">
+    </div>
+
     <!-- URGENCY CALLOUT (injected by JS if any urgent sections) -->
     <div style="max-width:800px;margin:0 auto;">
         <div id="urgencyCallout" style="display:none;"></div>
@@ -480,7 +710,7 @@ body {
 
     <!-- SCORE HERO -->
     <div style="max-width:800px;margin:0 auto;">
-        <div class="score-hero" id="scoreHero">
+        <div class="score-hero" id="scoreHero" style="display:none">
             <div class="score-circle gray" id="scoreCircle">
                 <div class="score-number" id="scoreNumber">—</div>
                 <div class="score-grade" id="scoreGrade"></div>
@@ -497,10 +727,8 @@ body {
         </div>
     </div>
 
-    <!-- PRINT BUTTON -->
-    <div style="max-width:800px;margin:0 auto;">
-        <button class="print-btn" onclick="openPrintReceipt()">🖨 Print / Save PDF</button>
-    </div>
+    <!-- V2 ACTION REQUIRED SUMMARY (hidden for V1 records) -->
+    <div id="v2SummaryBox" style="display:none;"></div>
 
     <!-- REPORT SECTIONS -->
     <div class="report-body" id="reportSections"></div>
@@ -510,11 +738,11 @@ body {
         <button class="print-btn" onclick="openPrintReceipt()">🖨 Print / Save PDF</button>
     </div>
 
-    <!-- DISCLAIMER -->
+    <!-- DISCLAIMER — populated from config_json.disclosures -->
     <div style="max-width:800px;margin:0 auto;">
         <div class="report-disclaimer">
             <div class="report-disclaimer-title">Disclaimer</div>
-            <div class="report-disclaimer-text">
+            <div class="report-disclaimer-text" id="reportDisclosures">
                 This Home Health Report was prepared by Heartland Inspection Group, LLC and reflects conditions observed at the time of inspection. This report is a proactive wellness assessment intended to help homeowners understand the general condition of their home's major systems and components. It does not constitute a state-licensed real estate inspection and is not intended for use in real estate transactions. Heartland Inspection Group, LLC is not liable for conditions that were not visible or accessible at the time of inspection, nor for changes in condition occurring after the inspection date. Recommendations contained herein are advisory in nature. Consult qualified licensed contractors for diagnosis and repair of any identified concerns. All findings are subject to the limitations of a visual, non-invasive assessment.
             </div>
         </div>
@@ -523,7 +751,10 @@ body {
     <!-- FOOTER -->
     <div class="report-footer">
         <img src="https://i.imgur.com/I1vTiVT.png" class="footer-logo" alt="Heartland Inspection Group">
-        <div class="footer-text">This report was prepared by Heartland Inspection Group<br>and reflects conditions observed at time of inspection.</div>
+        <div class="footer-text" id="footerPreparedBy">This report was prepared by Heartland Inspection Group</div>
+        <div class="footer-text" id="footerPrepDate"></div>
+        <div class="footer-text" id="footerRevDate" style="display:none;"></div>
+        <div class="footer-text">Reflects conditions observed at time of inspection.</div>
         <div class="footer-phone">(815) 329-8583</div>
     </div>
 
@@ -547,23 +778,8 @@ body {
 const SUPABASE_URL  = 'https://fusravedbksupcsjfzda.supabase.co';
 const SUPABASE_ANON = window.SUPABASE_ANON_KEY;
 
-async function injectPortalButton(custEmail) {
-    if (!custEmail) return;
-    try {
-        var res = await fetch(SUPABASE_URL + '/rest/v1/client_portal_tokens?client_email=eq.' + encodeURIComponent(custEmail) + '&select=token&limit=1', {
-            headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
-        });
-        var rows = await res.json();
-        if (!rows || !rows[0] || !rows[0].token) return;
-        var portalUrl = (window.location.origin || 'https://heartlandinspectiongroup.com') + '/client-portal.html?token=' + rows[0].token;
-        var footer = document.querySelector('.report-footer');
-        if (!footer) return;
-        var btn = document.createElement('div');
-        btn.style.cssText = 'margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);';
-        btn.innerHTML = '<a href="' + portalUrl + '" style="display:inline-block;background:#27ae60;color:#fff;font-size:13px;font-weight:700;text-decoration:none;padding:10px 24px;border-radius:8px;letter-spacing:0.5px;">&#x1F3E0; Back to My Portal</a>';
-        footer.appendChild(btn);
-    } catch(e) { console.error('Portal button error:', e); }
-}
+// Portal button removed (HEA-134) — client_portal_tokens no longer accessible via anon key
+function injectPortalButton() { /* no-op */ }
 
 const CONDITION_TEMPLATES = {
     furnace:    { good:'Furnace in good condition. No visible issues. Flame color normal, no unusual noise, filter housing clean.', fair:'Furnace showing signs of wear. Recommend monitoring and scheduling a tune-up.', attention:'Furnace needs attention. Issues noted that require prompt service or repair.' },
@@ -610,20 +826,47 @@ function toggleSection(card) {
     card.classList.toggle('open');
 }
 
+function _getScoreThresholds() {
+    var cfg = (v2Data && v2Data.config && v2Data.config.scoreSettings) ? v2Data.config.scoreSettings : null;
+    if (cfg && cfg.thresholds && cfg.thresholds.length) return cfg.thresholds;
+    return [
+        { label: 'Excellent', min: 90, max: 100, color: '#d97706' },
+        { label: 'Good',      min: 75, max: 89,  color: '#16a34a' },
+        { label: 'Fair',      min: 55, max: 74,  color: '#facc15' },
+        { label: 'Poor',      min: 0,  max: 54,  color: '#dc2626' },
+    ];
+}
+
+function _matchThreshold(score) {
+    var thresholds = _getScoreThresholds();
+    for (var i = 0; i < thresholds.length; i++) {
+        if (score >= thresholds[i].min && score <= thresholds[i].max) return thresholds[i];
+    }
+    return null;
+}
+
 function getScoreClass(score) {
     if (!score || isNaN(score)) return 'gray';
-    if (score >= 75) return 'green';
-    if (score >= 50) return 'amber';
-    return 'red';
+    var t = _matchThreshold(score);
+    if (!t) return 'gray';
+    // Map threshold color to CSS class
+    var c = (t.color || '').toLowerCase();
+    if (c.indexOf('a3') >= 0 || c.indexOf('27ae') >= 0 || c === '#16a34a') return 'green';
+    if (c.indexOf('cc15') >= 0 || c.indexOf('d97706') >= 0 || c.indexOf('f5') >= 0) return 'amber';
+    if (c.indexOf('26') >= 0 || c.indexOf('c0392b') >= 0) return 'red';
+    return 'green';
+}
+
+function getScoreColor(score) {
+    if (!score || isNaN(score)) return '#ccc';
+    var t = _matchThreshold(score);
+    return t ? t.color : '#ccc';
 }
 
 function getGradeLabel(score) {
     if (!score || isNaN(score)) return '';
-    if (score >= 90) return 'Grade A';
-    if (score >= 75) return 'Grade B';
-    if (score >= 60) return 'Grade C';
-    if (score >= 45) return 'Grade D';
-    return 'Grade F';
+    var t = _matchThreshold(score);
+    return t ? t.label : '';
 }
 
 function getScoreSubtitle(score, cls) {
@@ -830,6 +1073,9 @@ function openPrintReceipt() {
 // field_photos rows keyed by section_id — populated before renderReport
 const fieldPhotosMap = {}; // { section_id: [url, url, ...] }
 
+// V2 data — populated by loadReport when V2 findings exist
+var v2Data = { findings: [], narratives: {}, photos: [], photoFindings: [], sections: [], config: {}, equipmentScans: {} };
+
 async function loadReport() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -854,10 +1100,80 @@ async function loadReport() {
             });
         }
 
-        renderReport(data.report);
+        // Load V2 data
+        v2Data.findings = data.v2_findings || [];
+        v2Data.photoFindings = data.v2_photo_findings || [];
+        v2Data.narratives = data.v2_narratives || {};
+        v2Data.photos = data.v2_finding_photos || [];
+        v2Data.sections = data.v2_sections || [];
+        v2Data.config = data.config || {};
+        v2Data.sectionComments = data.v2_section_comments || {};
+        v2Data.fieldAnswers = data.v2_field_answers || {};
+        v2Data.fieldQuestions = data.v2_field_questions || {};
+        v2Data.equipmentScans = data.v2_equipment_scans || {};
+
+        // Update disclosures from config if available
+        if (v2Data.config.disclosures) {
+            var discEl = document.getElementById('reportDisclosures');
+            if (discEl) discEl.textContent = v2Data.config.disclosures;
+        }
+
+        // Detect render path: addon > photo-centric > V2 findings > V1
+        if (data.report.category === 'addon') {
+            renderAddonReport(data.report);
+            return;
+        }
+        if (v2Data.photoFindings.length > 0 && data.report.category === 'home_inspection') {
+            renderPhotoCentricReport(data.report);
+        } else {
+            var realFindings = v2Data.findings.filter(f => !f.is_section_pass);
+            if (realFindings.length > 0) {
+                renderV2Report(data.report);
+            } else {
+                renderReport(data.report);
+            }
+        }
     } catch (err) {
         showNotFound();
     }
+}
+
+function populateFooterMeta(record, narratives) {
+    var preparedBy = document.getElementById('footerPreparedBy');
+    if (preparedBy && record.inspector_name) {
+        preparedBy.textContent = 'Report Prepared By: ' + record.inspector_name;
+    }
+    var prepDate = document.getElementById('footerPrepDate');
+    if (prepDate) {
+        var maxApproved = null;
+        if (narratives) {
+            Object.values(narratives).forEach(function(n) {
+                if (n.approved_at && (!maxApproved || n.approved_at > maxApproved)) {
+                    maxApproved = n.approved_at;
+                }
+            });
+        }
+        var dateVal = maxApproved || record.updated_at || record.created_at;
+        if (dateVal) {
+            prepDate.textContent = 'Report Preparation Date: ' + new Date(dateVal).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+    }
+    var revDate = document.getElementById('footerRevDate');
+    if (revDate) {
+        if (record.report_revised_at) {
+            revDate.textContent = 'Report Revision Date: ' + new Date(record.report_revised_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            revDate.style.display = '';
+        } else {
+            revDate.style.display = 'none';
+        }
+    }
+}
+
+function showStreetView(address) {
+    var svEl = document.getElementById('rptStreetView');
+    if (!svEl || !address) return;
+    svEl.src = '/.netlify/functions/street-view?address=' + encodeURIComponent(address);
+    svEl.style.display = 'block';
 }
 
 function renderReport(r) {
@@ -866,6 +1182,7 @@ function renderReport(r) {
 
 
     document.getElementById('headerAddress').textContent = r.address || 'Address Unavailable';
+    showStreetView(r.address);
     document.getElementById('headerClient').textContent  = r.cust_name ? `Prepared for ${r.cust_name}` : '';
     document.getElementById('headerDate').textContent    = r.inspection_date
         ? new Date(r.inspection_date + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})
@@ -874,18 +1191,22 @@ function renderReport(r) {
     tierEl.textContent = tier + ' Inspection';
     tierEl.className = `tier-badge tier-${tier}`;
 
-    // Score
-    const rawScore = fd.health_score || '';
-    const scoreNum = parseInt(rawScore);
-    const cls = getScoreClass(scoreNum);
-    document.getElementById('scoreCircle').className   = `score-circle ${cls}`;
-    document.getElementById('scoreNumber').textContent = isNaN(scoreNum) ? '—' : scoreNum;
-    document.getElementById('scoreGrade').textContent  = getGradeLabel(scoreNum);
-    document.getElementById('scoreSubtitle').textContent = getScoreSubtitle(scoreNum, cls);
-    document.getElementById('scoreBarFill').className  = `score-bar-fill ${cls}`;
-    setTimeout(() => {
-        document.getElementById('scoreBarFill').style.width = isNaN(scoreNum) ? '0%' : scoreNum + '%';
-    }, 100);
+    // Score — only show on Home Health Check reports
+    var showScore = r.category === 'home_health_check';
+    if (showScore) {
+        const rawScore = r.health_score || fd.health_score || '';
+        const scoreNum = parseInt(rawScore);
+        const cls = getScoreClass(scoreNum);
+        document.getElementById('scoreCircle').className   = `score-circle ${cls}`;
+        document.getElementById('scoreNumber').textContent = isNaN(scoreNum) ? '—' : scoreNum;
+        document.getElementById('scoreGrade').textContent  = getGradeLabel(scoreNum);
+        document.getElementById('scoreSubtitle').textContent = getScoreSubtitle(scoreNum, cls);
+        document.getElementById('scoreBarFill').className  = `score-bar-fill ${cls}`;
+        document.getElementById('scoreHero').style.display = '';
+        setTimeout(() => {
+            document.getElementById('scoreBarFill').style.width = isNaN(scoreNum) ? '0%' : scoreNum + '%';
+        }, 100);
+    }
 
     // Sections
     const standardSections = ['furnace','ac','electrical','plumbing','smoke','co','filters'];
@@ -938,6 +1259,1130 @@ function renderReport(r) {
 
     // Page title
     document.title = r.address ? `${r.address} — Home Health Report` : 'Home Health Report';
+
+    // Footer metadata
+    populateFooterMeta(r, null);
+}
+
+// ── V2 ICON MAP ─────────────────────────────────────────────────────────
+var V2_ICON_MAP = {
+    'home':'🏠','square':'🔲','car':'🚗','layers':'🧱','wind':'💨',
+    'zap':'⚡','thermometer':'🌡️','snowflake':'❄️','droplets':'💧',
+    'flame':'🔥','layout-panel-left':'🚪','utensils':'🍳','bath':'🛁',
+    'plug':'🔌','grid-3x3':'📐','frame':'🖼️','clipboard-check':'✅',
+};
+function v2Icon(name) { return V2_ICON_MAP[name] || '📋'; }
+
+// ── V2 RENDER ───────────────────────────────────────────────────────────
+function renderV2Report(r) {
+    // Header — same as V1
+    document.getElementById('headerAddress').textContent = r.address || 'Address Unavailable';
+    showStreetView(r.address);
+    document.getElementById('headerClient').textContent = r.cust_name ? 'Prepared for ' + r.cust_name : '';
+    document.getElementById('headerDate').textContent = r.inspection_date
+        ? new Date(r.inspection_date + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})
+        : '';
+    var tier = r.tier || 'Standard';
+    var tierEl = document.getElementById('headerTier');
+    tierEl.textContent = tier + ' Inspection';
+    tierEl.className = 'tier-badge tier-' + tier;
+
+    // Score — only show on Home Health Check reports
+    var showScore = r.category === 'home_health_check';
+    if (showScore) {
+        var rawScore = r.health_score || '';
+        var scoreNum = parseInt(rawScore);
+        var cls = getScoreClass(scoreNum);
+        document.getElementById('scoreCircle').className = 'score-circle ' + cls;
+        document.getElementById('scoreNumber').textContent = isNaN(scoreNum) ? '—' : scoreNum;
+        document.getElementById('scoreGrade').textContent = getGradeLabel(scoreNum);
+        document.getElementById('scoreSubtitle').textContent = getScoreSubtitle(scoreNum, cls);
+        document.getElementById('scoreBarFill').className = 'score-bar-fill ' + cls;
+        document.getElementById('scoreHero').style.display = '';
+        setTimeout(function() {
+            document.getElementById('scoreBarFill').style.width = isNaN(scoreNum) ? '0%' : scoreNum + '%';
+        }, 100);
+    }
+
+    // V2 Summary — Action Required (safety, repair, replace only)
+    var actionFindings = v2Data.findings.filter(function(f) {
+        return !f.is_section_pass && ['safety', 'repair', 'replace'].indexOf(f.condition_value) >= 0;
+    });
+    if (actionFindings.length) {
+        var secMap = {};
+        v2Data.sections.forEach(function(s) { secMap[s.id] = s; });
+        var summaryHtml = '<div class="v2-summary-box">';
+        summaryHtml += '<div class="v2-summary-title">🚨 Action Required — ' + actionFindings.length + ' Item' + (actionFindings.length !== 1 ? 's' : '') + ' Need Attention</div>';
+        actionFindings.forEach(function(f) {
+            var sec = secMap[f.section_id] || {};
+            var recs = (f.recommendations || []).map(function(r) { return r.recommendation_note || ''; }).filter(Boolean);
+            summaryHtml += '<div class="v2-summary-item">';
+            summaryHtml += '<div class="v2-summary-section">' + (sec.name || 'Section') + (f.is_safety ? ' ⚠️ Safety Concern' : '') + '</div>';
+            if (f.observation) summaryHtml += '<div class="v2-summary-obs">' + f.observation + '</div>';
+            if (recs.length) summaryHtml += '<div class="v2-summary-recs">' + recs.join('; ') + '</div>';
+            summaryHtml += '</div>';
+        });
+        summaryHtml += '</div>';
+        var summaryEl = document.getElementById('v2SummaryBox');
+        summaryEl.innerHTML = summaryHtml;
+        summaryEl.style.display = 'block';
+    }
+
+    // Group findings by section
+    var findingsBySection = {};
+    v2Data.findings.forEach(function(f) {
+        if (f.is_section_pass) return;
+        if (!findingsBySection[f.section_id]) findingsBySection[f.section_id] = [];
+        findingsBySection[f.section_id].push(f);
+    });
+
+    // Photos by finding
+    var photosByFinding = {};
+    v2Data.photos.forEach(function(p) {
+        var key = p.finding_id || '_unlinked_' + p.section_id;
+        if (!photosByFinding[key]) photosByFinding[key] = [];
+        photosByFinding[key].push(p.annotated_url || p.cloudinary_url);
+    });
+
+    // Render sections
+    var html = '';
+    v2Data.sections.forEach(function(sec) {
+        var findings = findingsBySection[sec.id];
+        if (!findings || !findings.length) return;
+
+        // Check for special add-on sections
+        var secNameLower = sec.name.toLowerCase();
+        if (secNameLower === 'radon') {
+            html += buildRadonSection(sec, findings, photosByFinding);
+            return;
+        }
+        if (secNameLower === 'sewer scope') {
+            html += buildSewerSection(sec, findings, photosByFinding);
+            return;
+        }
+
+        html += buildV2Section(sec, findings, photosByFinding);
+    });
+
+    document.getElementById('reportSections').innerHTML = html;
+
+    // Show report
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('reportContent').style.display = 'block';
+    injectPortalButton(r.cust_email || '');
+    document.title = r.address ? r.address + ' — Inspection Report' : 'Inspection Report';
+
+    // Footer metadata
+    populateFooterMeta(r, v2Data.narratives);
+}
+
+// ── PHOTO-CENTRIC REPORT (HEA-161) ──────────────────────────────────────
+
+var SEVERITY_ORDER = { 'Safety Concern': 1, 'Repair': 2, 'Replace': 3, 'Monitor': 4, 'Note': 5 };
+var SEVERITY_COLORS = {
+    'Safety Concern': { bg: 'rgba(231,76,60,0.12)', border: '#e74c3c', text: '#e74c3c' },
+    'Repair': { bg: 'rgba(243,156,18,0.12)', border: '#f39c12', text: '#f39c12' },
+    'Replace': { bg: 'rgba(245,147,33,0.12)', border: '#f59321', text: '#f59321' },
+    'Monitor': { bg: 'rgba(52,152,219,0.12)', border: '#3498db', text: '#3498db' },
+    'Note': { bg: 'rgba(150,150,150,0.1)', border: '#999', text: '#999' },
+};
+
+function renderPhotoCentricReport(r) {
+    // Header — same as V2
+    document.getElementById('headerAddress').textContent = r.address || 'Address Unavailable';
+    showStreetView(r.address);
+    document.getElementById('headerClient').textContent = r.cust_name ? 'Prepared for ' + r.cust_name : '';
+    document.getElementById('headerDate').textContent = r.inspection_date
+        ? new Date(r.inspection_date + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})
+        : '';
+    var tier = r.tier || 'Standard';
+    var tierEl = document.getElementById('headerTier');
+    tierEl.textContent = tier + ' Inspection';
+    tierEl.className = 'tier-badge tier-' + tier;
+
+    // Score — only show on Home Health Check reports
+    var showScore = r.category === 'home_health_check';
+    if (showScore) {
+        var rawScore = r.health_score || '';
+        var scoreNum = parseInt(rawScore);
+        var cls = getScoreClass(scoreNum);
+        document.getElementById('scoreCircle').className = 'score-circle ' + cls;
+        document.getElementById('scoreNumber').textContent = isNaN(scoreNum) ? '—' : scoreNum;
+        document.getElementById('scoreGrade').textContent = getGradeLabel(scoreNum);
+        document.getElementById('scoreSubtitle').textContent = getScoreSubtitle(scoreNum, cls);
+        document.getElementById('scoreBarFill').className = 'score-bar-fill ' + cls;
+        document.getElementById('scoreHero').style.display = '';
+        setTimeout(function() {
+            document.getElementById('scoreBarFill').style.width = isNaN(scoreNum) ? '0%' : scoreNum + '%';
+        }, 100);
+    }
+
+    var html = '';
+
+    // Block 1 — Severity-ranked findings
+    html += buildSeverityRankedBlock();
+
+    // Block 2 — Section cards (comment + site docs only)
+    var secMap = {};
+    v2Data.sections.forEach(function(s) { secMap[s.id] = s; });
+
+    v2Data.sections.forEach(function(sec) {
+        var siteDocs = v2Data.photos.filter(function(p) { return p.section_id === sec.id && !p.severity; });
+        var comment = v2Data.sectionComments ? v2Data.sectionComments[sec.id] : null;
+        if (!siteDocs.length && !comment) return; // skip empty sections
+        html += buildPhotoCentricSectionCard(sec, siteDocs, comment);
+    });
+
+    document.getElementById('reportSections').innerHTML = html;
+
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('reportContent').style.display = 'block';
+    injectPortalButton(r.cust_email || '');
+    document.title = r.address ? r.address + ' — Inspection Report' : 'Inspection Report';
+    populateFooterMeta(r, null);
+}
+
+function buildSeverityRankedBlock() {
+    var sorted = v2Data.photoFindings.slice().sort(function(a, b) {
+        return (SEVERITY_ORDER[a.severity] || 99) - (SEVERITY_ORDER[b.severity] || 99);
+    });
+
+    if (!sorted.length) return '';
+
+    var secMap = {};
+    v2Data.sections.forEach(function(s) { secMap[s.id] = s; });
+
+    var html = '<div style="margin-bottom:32px;">';
+    html += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid rgba(255,255,255,0.1);">Action Required</div>';
+
+    sorted.forEach(function(pf) {
+        var sc = SEVERITY_COLORS[pf.severity] || SEVERITY_COLORS['Note'];
+        var photoSrc = pf.annotated_url || pf.cloudinary_url;
+        var secName = secMap[pf.section_id] ? secMap[pf.section_id].name : '';
+
+        html += '<div style="border:1px solid ' + sc.border + ';border-radius:12px;overflow:hidden;margin-bottom:16px;background:' + sc.bg + ';">';
+        html += '<div class="pc-finding-card" style="padding:16px 20px;">';
+
+        // Left — Photo thumbnail
+        if (photoSrc) {
+            html += '<div class="pc-finding-photo">';
+            html += '<img src="' + photoSrc + '" loading="lazy" onclick="openLightbox(\'' + photoSrc + '\')">';
+            html += '</div>';
+        }
+
+        // Right — Content
+        html += '<div class="pc-finding-content">';
+
+        // Severity badge
+        html += '<span style="display:inline-block;padding:4px 12px;border-radius:6px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:' + sc.border + ';color:#fff;margin-bottom:8px;">' + (pf.severity || 'Note') + '</span>';
+
+        // AI Narrative
+        if (pf.narrative) {
+            html += '<div style="font-size:13px;line-height:1.7;color:var(--text);padding:12px 16px;border-left:3px solid ' + sc.border + ';background:rgba(255,255,255,0.03);border-radius:0 8px 8px 0;margin-bottom:8px;">' + pf.narrative + '</div>';
+        }
+
+        // Section + subsection label
+        if (secName) {
+            html += '<div style="font-size:11px;color:var(--muted);font-family:\'Barlow Condensed\',sans-serif;letter-spacing:0.5px;text-transform:uppercase;">' + secName + '</div>';
+        }
+
+        html += '</div></div></div>';
+    });
+
+    html += '</div>';
+    return html;
+}
+
+function buildPhotoCentricSectionCard(sec, siteDocs, comment) {
+    var icon = v2Icon(sec.icon);
+    var html = '<div class="v2-section open" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="v2-section-header">';
+    html += '<div class="v2-section-icon">' + icon + '</div>';
+    html += '<div class="v2-section-name">' + (sec.name || 'Section') + '</div>';
+    html += '<div class="v2-section-chevron">▼</div>';
+    html += '</div>';
+    html += '<div class="v2-section-body"><div class="v2-section-inner" onclick="event.stopPropagation()">';
+
+    // Equipment Details block (HEA-220)
+    html += buildEquipmentDetailsForSection(sec.id);
+
+    // Section comment intro
+    if (comment) {
+        html += '<div style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:16px;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06);">' + comment + '</div>';
+    }
+
+    // Field answers — Tier 2 and Tier 3 (HEA-175)
+    var answerPairs = [];
+    Object.keys(v2Data.fieldAnswers).forEach(function(fieldId) {
+        var fieldAnswerMap = v2Data.fieldAnswers[fieldId];
+        var fieldQuestions = v2Data.fieldQuestions[fieldId] || [];
+
+        if (fieldQuestions.length) {
+            // Tier 3 — multiple questions
+            fieldQuestions.forEach(function(q) {
+                var a = fieldAnswerMap[q.id];
+                if (a && a.selected_value) {
+                    answerPairs.push('<span style="font-size:12px;"><strong>' + q.label + ':</strong> ' + a.selected_value + (a.text_value ? ' — ' + a.text_value : '') + '</span>');
+                }
+            });
+        } else if (fieldAnswerMap['field'] && fieldAnswerMap['field'].selected_value) {
+            // Tier 2 — single field answer (need field name — use value as fallback)
+            var a = fieldAnswerMap['field'];
+            answerPairs.push('<span style="font-size:12px;"><strong>' + a.selected_value + '</strong>' + (a.text_value ? ' — ' + a.text_value : '') + '</span>');
+        }
+    });
+    if (answerPairs.length) {
+        html += '<div style="display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:12px;padding:8px 12px;background:rgba(255,255,255,0.02);border-radius:6px;border:1px solid rgba(255,255,255,0.05);">';
+        html += answerPairs.join('<span style="color:var(--muted);font-size:12px;">·</span>');
+        html += '</div>';
+    }
+
+    // Site doc photo grid
+    if (siteDocs.length) {
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">';
+        siteDocs.forEach(function(p) {
+            var src = p.annotated_url || p.cloudinary_url;
+            if (!src) return;
+            html += '<div style="position:relative;">';
+            html += '<img src="' + src + '" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);" onclick="openLightbox(\'' + src + '\')">';
+            if (p.caption) {
+                html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;text-align:center;line-height:1.4;">' + p.caption + '</div>';
+            }
+            html += '</div>';
+        });
+        html += '</div>';
+    } else if (!comment) {
+        html += '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px;">No site documentation for this section.</div>';
+    }
+
+    html += '</div></div></div>';
+    return html;
+}
+
+// ── EQUIPMENT DETAILS BLOCK (HEA-220) ──────────────────────────────────
+function buildEquipmentDetailsBlock(sectionId, fieldId) {
+    var key = fieldId ? (sectionId + ':' + fieldId) : sectionId;
+    var scan = v2Data.equipmentScans[key];
+    if (!scan) return '';
+
+    var html = '<div class="equip-details-block">';
+    html += '<div class="equip-details-title">Equipment Details</div>';
+    if (scan.brand) html += makeRow('Brand', scan.brand);
+    if (scan.model) html += makeRow('Model', scan.model);
+    if (scan.serial) html += makeRow('Serial', scan.serial);
+    if (scan.age_years != null) {
+        var ageStr = scan.age_years + ' years';
+        if (scan.manufacture_date) ageStr += ' (est. ' + scan.manufacture_date + ')';
+        html += makeRow('Age', ageStr);
+    } else if (scan.manufacture_date) {
+        html += makeRow('Manufactured', scan.manufacture_date);
+    }
+    if (scan.capacity) html += makeRow('Capacity', scan.capacity);
+    if (scan.efficiency_rating) html += makeRow('Efficiency', scan.efficiency_rating);
+
+    // Recall status — always shown
+    if (scan.recall_status === 'found' && scan.recall_url) {
+        html += '<div class="detail-row"><span class="detail-label">Recall Status</span><span class="detail-value equip-recall-warn">\u26A0\uFE0F Active Recall &mdash; <a href="' + scan.recall_url + '" target="_blank" rel="noopener" class="equip-recall-link">View Recall Details</a></span></div>';
+    } else if (scan.recall_status === 'found') {
+        html += '<div class="detail-row"><span class="detail-label">Recall Status</span><span class="detail-value equip-recall-warn">\u26A0\uFE0F Active Recall</span></div>';
+    } else if (scan.recall_status === 'unavailable') {
+        html += makeRow('Recall Status', 'Recall check unavailable');
+    } else {
+        html += '<div class="detail-row"><span class="detail-label">Recall Status</span><span class="detail-value equip-recall-ok">\u2705 No active recalls</span></div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function buildEquipmentDetailsForSection(sectionId) {
+    // Check if any scans exist for this section (including appliance sub-cards)
+    var html = '';
+    Object.keys(v2Data.equipmentScans).forEach(function(key) {
+        if (key === sectionId || key.indexOf(sectionId + ':') === 0) {
+            var scan = v2Data.equipmentScans[key];
+            var fieldId = scan.field_id || null;
+            html += buildEquipmentDetailsBlock(sectionId, fieldId);
+        }
+    });
+    return html;
+}
+
+function buildV2Section(sec, findings, photosByFinding) {
+    // Detect rendering path: photo-centric > per-finding > section-level
+    var sectionPhotoFindings = v2Data.photoFindings.filter(function(pf) { return pf.section_id === sec.id; });
+    var isPhotoCentric = sectionPhotoFindings.length > 0;
+    var hasPerFindingNarratives = !isPhotoCentric && findings.some(function(f) { return f.narrative; });
+
+    var icon = v2Icon(sec.icon);
+    var html = '<div class="v2-section open" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="v2-section-header">';
+    html += '<div class="v2-section-icon">' + icon + '</div>';
+    html += '<div class="v2-section-name">' + (sec.name || 'Section') + '</div>';
+    html += '<div class="v2-section-chevron">▼</div>';
+    html += '</div>';
+    html += '<div class="v2-section-body"><div class="v2-section-inner" onclick="event.stopPropagation()">';
+
+    // Equipment Details block (HEA-220) — renders before findings when scan data exists
+    html += buildEquipmentDetailsForSection(sec.id);
+
+    if (isPhotoCentric) {
+        // HEA-160: photo-centric rendering — each photo is its own finding block
+        sectionPhotoFindings.forEach(function(pf) {
+            var photoSrc = pf.annotated_url || pf.cloudinary_url;
+            var sevLabel = pf.is_safety ? 'Safety Concern' : (pf.severity || 'Note');
+            var condClass = 'v2-cond-' + (pf.severity || 'na');
+
+            html += '<div class="v2-finding-card">';
+            html += '<div class="v2-finding-header">';
+            html += '<span class="v2-finding-name">' + (pf.caption || 'Photo Finding').split('\n')[0] + '</span>';
+            html += '<span class="v2-cond-badge ' + condClass + '">' + sevLabel + '</span>';
+            html += '</div>';
+            if (pf.is_safety) html += '<div class="v2-finding-safety">⚠️ Safety Concern — Immediate attention recommended</div>';
+            if (pf.caption) html += '<div class="v2-finding-obs">' + pf.caption + '</div>';
+            if (photoSrc) {
+                html += '<div class="v2-finding-photos">';
+                html += '<img src="' + photoSrc + '" loading="lazy" onclick="openLightbox(\'' + photoSrc + '\')">';
+                html += '</div>';
+            }
+            html += '</div>';
+            if (pf.narrative) {
+                html += '<div class="v2-narrative" style="margin:-8px 0 16px;padding:12px 16px;font-size:13px;line-height:1.7;border-left:3px solid rgba(39,174,96,0.3);background:rgba(39,174,96,0.04);border-radius:0 8px 8px 0;">' + pf.narrative + '</div>';
+            }
+        });
+    } else {
+        if (!hasPerFindingNarratives) {
+            // Legacy path: section-level narrative from inspection_narratives
+            var narrative = v2Data.narratives[sec.id];
+            var narText = '';
+            if (narrative) {
+                narText = narrative.custom_narrative || narrative.approved_narrative || '';
+            }
+            if (narText) {
+                html += '<div class="v2-narrative">' + narText + '</div>';
+            }
+        }
+
+        findings.forEach(function(f) {
+            html += buildV2FindingCard(f, photosByFinding);
+            if (hasPerFindingNarratives && f.narrative) {
+                html += '<div class="v2-narrative" style="margin:-8px 0 16px;padding:12px 16px;font-size:13px;line-height:1.7;border-left:3px solid rgba(39,174,96,0.3);background:rgba(39,174,96,0.04);border-radius:0 8px 8px 0;">' + f.narrative + '</div>';
+            }
+        });
+    }
+
+    html += '</div></div></div>';
+    return html;
+}
+
+function buildV2FindingCard(f, photosByFinding) {
+    var condLabels = {
+        satisfactory:'Satisfactory', monitor:'Monitor', repair:'Repair',
+        replace:'Replace', safety:'Safety Concern', na:'N/A'
+    };
+    var condClass = 'v2-cond-' + (f.condition_value || 'na');
+    var label = condLabels[f.condition_value] || f.condition_value || 'N/A';
+    var name = f.custom_label || f.field_id || 'Finding';
+
+    var html = '<div class="v2-finding-card">';
+    html += '<div class="v2-finding-header">';
+    html += '<span class="v2-finding-name">' + name + '</span>';
+    html += '<span class="v2-cond-badge ' + condClass + '">' + label + '</span>';
+    html += '</div>';
+
+    if (f.is_safety) html += '<div class="v2-finding-safety">⚠️ Safety Concern — Immediate attention recommended</div>';
+    if (f.observation) html += '<div class="v2-finding-obs">' + f.observation + '</div>';
+
+    if (f.recommendations && f.recommendations.length) {
+        html += '<div class="v2-finding-recs"><ul>';
+        f.recommendations.forEach(function(r) {
+            html += '<li>' + (r.recommendation_note || '') + '</li>';
+        });
+        html += '</ul></div>';
+    }
+
+    // Photos linked to this finding
+    var photos = photosByFinding[f.id] || [];
+    if (photos.length) {
+        html += '<div class="v2-finding-photos">';
+        photos.forEach(function(url) {
+            html += '<img src="' + url + '" loading="lazy" onclick="openLightbox(\'' + url + '\')">';
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+// ── ADD-ON: RADON ─────────────────────────────────────────────────────────
+function buildRadonSection(sec, findings, photosByFinding) {
+    var narrative = v2Data.narratives[sec.id];
+    var narText = narrative ? (narrative.custom_narrative || narrative.approved_narrative || '') : '';
+
+    // Extract numeric value from first finding observation
+    var resultValue = null;
+    var obs = '';
+    if (findings.length) {
+        obs = findings[0].observation || '';
+        var match = obs.match(/([\d.]+)\s*pCi/i);
+        if (match) resultValue = parseFloat(match[1]);
+        if (resultValue === null) {
+            var numMatch = obs.match(/([\d.]+)/);
+            if (numMatch) resultValue = parseFloat(numMatch[1]);
+        }
+    }
+
+    var pass = resultValue !== null && resultValue < 4.0;
+    var icon = v2Icon(sec.icon);
+
+    var html = '<div class="v2-section open" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="v2-section-header">';
+    html += '<div class="v2-section-icon">' + icon + '</div>';
+    html += '<div class="v2-section-name">Radon Testing</div>';
+    html += '<div class="v2-section-chevron">▼</div>';
+    html += '</div>';
+    html += '<div class="v2-section-body"><div class="v2-section-inner" onclick="event.stopPropagation()">';
+
+    if (resultValue !== null) {
+        html += '<div class="v2-radon-result">';
+        html += '<div class="v2-radon-value ' + (pass ? 'v2-radon-pass' : 'v2-radon-fail') + '">' + resultValue.toFixed(1) + ' pCi/L</div>';
+        html += '<div class="v2-radon-threshold">EPA Action Level: 4.0 pCi/L</div>';
+        html += '<div class="v2-radon-badge ' + (pass ? 'v2-radon-badge-pass' : 'v2-radon-badge-fail') + '">' + (pass ? '✓ Below Threshold' : '⚠ Above Threshold') + '</div>';
+        html += '</div>';
+    }
+
+    if (narText) html += '<div class="v2-narrative">' + narText + '</div>';
+    if (obs && resultValue === null) html += '<div class="v2-finding-obs">' + obs + '</div>';
+
+    findings.forEach(function(f) {
+        var photos = photosByFinding[f.id] || [];
+        if (photos.length) {
+            html += '<div class="v2-finding-photos">';
+            photos.forEach(function(url) {
+                html += '<img src="' + url + '" loading="lazy" onclick="openLightbox(\'' + url + '\')">';
+            });
+            html += '</div>';
+        }
+    });
+
+    html += '</div></div></div>';
+    return html;
+}
+
+// ── ADD-ON: SEWER SCOPE ─────────────────────────────────────────────────
+function buildSewerSection(sec, findings, photosByFinding) {
+    var narrative = v2Data.narratives[sec.id];
+    var narText = narrative ? (narrative.custom_narrative || narrative.approved_narrative || '') : '';
+    var icon = v2Icon(sec.icon);
+
+    var html = '<div class="v2-section open" onclick="this.classList.toggle(\'open\')">';
+    html += '<div class="v2-section-header">';
+    html += '<div class="v2-section-icon">' + icon + '</div>';
+    html += '<div class="v2-section-name">Sewer Scope</div>';
+    html += '<div class="v2-section-chevron">▼</div>';
+    html += '</div>';
+    html += '<div class="v2-section-body"><div class="v2-section-inner" onclick="event.stopPropagation()">';
+
+    // Look for video URL in findings
+    findings.forEach(function(f) {
+        var obs = f.observation || '';
+        var videoMatch = obs.match(/(https?:\/\/[^\s]+\.(mp4|mov|webm|cloudinary[^\s]*))/i);
+        if (videoMatch) {
+            html += '<video class="v2-sewer-video" controls preload="metadata"><source src="' + videoMatch[1] + '"></video>';
+        }
+    });
+
+    if (narText) html += '<div class="v2-narrative">' + narText + '</div>';
+
+    findings.forEach(function(f) {
+        html += buildV2FindingCard(f, photosByFinding);
+    });
+
+    html += '</div></div></div>';
+    return html;
+}
+
+// ── ADD-ON REPORT RENDERER (HEA-213) ────────────────────────────────────
+
+var ADDON_TIER_LABELS = {
+    'radon': 'Radon Testing', 'radon_testing': 'Radon Testing',
+    'wdo': 'WDO / Termite Inspection',
+    'sewer_scope': 'Sewer Scope Inspection',
+    'mold': 'Mold / Air Sampling', 'mold_air_sampling': 'Mold / Air Sampling',
+    'thermal': 'Thermal Imaging', 'thermal_imaging': 'Thermal Imaging',
+    'water': 'Water Quality Testing', 'water_quality': 'Water Quality Testing',
+};
+
+function getAddonField(sectionId, fieldName) {
+    var key = sectionId + ':' + fieldName;
+    var entry = v2Data.fieldAnswers[key];
+    if (!entry) return '';
+    var answer = entry['field'] || entry[Object.keys(entry)[0]];
+    return (answer && (answer.text_value || answer.selected_value)) || '';
+}
+
+function getAddonRepeatable(sectionId, fieldName) {
+    var raw = getAddonField(sectionId, fieldName);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch(e) { return []; }
+}
+
+function getAddonChecklist(sectionId, groupName) {
+    var key = sectionId + ':' + groupName;
+    var entry = v2Data.fieldAnswers[key];
+    if (!entry) return [];
+    var answer = entry['field'] || entry[Object.keys(entry)[0]];
+    if (!answer) return [];
+    var val = answer.text_value || '';
+    try { return JSON.parse(val); } catch(e) { return val ? [val] : []; }
+}
+
+function getAddonPhotos(sectionId) {
+    if (!v2Data.photos || !v2Data.photos.length) return [];
+    return v2Data.photos.filter(function(p) { return p.section_id === sectionId; }).map(function(p) {
+        return p.annotated_url || p.cloudinary_url;
+    }).filter(Boolean);
+}
+
+function addonRow(label, value) {
+    if (!value) return '';
+    return '<div class="addon-report-row"><span class="ar-label">' + label + '</span><span class="ar-value">' + value + '</span></div>';
+}
+
+function addonPhotoGrid(photos) {
+    if (!photos || !photos.length) return '';
+    var html = '<div class="addon-report-photo-grid">';
+    photos.forEach(function(url) {
+        html += '<img src="' + url + '" loading="lazy" onclick="openLightbox(\'' + url + '\')">';
+    });
+    html += '</div>';
+    return html;
+}
+
+function normalizeAddonTier(tier) {
+    return (tier || '').toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function renderAddonReport(r) {
+    // Header
+    document.getElementById('headerAddress').textContent = r.address || 'Address Unavailable';
+    showStreetView(r.address);
+    document.getElementById('headerClient').textContent = r.cust_name ? 'Prepared for ' + r.cust_name : '';
+    document.getElementById('headerDate').textContent = r.inspection_date
+        ? new Date(r.inspection_date + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})
+        : '';
+    var tierLabel = ADDON_TIER_LABELS[normalizeAddonTier(r.tier)] || (r.tier || 'Add-On Inspection');
+    var tierEl = document.getElementById('headerTier');
+    tierEl.textContent = tierLabel;
+    tierEl.className = 'tier-badge';
+    tierEl.style.background = 'rgba(52,152,219,0.2)';
+    tierEl.style.color = '#74b9e8';
+    tierEl.style.border = '1px solid rgba(52,152,219,0.3)';
+
+    // Bundle/Standalone badge
+    var badgesEl = document.querySelector('.header-badges');
+    if (badgesEl && r.is_bundle) {
+        var bundleBadge = document.createElement('span');
+        bundleBadge.className = 'tier-badge';
+        bundleBadge.textContent = 'Bundled Add-On';
+        bundleBadge.style.background = 'rgba(39,174,96,0.2)';
+        bundleBadge.style.color = '#4cd47e';
+        bundleBadge.style.border = '1px solid rgba(39,174,96,0.3)';
+        badgesEl.appendChild(bundleBadge);
+    } else if (badgesEl && !r.is_bundle) {
+        var standaloneBadge = document.createElement('span');
+        standaloneBadge.className = 'tier-badge';
+        standaloneBadge.textContent = 'Standalone';
+        standaloneBadge.style.background = 'rgba(150,150,150,0.15)';
+        standaloneBadge.style.color = '#aaa';
+        standaloneBadge.style.border = '1px solid rgba(150,150,150,0.2)';
+        badgesEl.appendChild(standaloneBadge);
+    }
+
+    // NO score hero for add-ons
+    // scoreHero stays display:none (default)
+
+    // Find sections relevant to this addon
+    var addonSections = v2Data.sections.filter(function(s) {
+        // Check if section has any field answers or photos
+        var hasAnswers = Object.keys(v2Data.fieldAnswers).some(function(k) { return k.indexOf(s.id) === 0; });
+        var hasPhotos = v2Data.photos.some(function(p) { return p.section_id === s.id; });
+        return hasAnswers || hasPhotos;
+    });
+
+    var html = '';
+    var normTier = normalizeAddonTier(r.tier);
+
+    if (normTier === 'radon' || normTier === 'radon_testing') {
+        html = buildAddonRadon(r, addonSections);
+    } else if (normTier === 'wdo') {
+        html = buildAddonWDO(r, addonSections);
+    } else if (normTier === 'sewer_scope') {
+        html = buildAddonSewer(r, addonSections);
+    } else if (normTier === 'mold' || normTier === 'mold_air_sampling') {
+        html = buildAddonMold(r, addonSections);
+    } else if (normTier === 'thermal' || normTier === 'thermal_imaging') {
+        html = buildAddonThermal(r, addonSections);
+    } else if (normTier === 'water' || normTier === 'water_quality') {
+        html = buildAddonWater(r, addonSections);
+    } else {
+        // Generic fallback for unknown addon types
+        html = buildAddonGeneric(r, addonSections);
+    }
+
+    // Lab report button
+    if (r.lab_report_url) {
+        html += '<div style="text-align:center;margin-top:16px;">';
+        html += '<a href="' + r.lab_report_url + '" target="_blank" rel="noopener" class="addon-report-lab-btn">📄 View Lab Report</a>';
+        html += '</div>';
+    }
+
+    document.getElementById('reportSections').innerHTML = html;
+
+    // Show report
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('reportContent').style.display = 'block';
+    document.title = r.address ? r.address + ' — ' + tierLabel : tierLabel;
+    populateFooterMeta(r, null);
+}
+
+// ── RADON ───────────────────────────────────────────────────────────────
+function buildAddonRadon(r, sections) {
+    var sid = sections.length ? sections[0].id : '';
+    var html = '';
+
+    // Test Setup
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Test Setup</div>';
+    html += addonRow('Device Type', getAddonField(sid, 'device_type'));
+    html += addonRow('Serial Number', getAddonField(sid, 'serial_number') || getAddonField(sid, 'serial'));
+    html += addonRow('Placement Location', getAddonField(sid, 'placement_location') || getAddonField(sid, 'location'));
+    html += addonRow('Room', getAddonField(sid, 'room'));
+    html += addonRow('Floor Level', getAddonField(sid, 'floor_level'));
+    var closedHouse = getAddonField(sid, 'closed_house_conditions') || getAddonField(sid, 'closed_house');
+    html += addonRow('Closed-House Conditions', closedHouse);
+    var hvac = getAddonField(sid, 'hvac_status') || getAddonField(sid, 'hvac_operating');
+    html += addonRow('HVAC Status', hvac);
+    html += addonRow('Test Start', getAddonField(sid, 'start_date') || getAddonField(sid, 'start_datetime'));
+    var mitigation = getAddonField(sid, 'mitigation_system') || getAddonField(sid, 'existing_mitigation');
+    html += addonRow('Existing Mitigation', mitigation);
+    html += '</div>';
+
+    // Lab Results
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Lab Results</div>';
+    html += addonRow('Test End', getAddonField(sid, 'end_date') || getAddonField(sid, 'end_datetime'));
+
+    var resultVal = getAddonField(sid, 'result_pci') || getAddonField(sid, 'pci_result') || getAddonField(sid, 'result');
+    var numResult = parseFloat(resultVal);
+    if (!isNaN(numResult)) {
+        var pass = numResult < 4.0;
+        html += '<div class="addon-report-result-hero">';
+        html += '<div class="addon-report-result-value" style="color:' + (pass ? 'var(--green)' : 'var(--amber)') + ';">' + numResult.toFixed(1) + '</div>';
+        html += '<div class="addon-report-result-unit">pCi/L</div>';
+        html += '<div class="addon-report-result-badge">';
+        html += '<span class="' + (pass ? 'addon-report-badge-pass' : 'addon-report-badge-concern') + '">' + (pass ? 'Pass — Below EPA Action Level' : 'Concern — At or Above EPA Action Level') + '</span>';
+        html += '</div>';
+        html += '<div style="font-size:12px;color:var(--muted);margin-top:8px;">EPA Action Level: 4.0 pCi/L</div>';
+        html += '</div>';
+    } else if (resultVal) {
+        html += addonRow('Result', resultVal);
+    }
+    html += '</div>';
+
+    // Photos
+    var photos = getAddonPhotos(sid);
+    if (photos.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Photos</div>';
+        html += addonPhotoGrid(photos);
+        html += '</div>';
+    }
+
+    return html;
+}
+
+// ── WDO ─────────────────────────────────────────────────────────────────
+function buildAddonWDO(r, sections) {
+    var sid = sections.length ? sections[0].id : '';
+    var html = '';
+
+    // Areas Inspected
+    var areas = getAddonChecklist(sid, 'areas_inspected') || getAddonChecklist(sid, 'inspected_areas');
+    if (areas.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Areas Inspected</div>';
+        html += '<div class="addon-report-checklist">';
+        areas.forEach(function(a) { html += '<span class="ar-check-item">' + a + '</span>'; });
+        html += '</div></div>';
+    }
+
+    // Findings
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Findings</div>';
+    var overall = getAddonField(sid, 'overall_finding') || getAddonField(sid, 'finding');
+    if (overall) {
+        var badgeClass = 'addon-report-badge-info';
+        var ol = overall.toLowerCase();
+        if (ol.indexOf('no evidence') >= 0 || ol === 'clear') badgeClass = 'addon-report-badge-pass';
+        else if (ol.indexOf('evidence') >= 0 || ol.indexOf('observed') >= 0) badgeClass = 'addon-report-badge-concern';
+        html += '<div style="margin-bottom:12px;"><span class="' + badgeClass + '">' + overall + '</span></div>';
+    }
+    html += addonRow('Evidence Types', getAddonField(sid, 'evidence_types') || getAddonField(sid, 'evidence'));
+    html += addonRow('Conducive Conditions', getAddonField(sid, 'conducive_conditions'));
+    html += addonRow('Inaccessible Areas', getAddonField(sid, 'inaccessible_areas'));
+    html += addonRow('Notes', getAddonField(sid, 'notes') || getAddonField(sid, 'inspector_notes'));
+    html += '</div>';
+
+    // Photos
+    var photos = getAddonPhotos(sid);
+    if (photos.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Photos</div>';
+        html += addonPhotoGrid(photos);
+        html += '</div>';
+    }
+
+    return html;
+}
+
+// ── SEWER SCOPE ─────────────────────────────────────────────────────────
+function buildAddonSewer(r, sections) {
+    var sid = sections.length ? sections[0].id : '';
+    var html = '';
+
+    // Setup
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Setup</div>';
+    html += addonRow('Access Point', getAddonField(sid, 'access_point'));
+    html += addonRow('Pipe Material', getAddonField(sid, 'pipe_material'));
+    html += addonRow('Distance Scoped', getAddonField(sid, 'distance_scoped') || getAddonField(sid, 'distance'));
+    var videoLink = getAddonField(sid, 'video_link') || getAddonField(sid, 'video_url');
+    if (videoLink) {
+        html += '<div class="addon-report-row"><span class="ar-label">Video</span><span class="ar-value"><a href="' + videoLink + '" target="_blank" rel="noopener" style="color:#3498db;text-decoration:underline;">View Sewer Video</a></span></div>';
+    }
+    html += '</div>';
+
+    // Overall condition
+    var overallCond = getAddonField(sid, 'overall_condition') || getAddonField(sid, 'condition');
+    if (overallCond) {
+        var condClass = 'addon-report-badge-info';
+        var cl = overallCond.toLowerCase();
+        if (cl === 'pass' || cl.indexOf('good') >= 0) condClass = 'addon-report-badge-pass';
+        else if (cl.indexOf('further') >= 0 || cl.indexOf('fail') >= 0) condClass = 'addon-report-badge-concern';
+        html += '<div style="text-align:center;margin-bottom:16px;"><span class="' + condClass + '">' + overallCond + '</span></div>';
+    }
+
+    // Findings (repeatable)
+    var findings = getAddonRepeatable(sid, 'findings');
+    if (findings.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Findings</div>';
+        findings.forEach(function(f) {
+            html += '<div class="addon-report-finding-card">';
+            html += '<div class="ar-finding-header">';
+            html += '<span class="ar-finding-label">' + (f.issue_type || f.type || 'Finding') + '</span>';
+            var sev = f.severity || '';
+            var sevClass = 'addon-report-badge-info';
+            if (sev.toLowerCase() === 'pass' || sev.toLowerCase() === 'minor') sevClass = 'addon-report-badge-pass';
+            else if (sev.toLowerCase() === 'major' || sev.toLowerCase() === 'critical') sevClass = 'addon-report-badge-concern';
+            if (sev) html += '<span class="' + sevClass + '">' + sev + '</span>';
+            html += '</div>';
+            if (f.distance) html += addonRow('Distance', f.distance);
+            if (f.notes) html += '<div style="font-size:13px;color:#555;line-height:1.6;margin-top:4px;">' + f.notes + '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    // Photos
+    var photos = getAddonPhotos(sid);
+    if (photos.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Photos</div>';
+        html += addonPhotoGrid(photos);
+        html += '</div>';
+    }
+
+    return html;
+}
+
+// ── MOLD / AIR SAMPLING ─────────────────────────────────────────────────
+function buildAddonMold(r, sections) {
+    var sid = sections.length ? sections[0].id : '';
+    var html = '';
+
+    // Site Conditions
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Site Conditions</div>';
+    html += addonRow('Temperature', getAddonField(sid, 'temperature') || getAddonField(sid, 'temp'));
+    html += addonRow('Humidity', getAddonField(sid, 'humidity'));
+    html += addonRow('Weather', getAddonField(sid, 'weather'));
+    html += addonRow('HVAC Status', getAddonField(sid, 'hvac_status'));
+    html += addonRow('Visible Concerns', getAddonField(sid, 'visible_concerns') || getAddonField(sid, 'visible_mold'));
+    html += addonRow('Moisture', getAddonField(sid, 'moisture'));
+    html += addonRow('Odors', getAddonField(sid, 'odors'));
+    html += '</div>';
+
+    // Sample Collection
+    var samples = getAddonRepeatable(sid, 'samples');
+    if (samples.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Sample Collection</div>';
+        html += '<table class="addon-report-table"><thead><tr>';
+        html += '<th>#</th><th>Location</th><th>Type</th><th>Date/Time</th><th>Device ID</th><th>Volume</th>';
+        html += '</tr></thead><tbody>';
+        samples.forEach(function(s, i) {
+            html += '<tr>';
+            html += '<td>' + (s.number || (i + 1)) + '</td>';
+            html += '<td>' + (s.location || '') + '</td>';
+            html += '<td>' + (s.type || s.sample_type || '') + '</td>';
+            html += '<td>' + (s.datetime || s.date || '') + '</td>';
+            html += '<td>' + (s.device_id || '') + '</td>';
+            html += '<td>' + (s.volume || '') + '</td>';
+            html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+    }
+
+    // Lab Results
+    var labResults = getAddonRepeatable(sid, 'lab_results') || getAddonRepeatable(sid, 'results');
+    if (labResults.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Lab Results</div>';
+        labResults.forEach(function(lr) {
+            html += '<div class="addon-report-finding-card">';
+            html += '<div class="ar-finding-header">';
+            html += '<span class="ar-finding-label">' + (lr.location || lr.sample || 'Sample') + '</span>';
+            var resClass = 'addon-report-badge-pass';
+            var resBadge = lr.result || lr.badge || '';
+            if (resBadge.toLowerCase().indexOf('elevated') >= 0 || resBadge.toLowerCase().indexOf('concern') >= 0) resClass = 'addon-report-badge-concern';
+            if (resBadge) html += '<span class="' + resClass + '">' + resBadge + '</span>';
+            html += '</div>';
+            if (lr.raw_count) html += addonRow('Raw Count', lr.raw_count);
+            if (lr.spores_m3) html += addonRow('Spores/m³', lr.spores_m3);
+            if (lr.dominant_types) html += addonRow('Dominant Types', lr.dominant_types);
+            if (lr.comparison) html += addonRow('Comparison', lr.comparison);
+            html += '</div>';
+        });
+        html += addonRow('Lab', getAddonField(sid, 'lab_name') || getAddonField(sid, 'lab'));
+        html += '</div>';
+    }
+
+    // Overall result
+    var overallResult = getAddonField(sid, 'overall_result') || getAddonField(sid, 'overall');
+    if (overallResult) {
+        var oClass = 'addon-report-badge-pass';
+        if (overallResult.toLowerCase().indexOf('elevated') >= 0 || overallResult.toLowerCase().indexOf('concern') >= 0) oClass = 'addon-report-badge-concern';
+        html += '<div style="text-align:center;margin:16px 0;"><span class="' + oClass + '">' + overallResult + '</span></div>';
+    }
+
+    // Photos
+    var photos = getAddonPhotos(sid);
+    if (photos.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Photos</div>';
+        html += addonPhotoGrid(photos);
+        html += '</div>';
+    }
+
+    return html;
+}
+
+// ── THERMAL IMAGING ─────────────────────────────────────────────────────
+function buildAddonThermal(r, sections) {
+    var sid = sections.length ? sections[0].id : '';
+    var html = '';
+
+    // Conditions
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Conditions</div>';
+    var indoorTemp = getAddonField(sid, 'indoor_temp') || getAddonField(sid, 'indoor_temperature');
+    var outdoorTemp = getAddonField(sid, 'outdoor_temp') || getAddonField(sid, 'outdoor_temperature');
+    html += addonRow('Indoor Temperature', indoorTemp);
+    html += addonRow('Outdoor Temperature', outdoorTemp);
+
+    // Calculate differential
+    var indoor = parseFloat(indoorTemp);
+    var outdoor = parseFloat(outdoorTemp);
+    if (!isNaN(indoor) && !isNaN(outdoor)) {
+        var diff = Math.abs(indoor - outdoor);
+        html += addonRow('Temperature Differential', diff.toFixed(1) + '°F');
+        if (diff < 18) {
+            html += '<div class="addon-report-warning">⚠ Temperature differential is below 18°F. Thermal imaging accuracy may be reduced in low-differential conditions.</div>';
+        }
+    }
+
+    html += addonRow('HVAC Status', getAddonField(sid, 'hvac_status'));
+    html += addonRow('Time', getAddonField(sid, 'scan_time') || getAddonField(sid, 'time'));
+    html += '</div>';
+
+    // Areas Scanned
+    var scannedAreas = getAddonChecklist(sid, 'areas_scanned') || getAddonChecklist(sid, 'scanned_areas');
+    if (scannedAreas.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Areas Scanned</div>';
+        html += '<div class="addon-report-checklist">';
+        scannedAreas.forEach(function(a) { html += '<span class="ar-check-item">' + a + '</span>'; });
+        html += '</div></div>';
+    }
+
+    // Anomalies
+    var anomalies = getAddonRepeatable(sid, 'anomalies');
+    if (anomalies.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Anomalies</div>';
+        anomalies.forEach(function(a) {
+            html += '<div class="addon-report-finding-card">';
+            html += '<div class="ar-finding-header">';
+            html += '<span class="ar-finding-label">' + (a.location || 'Anomaly') + '</span>';
+            var sev = a.severity || '';
+            var sevClass = 'addon-report-badge-info';
+            if (sev.toLowerCase() === 'minor' || sev.toLowerCase() === 'low') sevClass = 'addon-report-badge-pass';
+            else if (sev.toLowerCase() === 'major' || sev.toLowerCase() === 'significant' || sev.toLowerCase() === 'high') sevClass = 'addon-report-badge-concern';
+            if (sev) html += '<span class="' + sevClass + '">' + sev + '</span>';
+            html += '</div>';
+            if (a.type) html += addonRow('Type', a.type);
+            if (a.temp_differential) html += addonRow('Temp Differential', a.temp_differential);
+            if (a.notes) html += '<div style="font-size:13px;color:#555;line-height:1.6;margin-top:4px;">' + a.notes + '</div>';
+            // Thermal + standard photo pair
+            if (a.thermal_photo || a.standard_photo) {
+                html += '<div class="addon-report-photo-pair">';
+                if (a.thermal_photo) {
+                    html += '<div><img src="' + a.thermal_photo + '" onclick="openLightbox(\'' + a.thermal_photo + '\')"><div class="ar-pair-label">Thermal</div></div>';
+                }
+                if (a.standard_photo) {
+                    html += '<div><img src="' + a.standard_photo + '" onclick="openLightbox(\'' + a.standard_photo + '\')"><div class="ar-pair-label">Standard</div></div>';
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    // Overall findings badge
+    var overallFindings = getAddonField(sid, 'overall_findings') || getAddonField(sid, 'overall');
+    if (overallFindings) {
+        var ofClass = 'addon-report-badge-pass';
+        if (overallFindings.toLowerCase().indexOf('anomal') >= 0 && overallFindings.toLowerCase().indexOf('no') < 0) ofClass = 'addon-report-badge-concern';
+        html += '<div style="text-align:center;margin:16px 0;"><span class="' + ofClass + '">' + overallFindings + '</span></div>';
+    } else if (anomalies.length) {
+        html += '<div style="text-align:center;margin:16px 0;"><span class="addon-report-badge-concern">Anomalies Documented</span></div>';
+    } else {
+        html += '<div style="text-align:center;margin:16px 0;"><span class="addon-report-badge-pass">No Anomalies</span></div>';
+    }
+
+    // Photos
+    var photos = getAddonPhotos(sid);
+    if (photos.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Photos</div>';
+        html += addonPhotoGrid(photos);
+        html += '</div>';
+    }
+
+    return html;
+}
+
+// ── WATER QUALITY ───────────────────────────────────────────────────────
+function buildAddonWater(r, sections) {
+    var sid = sections.length ? sections[0].id : '';
+    var html = '';
+
+    // Sample Collection
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Sample Collection</div>';
+    html += addonRow('Collection Date', getAddonField(sid, 'collection_date') || getAddonField(sid, 'date'));
+    html += addonRow('Collection Time', getAddonField(sid, 'collection_time') || getAddonField(sid, 'time'));
+    html += addonRow('Collection Point', getAddonField(sid, 'collection_point') || getAddonField(sid, 'source'));
+    html += addonRow('Lab', getAddonField(sid, 'lab_name') || getAddonField(sid, 'lab'));
+    html += '</div>';
+
+    // Results Panel — 6 parameters
+    var WATER_PARAMS = [
+        { key: 'hardness', label: 'Hardness', unit: 'mg/L', limit: '250' },
+        { key: 'iron', label: 'Iron', unit: 'mg/L', limit: '0.3' },
+        { key: 'coliform', label: 'Total Coliform', unit: 'Present/Absent', limit: 'Absent' },
+        { key: 'nitrates', label: 'Nitrates', unit: 'mg/L', limit: '10' },
+        { key: 'ph', label: 'pH', unit: '', limit: '6.5–8.5' },
+        { key: 'lead', label: 'Lead', unit: 'mg/L', limit: '0.015' },
+    ];
+
+    html += '<div class="addon-report-section">';
+    html += '<div class="addon-report-section-title">Lab Results</div>';
+    html += '<table class="addon-report-table"><thead><tr>';
+    html += '<th>Parameter</th><th>Result</th><th>Unit</th><th>EPA Limit</th><th>Status</th>';
+    html += '</tr></thead><tbody>';
+
+    var allPass = true;
+    WATER_PARAMS.forEach(function(p) {
+        var val = getAddonField(sid, p.key) || getAddonField(sid, p.key + '_result');
+        var numVal = parseFloat(val);
+        var pass = true;
+
+        if (p.key === 'coliform') {
+            pass = val ? (val.toLowerCase() === 'absent' || val.toLowerCase() === 'negative' || val === '0') : true;
+        } else if (p.key === 'ph') {
+            pass = !isNaN(numVal) ? (numVal >= 6.5 && numVal <= 8.5) : true;
+        } else {
+            var limit = parseFloat(p.limit);
+            pass = !isNaN(numVal) && !isNaN(limit) ? numVal <= limit : true;
+        }
+
+        if (!pass) allPass = false;
+
+        html += '<tr>';
+        html += '<td style="font-weight:600;">' + p.label + '</td>';
+        html += '<td>' + (val || '—') + '</td>';
+        html += '<td>' + p.unit + '</td>';
+        html += '<td>' + p.limit + '</td>';
+        html += '<td><span class="' + (pass ? 'addon-report-badge-pass' : 'addon-report-badge-concern') + '">' + (pass ? 'Pass' : 'Concern') + '</span></td>';
+        html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+
+    // Overall result badge
+    html += '<div style="text-align:center;margin:16px 0;">';
+    html += '<span class="' + (allPass ? 'addon-report-badge-pass' : 'addon-report-badge-concern') + '">' + (allPass ? 'All Parameters Pass' : 'Parameters of Concern') + '</span>';
+    html += '</div>';
+
+    // Photos
+    var photos = getAddonPhotos(sid);
+    if (photos.length) {
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">Photos</div>';
+        html += addonPhotoGrid(photos);
+        html += '</div>';
+    }
+
+    return html;
+}
+
+// ── GENERIC ADD-ON (fallback) ───────────────────────────────────────────
+function buildAddonGeneric(r, sections) {
+    var html = '';
+    sections.forEach(function(sec) {
+        var sid = sec.id;
+        html += '<div class="addon-report-section">';
+        html += '<div class="addon-report-section-title">' + (sec.name || 'Section') + '</div>';
+
+        // Render all field answers for this section
+        Object.keys(v2Data.fieldAnswers).forEach(function(key) {
+            if (key.indexOf(sid + ':') !== 0) return;
+            var fieldName = key.substring(sid.length + 1);
+            var val = getAddonField(sid, fieldName);
+            if (val) html += addonRow(fieldName.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }), val);
+        });
+
+        // Photos
+        var photos = getAddonPhotos(sid);
+        if (photos.length) html += addonPhotoGrid(photos);
+
+        html += '</div>';
+    });
+    return html;
 }
 
 function showNotFound() {
@@ -946,6 +2391,77 @@ function showNotFound() {
 }
 
 loadReport();
+
+// ── Preview mode: Send Report button (HEA-141) ──────────────────────
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('preview') !== '1') return;
+
+  var recordId = params.get('id');
+  if (!recordId) return;
+
+  // Wait for Supabase to be available
+  if (typeof supabase === 'undefined') return;
+  var sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+  async function getAuthHeader() {
+    try {
+      var sess = await sb.auth.getSession();
+      if (sess && sess.data && sess.data.session && sess.data.session.access_token) {
+        return { 'Authorization': 'Bearer ' + sess.data.session.access_token };
+      }
+    } catch (e) {}
+    return {};
+  }
+
+  sb.auth.getSession().then(function(sess) {
+    if (!sess || !sess.data || !sess.data.session) return; // No admin session — don't show button
+
+    // Inject sticky send button
+    var bar = document.createElement('div');
+    bar.id = 'previewSendBar';
+    bar.style.cssText = 'position:sticky;top:0;z-index:9999;background:#1a2a44;border-bottom:2px solid #27ae60;padding:12px 24px;display:flex;align-items:center;gap:16px;justify-content:center;';
+    bar.innerHTML = '<button id="previewSendBtn" style="padding:10px 24px;border:none;border-radius:8px;background:#27ae60;color:#fff;font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">✉ Send Report to Client</button>'
+      + '<span id="previewSendStatus" style="font-size:13px;color:rgba(255,255,255,0.6);"></span>';
+    document.body.insertBefore(bar, document.body.firstChild);
+
+    document.getElementById('previewSendBtn').addEventListener('click', async function() {
+      // Get client email from loaded report data — wait for loadReport to finish
+      var custEmail = '';
+      try {
+        var rptRes = await fetch('/.netlify/functions/get-report?id=' + recordId + '&invoice=true');
+        var rptData = await rptRes.json();
+        if (rptData && rptData.report) custEmail = rptData.report.cust_email || '';
+      } catch (e) {}
+
+      var emailDisplay = custEmail || 'client';
+      if (!confirm('Send this report to ' + emailDisplay + '?')) return;
+
+      var btn = document.getElementById('previewSendBtn');
+      var status = document.getElementById('previewSendStatus');
+      btn.disabled = true; btn.textContent = 'Sending...';
+
+      try {
+        var authHdr = await getAuthHeader();
+        var res = await fetch('/.netlify/functions/send-report-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHdr },
+          body: JSON.stringify({ id: recordId }),
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Send failed');
+        btn.textContent = '✓ Report Sent';
+        status.textContent = 'Sent to ' + emailDisplay;
+        status.style.color = '#27ae60';
+      } catch (err) {
+        btn.textContent = '✉ Send Report to Client';
+        btn.disabled = false;
+        status.textContent = err.message;
+        status.style.color = '#e74c3c';
+      }
+    });
+  });
+})();
 </script>
 </body>
 </html>

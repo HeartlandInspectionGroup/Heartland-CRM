@@ -1,7 +1,7 @@
 /* Service Worker — Heartland Inspector PWA */
 var CACHE_VERSION = 'hig-inspector-v1';
 var STATIC_ASSETS = [
-  '/inspector.html',
+  '/inspector-wizard-v2.html',
   '/manifest.json',
   '/images/icon-192.png',
   '/images/icon-512.png',
@@ -72,7 +72,7 @@ self.addEventListener('fetch', function(event) {
         if (response.ok && (
           url.pathname.startsWith('/assets/js/inspector/') ||
           url.pathname.startsWith('/images/') ||
-          url.pathname === '/inspector.html'
+          url.pathname === '/inspector-wizard-v2.html'
         )) {
           var clone = response.clone();
           caches.open(CACHE_VERSION).then(function(cache) {

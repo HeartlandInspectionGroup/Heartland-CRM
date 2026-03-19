@@ -1,33 +1,30 @@
 const { createClient } = require('@supabase/supabase-js');
 
+const { corsHeaders } = require('./lib/cors');
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
-
 exports.handler = async (event) => {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   let parsed;
   try {
     parsed = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const { pin } = parsed;
   if (!pin) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Missing PIN' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Missing PIN' }) };
   }
 
   try {
@@ -48,10 +45,10 @@ exports.handler = async (event) => {
     }
 
     if (error || !data) {
-      return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Invalid PIN' }) };
+      return { statusCode: 401, headers: headers, body: JSON.stringify({ error: 'Invalid PIN' }) };
     }
     if (!data.active) {
-      return { statusCode: 403, headers: HEADERS, body: JSON.stringify({ error: 'Inspector account is inactive' }) };
+      return { statusCode: 403, headers: headers, body: JSON.stringify({ error: 'Inspector account is inactive' }) };
     }
 
     // Fire-and-forget last_seen update — don't let it block the response
@@ -65,12 +62,12 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: HEADERS,
+      headers: headers,
       body: JSON.stringify({ id: data.id, name: data.name, role: data.role || 'inspector' }),
     };
 
   } catch (err) {
     console.error('inspector-auth error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

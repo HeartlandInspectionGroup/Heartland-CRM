@@ -9,12 +9,7 @@
  * Returns: { ok: true }
  */
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
+const { corsHeaders } = require('./lib/cors');
 function getEnv() {
   return {
     SUPABASE_URL: process.env.SUPABASE_URL,
@@ -45,22 +40,23 @@ async function sbPatch(url, key, body) {
 }
 
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
   if (event.httpMethod !== 'POST')
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   const { SUPABASE_URL, SUPABASE_KEY } = getEnv();
   if (!SUPABASE_URL || !SUPABASE_KEY)
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Database not configured' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Database not configured' }) };
 
   var body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch(e) { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch(e) { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { token, record_id, value } = body;
 
   if (!token || !record_id || value === undefined)
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'token, record_id, and value required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'token, record_id, and value required' }) };
 
   // Validate portal token
   var base = SUPABASE_URL + '/rest/v1/';
@@ -70,7 +66,7 @@ exports.handler = async function(event) {
   ).catch(function() { return null; });
 
   if (!tokenRows || !tokenRows[0])
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Invalid token' }) };
+    return { statusCode: 401, headers: headers, body: JSON.stringify({ error: 'Invalid token' }) };
 
   var clientEmail = tokenRows[0].client_email;
 
@@ -81,11 +77,11 @@ exports.handler = async function(event) {
   ).catch(function() { return null; });
 
   if (!recRows || !recRows[0])
-    return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Record not found' }) };
+    return { statusCode: 404, headers: headers, body: JSON.stringify({ error: 'Record not found' }) };
 
   var rec = recRows[0];
   if ((rec.cust_email || '').toLowerCase() !== clientEmail.toLowerCase())
-    return { statusCode: 403, headers: HEADERS, body: JSON.stringify({ error: 'Forbidden' }) };
+    return { statusCode: 403, headers: headers, body: JSON.stringify({ error: 'Forbidden' }) };
 
   // Apply the update
   var ok = await sbPatch(
@@ -95,7 +91,7 @@ exports.handler = async function(event) {
   );
 
   if (!ok)
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Update failed' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Update failed' }) };
 
-  return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+  return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
 };

@@ -9,11 +9,7 @@
 
 const { requireAuth } = require('./auth');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, x-admin-token',
-};
+const { corsHeaders } = require('./lib/cors');
 
 function getEnv() {
   return {
@@ -23,25 +19,26 @@ function getEnv() {
 }
 
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
 
-  const authErr = requireAuth(event);
+  const authErr = await requireAuth(event);
   if (authErr) return authErr;
 
   if (event.httpMethod !== 'POST')
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   const { SUPABASE_URL, SUPABASE_KEY } = getEnv();
   if (!SUPABASE_URL || !SUPABASE_KEY)
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Database not configured' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Database not configured' }) };
 
   var body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch(e) { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch(e) { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { id } = body;
   if (!id)
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'id required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'id required' }) };
 
   var res = await fetch(SUPABASE_URL + '/rest/v1/inspection_finding_photos?id=eq.' + encodeURIComponent(id), {
     method: 'DELETE',
@@ -54,8 +51,8 @@ exports.handler = async function(event) {
   if (!res.ok) {
     var text = await res.text();
     console.error('[delete-field-photo] error:', text);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Failed to delete photo' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Failed to delete photo' }) };
   }
 
-  return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+  return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
 };

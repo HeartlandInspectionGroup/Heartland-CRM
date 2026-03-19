@@ -13,12 +13,7 @@
  *   { ok: true, records: [...], waiver_versions: [...], waiver_signatures: [...] }
  */
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
+const { corsHeaders } = require('./lib/cors');
 // Read env lazily so tests can set process.env after require()
 function getEnv() {
   return {
@@ -55,17 +50,18 @@ async function validateAgentToken(token, supabaseUrl, supabaseKey) {
 }
 
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
   if (event.httpMethod !== 'GET')
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   const { SUPABASE_URL, SUPABASE_KEY } = getEnv();
   if (!SUPABASE_URL || !SUPABASE_KEY)
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Database not configured' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Database not configured' }) };
 
   var token = event.queryStringParameters && event.queryStringParameters.token;
   if (!token)
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Token required' }) };
+    return { statusCode: 401, headers: headers, body: JSON.stringify({ error: 'Token required' }) };
 
   // Validate token — agent_id comes from DB, never from client
   var agent;
@@ -73,11 +69,11 @@ exports.handler = async function(event) {
     agent = await validateAgentToken(token, SUPABASE_URL, SUPABASE_KEY);
   } catch(e) {
     console.error('[get-agent-records] token validation error:', e.message);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Database error during auth' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Database error during auth' }) };
   }
 
   if (!agent)
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Invalid or expired portal token' }) };
+    return { statusCode: 401, headers: headers, body: JSON.stringify({ error: 'Invalid or expired portal token' }) };
 
   // Fetch all three datasets in parallel
   try {
@@ -96,7 +92,7 @@ exports.handler = async function(event) {
 
     return {
       statusCode: 200,
-      headers: HEADERS,
+      headers: headers,
       body: JSON.stringify({
         ok:                true,
         agent_id:          agent.id,
@@ -108,7 +104,7 @@ exports.handler = async function(event) {
 
   } catch(e) {
     console.error('[get-agent-records] fetch error:', e.message);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Failed to load records' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'Failed to load records' }) };
   }
 };
 

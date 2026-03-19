@@ -1,10 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth } = require('./auth');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
+const { corsHeaders } = require('./lib/cors');
 
 var _supabase;
 function db() {
@@ -15,28 +12,29 @@ function db() {
 exports._setClient = function (c) { _supabase = c; };
 
 exports.handler = async (event) => {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
 
-  const authError = requireAuth(event);
+  const authError = await requireAuth(event);
   if (authError) return authError;
 
   if (event.httpMethod !== 'POST' && event.httpMethod !== 'DELETE') {
-    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
   var body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch (e) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   var { finding_id } = body;
 
   if (!finding_id) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'finding_id required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'finding_id required' }) };
   }
 
   try {
@@ -50,7 +48,7 @@ exports.handler = async (event) => {
     if (fetchErr) throw fetchErr;
 
     if (!existing) {
-      return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Finding not found' }) };
+      return { statusCode: 404, headers: headers, body: JSON.stringify({ error: 'Finding not found' }) };
     }
 
     // Delete (cascade deletes inspection_finding_recommendations via FK)
@@ -61,9 +59,9 @@ exports.handler = async (event) => {
 
     if (delErr) throw delErr;
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
   } catch (err) {
     console.error('delete-finding error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

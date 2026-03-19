@@ -15,15 +15,13 @@
 const { createClient } = require('@supabase/supabase-js');
 const { requireAuth }  = require('./auth');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
+const { corsHeaders } = require('./lib/cors');
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
 
-  const authError = requireAuth(event);
+  const authError = await requireAuth(event);
   if (authError) return authError;
 
   const sb = createClient(
@@ -35,7 +33,7 @@ exports.handler = async (event) => {
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
   try {
@@ -76,7 +74,7 @@ exports.handler = async (event) => {
       const { error: bkErr } = await sb.from('bookings').delete().eq('id', bookingId);
       if (bkErr) throw bkErr;
 
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true }) };
     }
 
     // ── RECORD DELETE ───────────────────────────────────────────────
@@ -89,13 +87,13 @@ exports.handler = async (event) => {
       recordQuery = recordQuery.eq('status', body.status);
       if (body.older_than) recordQuery = recordQuery.lt('updated_at', body.older_than);
     } else {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Must provide id, status, or booking_id' }) };
+      return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Must provide id, status, or booking_id' }) };
     }
 
     const { data: records, error: fetchErr } = await recordQuery;
     if (fetchErr) throw fetchErr;
     if (!records || !records.length) {
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true, deleted: 0 }) };
+      return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true, deleted: 0 }) };
     }
 
     // 1. Delete client_portal_tokens by client email
@@ -127,10 +125,10 @@ exports.handler = async (event) => {
       await sb.from('client_portal_tokens').delete().eq('booking_id', records[0].booking_id);
     }
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true, deleted: records.length }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true, deleted: records.length }) };
 
   } catch (err) {
     console.error('delete-record error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

@@ -290,6 +290,17 @@ body {
 @media (max-width: 480px) {
     .invoice-wrap { padding: 0; }
     .print-bar { flex-direction: column; gap: 8px; align-items: stretch; }
+    .inv-header { padding: 20px 16px; flex-direction: column; gap: 12px; }
+    .inv-header-right { text-align: left; }
+    .inv-meta { grid-template-columns: 1fr; }
+    .inv-meta-cell { border-right: none; border-bottom: 1px solid var(--border); }
+    .inv-meta-cell:last-child { border-bottom: none; }
+    .inv-table-wrap { padding: 16px; }
+    .inv-totals { padding: 0 16px 16px; }
+    .inv-payment { margin: 0 16px 16px; }
+    .inv-property { margin: 0 16px 16px; }
+    .inv-footer { padding: 16px; flex-direction: column; gap: 12px; }
+    .print-btn { min-height: 44px; }
 }
 @media print {
     body { background:white; padding:0; }
@@ -397,9 +408,6 @@ body {
 </div>
 
 <script>
-var SUPABASE_URL  = 'https://fusravedbksupcsjfzda.supabase.co';
-var SUPABASE_ANON = window.SUPABASE_ANON_KEY;
-
 function fmt(n) {
     return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
 }
@@ -439,19 +447,8 @@ async function loadInvoice() {
     }
 }
 
-async function lookupPortalUrl(custEmail) {
-    if (!custEmail) return null;
-    try {
-        var res = await fetch(SUPABASE_URL + '/rest/v1/client_portal_tokens?client_email=eq.' + encodeURIComponent(custEmail) + '&select=token&limit=1', {
-            headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON }
-        });
-        var rows = await res.json();
-        if (rows && rows[0] && rows[0].token) {
-            return (window.location.origin || 'https://heartlandinspectiongroup.com') + '/client-portal.html?token=' + rows[0].token;
-        }
-    } catch(e) { console.error('Portal lookup failed:', e); }
-    return null;
-}
+// Portal button removed (HEA-134) — client_portal_tokens no longer accessible via anon key
+function lookupPortalUrl() { return Promise.resolve(null); }
 
 function renderInvoice(r) {
     var tier     = r.tier || 'Standard';

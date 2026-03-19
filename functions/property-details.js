@@ -64,16 +64,10 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
+const { corsHeaders } = require('./lib/cors');
 const API_PROVIDER = process.env.PROPERTY_API_PROVIDER || 'rentcast';
 const RENTCAST_MONTHLY_LIMIT = parseInt(process.env.RENTCAST_MONTHLY_LIMIT, 10) || 50;
 const CACHE_MAX_DAYS = 90;
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-  'Cache-Control': 'public, max-age=86400',
-};
 
 // ═══════════════════════════════════════════════════════════════════════
 // SUPABASE CLIENT (lazy init — only created when needed)
@@ -517,15 +511,16 @@ function parseAddress(combined) {
 // HANDLER
 // ═══════════════════════════════════════════════════════════════════════
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event), 'Cache-Control': 'public, max-age=86400' };
   // CORS preflight
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: CORS_HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
 
   if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
-      headers: CORS_HEADERS,
+      headers: headers,
       body: JSON.stringify({ error: 'Method not allowed' }),
     };
   }
@@ -534,7 +529,7 @@ exports.handler = async function (event) {
   if (!rawAddress || rawAddress.trim().length < 5) {
     return {
       statusCode: 400,
-      headers: CORS_HEADERS,
+      headers: headers,
       body: JSON.stringify({ error: 'Missing or invalid "address" query parameter' }),
     };
   }
@@ -549,7 +544,7 @@ exports.handler = async function (event) {
       console.info('Cache HIT for:', cacheKey);
       return {
         statusCode: 200,
-        headers: CORS_HEADERS,
+        headers: headers,
         body: JSON.stringify({
           ...cached.normalized,
           cached: true,
@@ -572,7 +567,7 @@ exports.handler = async function (event) {
         console.warn('KILL SWITCH: RentCast monthly limit reached (' + count + '/' + RENTCAST_MONTHLY_LIMIT + ')');
         return {
           statusCode: 200,
-          headers: CORS_HEADERS,
+          headers: headers,
           body: JSON.stringify({
             found: false,
             cached: false,
@@ -608,7 +603,7 @@ exports.handler = async function (event) {
     console.warn('property-details: ' + envName + ' not set for provider "' + provider + '"');
     return {
       statusCode: 200,
-      headers: CORS_HEADERS,
+      headers: headers,
       body: JSON.stringify({ found: false, cached: false, reason: 'API key not configured' }),
     };
   }
@@ -669,7 +664,7 @@ exports.handler = async function (event) {
 
     return {
       statusCode: 200,
-      headers: CORS_HEADERS,
+      headers: headers,
       body: JSON.stringify({
         ...result,
         cached: false,
@@ -682,7 +677,7 @@ exports.handler = async function (event) {
     await logApiCall(provider, cacheKey, false).catch(() => {});
     return {
       statusCode: 200,
-      headers: CORS_HEADERS,
+      headers: headers,
       body: JSON.stringify({ found: false, cached: false, reason: err.message }),
     };
   }

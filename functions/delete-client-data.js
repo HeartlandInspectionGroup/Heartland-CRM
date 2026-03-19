@@ -11,29 +11,26 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth } = require('./auth');
 const { writeAuditLog } = require('./write-audit-log');
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, x-admin-token',
-};
+const { corsHeaders } = require('./lib/cors');
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
+  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
-  if (event.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  const authError = await requireAuth(event);
+  if (authError) return authError;
 
   let body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { email } = body;
   if (!email || typeof email !== 'string' || !email.includes('@')) {
-    return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Valid email required' }) };
+    return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Valid email required' }) };
   }
 
   email = email.trim().toLowerCase();
@@ -91,12 +88,12 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: HEADERS,
+      headers: headers,
       body: JSON.stringify({ ok: true, deleted: deleted }),
     };
 
   } catch (err) {
     console.error('[delete-client-data] Error:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

@@ -7,22 +7,28 @@
  * 3. Sends confirmation email
  */
 
+const { createClient } = require('@supabase/supabase-js');
+const { corsHeaders } = require('./lib/cors');
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const SUPABASE_URL   = process.env.SUPABASE_URL;
-const SUPABASE_KEY   = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_KEY   = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 const SITE_URL       = process.env.SITE_URL || 'https://heartlandinspectiongroup.com';
 
 const FROM_EMAIL = 'no-reply@heartlandinspectiongroup.com';
 const FROM_NAME  = 'Heartland Inspection Group';
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
-
+const { requireAuth } = require('./auth');
 const crypto = require('crypto');
 const { emailWrap, emailBtn, emailInfoTable, esc } = require('./lib/email-template');
 const { writeAuditLog } = require('./write-audit-log');
+const { resolveTemplate } = require('./lib/template-utils');
+
+// Service-role Supabase client for RLS-protected tables (client_portal_tokens)
+var _sb;
+function db() {
+  if (!_sb) _sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+  return _sb;
+}
 
 async function sbGet(path) {
   var res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
@@ -135,29 +141,28 @@ function buildEmail({ firstName, address, date, time, portalUrl, portalOnly }) {
 }
 
 exports.handler = async function(event) {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: headers, body: '' };
+  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers: headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
-  var adminToken = process.env.ADMIN_TOKEN;
-  if (event.headers['x-admin-token'] !== adminToken) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  var authError = await requireAuth(event);
+  if (authError) return authError;
 
   if (!RESEND_API_KEY) {
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'RESEND_API_KEY not set' }) };
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: 'RESEND_API_KEY not set' }) };
   }
 
   var parsed;
   try { parsed = JSON.parse(event.body || '{}'); }
-  catch(e) { return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch(e) { return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
   var { booking_id, inspector_id, inspector_name, category, tier, skip_email, portal_only } = parsed;
-  if (!booking_id) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'booking_id required' }) };
+  if (!booking_id) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'booking_id required' }) };
 
   var rows = await sbGet('bookings?id=eq.' + booking_id + '&select=*');
   var b = rows && rows[0];
-  if (!b) return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Booking not found' }) };
-  if (!b.client_email) return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Booking has no client email' }) };
+  if (!b) return { statusCode: 404, headers: headers, body: JSON.stringify({ error: 'Booking not found' }) };
+  if (!b.client_email) return { statusCode: 400, headers: headers, body: JSON.stringify({ error: 'Booking has no client email' }) };
 
   var existingRecs = await sbGet('inspection_records?booking_id=eq.' + booking_id + '&select=id');
   var existingRec  = existingRecs && existingRecs[0];
@@ -184,7 +189,7 @@ exports.handler = async function(event) {
     };
     var recResult = await sbPost('inspection_records', recPayload);
     if (!recResult.ok) {
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({
+      return { statusCode: 500, headers: headers, body: JSON.stringify({
         error: 'Failed to create inspection record',
         supabase_status: recResult.status,
         supabase_error: recResult.data,
@@ -203,21 +208,94 @@ exports.handler = async function(event) {
 
   var token = null;
   try {
-    var existingTokenRows = await sbGet('client_portal_tokens?client_email=eq.' + encodeURIComponent(b.client_email) + '&select=token&limit=1');
+    // Use Supabase JS client (service role) for RLS-protected client_portal_tokens
+    var { data: existingTokenRows, error: tokenLookupErr } = await db()
+      .from('client_portal_tokens')
+      .select('token')
+      .eq('client_email', b.client_email)
+      .limit(1);
+
+    if (tokenLookupErr) {
+      console.error('[confirm-booking-email] Token lookup error:', tokenLookupErr.message);
+    }
+
     if (existingTokenRows && existingTokenRows[0] && existingTokenRows[0].token) {
       token = existingTokenRows[0].token;
+      console.log('[confirm-booking-email] Reusing existing portal token for', b.client_email);
     } else {
       token = crypto.randomBytes(32).toString('hex');
-      await sbPost('client_portal_tokens', {
-        token,
-        client_email: b.client_email,
-        client_name:  b.client_name || '',
-        booking_id:   booking_id,
-      });
+      var { error: tokenInsertErr } = await db()
+        .from('client_portal_tokens')
+        .insert({
+          token: token,
+          client_email: b.client_email,
+          client_name:  b.client_name || '',
+          booking_id:   booking_id,
+        });
+
+      if (tokenInsertErr) {
+        console.error('[confirm-booking-email] client_portal_tokens insert FAILED:', tokenInsertErr.message);
+      } else {
+        console.log('[confirm-booking-email] Portal token created for', b.client_email);
+      }
     }
   } catch(e) {
-    console.error('Token save error:', e);
+    console.error('[confirm-booking-email] Token save error:', e.message || e);
     token = crypto.randomBytes(32).toString('hex');
+  }
+
+  // ── Set invoice_url on the inspection record so client portal can show it ──
+  var recordId = existingRec ? existingRec.id : (recResult && recResult.data && recResult.data[0] ? recResult.data[0].id : null);
+  if (recordId) {
+    var invoiceUrl = SITE_URL + '/invoice-receipt.html?id=' + recordId;
+    var reportUrl  = SITE_URL + '/report.html?id=' + recordId;
+    await sbPatch('inspection_records?id=eq.' + recordId, { invoice_url: invoiceUrl, report_url: reportUrl });
+    console.log('[confirm-booking-email] Set invoice_url + report_url for record', recordId);
+  }
+
+  // ── Create addon records for bundle bookings ──
+  var addonRecordIds = [];
+  if (!existingRec && b.services && Array.isArray(b.services) && b.services.length > 1) {
+    var addonEntries = b.services.slice(1).filter(function(s) { return s && s.id; });
+    if (addonEntries.length > 0) {
+      var addonPromises = addonEntries.map(function(addon) {
+        return sbPost('inspection_records', {
+          booking_id:             booking_id,
+          cust_name:              b.client_name             || '',
+          cust_email:             b.client_email            || '',
+          cust_phone:             b.client_phone            || '',
+          address:                b.property_address        || '',
+          client_current_address: b.client_current_address  || null,
+          inspection_date:        b.preferred_date          || null,
+          inspection_time:        b.preferred_time          || null,
+          tier:                   addon.id,
+          category:               'addon',
+          is_bundle:              true,
+          final_total:            addon.price || 0,
+          inspector_id:           inspector_id              || null,
+          inspector_name:         inspector_name            || null,
+          agent_id:               b.agent_id                || null,
+          status:                 'scheduled',
+          payment_status:         'unpaid',
+          payment_method:         null,
+        });
+      });
+      var addonResults = await Promise.all(addonPromises);
+
+      for (var i = 0; i < addonResults.length; i++) {
+        var ar = addonResults[i];
+        if (ar.ok && ar.data && ar.data[0]) {
+          var addonId = ar.data[0].id;
+          addonRecordIds.push(addonId);
+          var addonInvoiceUrl = SITE_URL + '/invoice-receipt.html?id=' + addonId;
+          var addonReportUrl  = SITE_URL + '/report.html?id=' + addonId;
+          await sbPatch('inspection_records?id=eq.' + addonId, { invoice_url: addonInvoiceUrl, report_url: addonReportUrl });
+          console.log('[confirm-booking-email] Created addon record', addonId, 'tier=' + addonEntries[i].id);
+        } else {
+          console.error('[confirm-booking-email] Failed to create addon record for', addonEntries[i].id, ar.status, ar.data);
+        }
+      }
+    }
   }
 
   await sbPatch('bookings?id=eq.' + booking_id, { status: 'confirmed' });
@@ -226,7 +304,7 @@ exports.handler = async function(event) {
   var portalUrl = SITE_URL + '/client-portal.html?token=' + token;
 
   if (skip_email) {
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ ok: true, portal_url: portalUrl, skip_email: true }) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify({ ok: true, portal_url: portalUrl, skip_email: true }) };
   }
 
   var emailHtml = buildEmail({
@@ -251,7 +329,7 @@ exports.handler = async function(event) {
         bcc:     ['jake@heartlandinspectiongroup.com'],
         subject: portal_only
           ? 'Your Heartland Inspection Group Portal Link'
-          : 'Your Inspection is Confirmed \u2014 ' + (b.property_address || ''),
+          : (await resolveTemplate('booking_confirmed', { subject: 'Your Inspection is Confirmed \u2014 {{address}}', body: '' }, { client_name: b.client_name || '', address: b.property_address || '', date: b.preferred_date || '', time: b.preferred_time || '', inspector_name: inspector_name || '' })).subject,
         html:    emailHtml,
       }),
     });
@@ -261,14 +339,27 @@ exports.handler = async function(event) {
       throw new Error('Resend error: ' + err);
     }
 
-    // ── Audit log ──
-    var recordId = existingRec ? existingRec.id : (recResult && recResult.data && recResult.data[0] ? recResult.data[0].id : null);
+    console.log('[confirm-booking-email] Email sent to', b.client_email);
+
+  } catch(e) {
+    console.error('[confirm-booking-email] Email send error:', e.message || e);
+    return { statusCode: 500, headers: headers, body: JSON.stringify({ error: e.message }) };
+  }
+
+  // ── Audit log (after email — non-fatal) ──
+  try {
+    console.log('[confirm-booking-email] Writing audit logs for record_id:', recordId);
     writeAuditLog({ record_id: recordId, action: 'booking.confirmed', category: 'scheduling', actor: 'admin', details: { source: 'confirm_booking', agent_id: b.agent_id || null } });
     writeAuditLog({ record_id: recordId, action: 'agreement.sent',    category: 'agreements',  actor: 'system', details: {} });
 
-    return { statusCode: 200, headers: HEADERS, body: JSON.stringify({ success: true }) };
-  } catch(e) {
-    console.error('confirm-booking-email error:', e);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: e.message }) };
+    // Audit addon records
+    for (var a = 0; a < addonRecordIds.length; a++) {
+      writeAuditLog({ record_id: addonRecordIds[a], action: 'booking.confirmed', category: 'scheduling', actor: 'admin', details: { source: 'confirm_booking_addon', parent_record_id: recordId } });
+      writeAuditLog({ record_id: addonRecordIds[a], action: 'agreement.sent',    category: 'agreements',  actor: 'system', details: {} });
+    }
+  } catch(auditErr) {
+    console.error('[confirm-booking-email] Audit log write error:', auditErr.message || auditErr);
   }
+
+  return { statusCode: 200, headers: headers, body: JSON.stringify({ success: true }) };
 };

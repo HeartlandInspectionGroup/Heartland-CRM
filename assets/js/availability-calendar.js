@@ -457,11 +457,7 @@
 
     for (var i = 0; i < slots.length; i++) {
       var slot = slots[i];
-      var schedulerUrl = 'scheduler.html?date=' + slot.dateKey +
-        '&start=' + encodeURIComponent(slot.start24) +
-        '&end=' + encodeURIComponent(slot.end24);
-
-      html += '<a class="slot-button" href="' + schedulerUrl + '" ' +
+      html += '<a class="slot-button" href="#" ' +
         'data-date="' + friendlyDate + '" data-time="' + formatTime12(slot.start) + '">' +
         '<span class="slot-time">' + slot.label + '</span>' +
         '<span class="slot-cta">Book Now →</span>' +

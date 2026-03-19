@@ -7,20 +7,17 @@
  */
 const https = require('https');
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json'
-};
+const { corsHeaders } = require('./lib/cors');
 
 exports.handler = async function (event) {
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: CORS_HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
 
   const q = (event.queryStringParameters || {}).q || '';
   if (!q || q.length < 5) {
-    return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify([]) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify([]) };
   }
 
   const url = 'https://nominatim.openstreetmap.org/search'
@@ -50,8 +47,8 @@ exports.handler = async function (event) {
       req.setTimeout(5000, function () { req.destroy(); reject(new Error('Nominatim timeout')); });
     });
 
-    return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify(data) };
+    return { statusCode: 200, headers: headers, body: JSON.stringify(data) };
   } catch (err) {
-    return { statusCode: 502, headers: CORS_HEADERS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 502, headers: headers, body: JSON.stringify({ error: err.message }) };
   }
 };

@@ -1,27 +1,22 @@
 const { createClient } = require('@supabase/supabase-js');
+const { requireAuth } = require('./auth');
 
+const { corsHeaders } = require('./lib/cors');
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
-
-function ok(body)  { return { statusCode: 200, headers: HEADERS, body: JSON.stringify(body) }; }
-function err(code, msg) { return { statusCode: code, headers: HEADERS, body: JSON.stringify({ error: msg }) }; }
+function ok(body)  { return { statusCode: 200, headers: headers, body: JSON.stringify(body) }; }
+function err(code, msg) { return { statusCode: code, headers: headers, body: JSON.stringify({ error: msg }) }; }
 
 exports.handler = async (event) => {
-
+  var headers = { 'Content-Type': 'application/json', ...corsHeaders(event) };
   // ── AUTH CHECK ──
-  const adminToken = process.env.ADMIN_TOKEN;
-  if (event.httpMethod !== 'OPTIONS' && event.headers['x-admin-token'] !== adminToken) {
-    return { statusCode: 401, headers: HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
-  }
+  const authError = await requireAuth(event);
+  if (authError) return authError;
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: HEADERS, body: '' };
+    return { statusCode: 204, headers: headers, body: '' };
   }
 
   // ── GET all inspectors ──
