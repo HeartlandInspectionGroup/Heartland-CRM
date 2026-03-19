@@ -2402,7 +2402,6 @@ Heartland Inspection Group</textarea>
   var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
   var sb = window._heartlandSB || supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   if (!window._heartlandSB) window._heartlandSB = sb;
-  window._hbShared.sb = sb;
 
 
   // Handle redirect after login
@@ -2430,7 +2429,7 @@ Heartland Inspection Group</textarea>
   window.getAuthHeader = getAuthHeader;
 
   // ── Shared data bus ──
-  window._hbShared = { bookings: [], invoices: [], clients: [], records: [], waiverVersions: [], waiverSignatures: [], cfg: null, agents: [], sb: null, contractors: [], faqData: [], faqSlug: '' };
+  window._hbShared = { bookings: [], invoices: [], clients: [], records: [], waiverVersions: [], waiverSignatures: [], cfg: null, agents: [], sb: sb, contractors: [], faqData: [], faqSlug: '' };
   window._hbShared.CONTRACTOR_CATEGORIES = ['electrical','plumbing','structural','roofing','hvac','general','radon','mold','sewer','pest'];
 
   // ─── LOGIN (Supabase Auth) ──────────────────────
