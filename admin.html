@@ -2474,9 +2474,11 @@ Heartland Inspection Group</textarea>
     await loadConfig();
   }
 
-  // Check for existing session on page load
-  sb.auth.getSession().then(function(res){
-    if(res.data.session){ loadConfig(); }
+  // Check for existing session on page load — defer until all scripts are loaded
+  window.addEventListener('load', function() {
+    sb.auth.getSession().then(function(res){
+      if(res.data.session){ loadConfig(); }
+    });
   });
 
   // ─── LOAD CONFIG FROM SUPABASE ──────────────────
@@ -2553,7 +2555,7 @@ Heartland Inspection Group</textarea>
 
 
 
-  document.getElementById('saveBtn').addEventListener('click', saveConfig);
+  document.getElementById('saveBtn').addEventListener('click', function(){ saveConfig(); });
 
   // ─── TAB SWITCHING (sidebar nav) ──────────────────────────────
   var sidebar = document.getElementById('adminSidebar');
