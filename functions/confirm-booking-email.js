@@ -261,6 +261,7 @@ exports.handler = async function(event) {
       var addonPromises = addonEntries.map(function(addon) {
         return sbPost('inspection_records', {
           booking_id:             booking_id,
+          parent_record_id:       recordId                  || null,
           cust_name:              b.client_name             || '',
           cust_email:             b.client_email            || '',
           cust_phone:             b.client_phone            || '',

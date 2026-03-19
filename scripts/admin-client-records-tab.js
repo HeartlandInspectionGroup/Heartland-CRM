@@ -78,7 +78,12 @@ function renderScheduledSection() {
   var el = document.getElementById('crScheduledList');
   if (!el) return;
   var q = (document.getElementById('crScheduledSearch') ? document.getElementById('crScheduledSearch').value : '').toLowerCase().trim();
-  var records = (window._hbShared.records || []).filter(function(r){ return r.status === 'scheduled'; });
+  var allRecs = (window._hbShared.records || []);
+
+  // Fix 2: Show main inspections only — exclude add-ons that have a parent
+  var records = allRecs.filter(function(r){
+    return r.status === 'scheduled' && !r.parent_record_id;
+  });
   if (q) {
     records = records.filter(function(r){
       return (r.cust_name||'').toLowerCase().indexOf(q) !== -1;
@@ -90,20 +95,40 @@ function renderScheduledSection() {
     return db.localeCompare(da);
   });
 
+  // Fix 3: Legend
+  var html = '<div style="display:flex;gap:14px;padding:6px 12px 8px;font-size:10px;color:var(--text-light);align-items:center;">';
+  html += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#e8a020;display:inline-block;"></span> In progress</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#1a7a4a;display:inline-block;"></span> All done</span>';
+  html += '</div>';
+
   // Render list items
-  var html = '';
   records.forEach(function(r){
     var name = r.cust_name || '—';
     var dateStr = r.inspection_date ? new Date(r.inspection_date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
     var tier = r.category === 'addon' ? addonTierLabel(r.tier||'') : (r.tier||'Standard');
     var isActive = _crSchSelectedId === r.id;
-    html += '<div class="tp-list-item' + (isActive ? ' tp-active' : '') + '" data-cr-sch-id="' + r.id + '">';
+
+    // Fix 3: Status color coding — check appointment group
+    var addons = allRecs.filter(function(x){ return x.parent_record_id === r.id; });
+    var group = [r].concat(addons);
+    var doneStatuses = ['submitted','delivered','approved','completed'];
+    var allDone = group.every(function(x){ return doneStatuses.indexOf(x.status) !== -1; });
+    var borderColor = allDone ? '#1a7a4a' : '#e8a020';
+
+    html += '<div class="tp-list-item' + (isActive ? ' tp-active' : '') + '" data-cr-sch-id="' + r.id + '" style="border-left:3px solid ' + borderColor + ';">';
     html += '<div class="tp-list-name">' + esc(name) + '</div>';
     html += '<div class="tp-list-meta">';
     html += '<span class="tp-list-badge scheduled">' + esc(tier) + '</span>';
     if (r.payment_status === 'paid') html += '<span class="tp-list-badge paid">Paid</span>';
     else html += '<span class="tp-list-badge unpaid">Unpaid</span>';
     if (dateStr) html += '<span>' + dateStr + '</span>';
+    // Fix 3: Add-on note
+    if (addons.length) {
+      var pending = addons.filter(function(x){ return x.status === 'scheduled'; }).length;
+      var note = '+ ' + addons.length + ' add-on' + (addons.length > 1 ? 's' : '') + ', ';
+      note += pending > 0 ? pending + ' pending' : 'all submitted';
+      html += '<span style="font-style:italic;font-size:10px;color:var(--text-light);">' + note + '</span>';
+    }
     html += '</div></div>';
   });
   el.innerHTML = html || '<div class="cr-empty" style="padding:20px;">No scheduled inspections.</div>';
@@ -153,38 +178,67 @@ function crSchRenderDetail(id) {
   else html += '<span class="tp-list-badge unpaid">Unpaid</span>';
   html += '</div></div>';
 
-  html += '<div class="tp-detail-section"><div class="tp-detail-label">Details</div>';
-  html += '<div class="tp-detail-grid">';
-  html += '<dt>Address</dt><dd>' + esc(address) + '</dd>';
-  html += '<dt>Date</dt><dd>' + esc(dateStr) + '</dd>';
-  if (r.inspection_time) { html += '<dt>Time</dt><dd>' + esc(r.inspection_time) + '</dd>'; }
-  if (r.cust_phone) { html += '<dt>Phone</dt><dd>' + esc(r.cust_phone) + '</dd>'; }
-  if (r.cust_email) { html += '<dt>Email</dt><dd>' + esc(r.cust_email) + '</dd>'; }
-  if (r.inspector_name) { html += '<dt>Inspector</dt><dd>' + esc(r.inspector_name) + '</dd>'; }
+  // Fix 4: Compact two-column detail grid
+  var dateTime = dateStr + (r.inspection_time ? ' \u00b7 ' + esc(r.inspection_time) : '');
   var assignedAgent = r.agent_id ? (window._hbShared.agents || []).find(function(a){ return a.id === r.agent_id && a.role === 'agent'; }) : null;
-  if (assignedAgent) { html += '<dt>Agent</dt><dd>' + esc(assignedAgent.name||assignedAgent.email) + '</dd>'; }
-  if (r.final_total) { html += '<dt>Total</dt><dd>$' + parseFloat(r.final_total).toFixed(2) + '</dd>'; }
-  html += '</div></div>';
+  html += '<div class="cr-detail-grid">';
+  html += '<div class="cr-detail-field cr-detail-full"><span class="cr-detail-label">Address</span><span class="cr-detail-val">' + esc(address) + '</span></div>';
+  html += '<div class="cr-detail-field"><span class="cr-detail-label">Date &amp; time</span><span class="cr-detail-val">' + dateTime + '</span></div>';
+  if (r.inspector_name) { html += '<div class="cr-detail-field"><span class="cr-detail-label">Inspector</span><span class="cr-detail-val">' + esc(r.inspector_name) + '</span></div>'; }
+  if (r.cust_phone) { html += '<div class="cr-detail-field"><span class="cr-detail-label">Phone</span><span class="cr-detail-val">' + esc(r.cust_phone) + '</span></div>'; }
+  if (r.cust_email) { html += '<div class="cr-detail-field"><span class="cr-detail-label">Email</span><span class="cr-detail-val">' + esc(r.cust_email) + '</span></div>'; }
+  if (assignedAgent) { html += '<div class="cr-detail-field"><span class="cr-detail-label">Agent</span><span class="cr-detail-val">' + esc(assignedAgent.name||assignedAgent.email) + '</span></div>'; }
+  if (r.final_total) { html += '<div class="cr-detail-field"><span class="cr-detail-label">Total</span><span class="cr-detail-val">$' + parseFloat(r.final_total).toFixed(2) + '</span></div>'; }
+  html += '</div>';
 
-  // Add-on grouping: find add-ons for same client + date
+  // Add-on grouping: find add-ons linked by parent_record_id, fallback to email+date
   if (!isAddon) {
     var addons = (window._hbShared.records || []).filter(function(x){
-      return (x.category === 'addon' || x.category === 'bundle_addon') &&
-             x.status === 'scheduled' &&
+      if (x.id === r.id) return false;
+      if (x.category !== 'addon' && x.category !== 'bundle_addon') return false;
+      // Match by parent_record_id first, then soft-match by email+date
+      if (x.parent_record_id === r.id) return true;
+      return !x.parent_record_id &&
              (x.cust_email||'').toLowerCase() === (r.cust_email||'').toLowerCase() &&
-             x.inspection_date === r.inspection_date && x.id !== r.id;
+             x.inspection_date === r.inspection_date;
     });
     if (addons.length) {
       var addonTotal = addons.reduce(function(s,a){ return s + (parseFloat(a.final_total)||0); }, 0);
       html += '<div class="tp-addon-group"><div class="tp-addon-label">Add-ons for this inspection</div>';
       addons.forEach(function(a){
-        html += '<div class="tp-addon-card">';
-        html += '<strong>' + esc(addonTierLabel(a.tier||'')) + '</strong>';
-        html += '<div class="cr-card-badges" style="margin-top:4px;">';
-        if (a.payment_status === 'paid') html += '<span class="tp-list-badge paid">Paid</span>';
-        else html += '<span class="tp-list-badge unpaid">Unpaid</span>';
-        if (a.final_total) html += '<span style="font-size:12px;font-weight:700;color:var(--text-dark);">$' + parseFloat(a.final_total).toFixed(2) + '</span>';
-        html += '</div></div>';
+        var addonName = esc(addonTierLabel(a.tier||''));
+        var amt = a.final_total ? '$' + parseFloat(a.final_total).toFixed(2) : '';
+        var doneStatuses = ['submitted','delivered','approved','completed'];
+        var addonDone = doneStatuses.indexOf(a.status) !== -1;
+        var statusText = addonDone ? a.status : 'scheduled';
+        var statusLabel = addonDone ? 'Done' : 'Scheduled';
+        var statusClass = addonDone ? 'paid' : 'scheduled';
+        // Border color: blue if lab report, green if done, amber if scheduled
+        var addonBorder = a.lab_report_url ? '#185fa5' : addonDone ? '#1a7a4a' : '#e8a020';
+
+        // Build menu items based on status
+        var menuItems = '';
+        if (addonDone) {
+          if (a.report_url) menuItems += '<button class="cr-overflow-item" onclick="window.open(\'' + esc(a.report_url) + '\')">View report</button>';
+          if (a.report_url) menuItems += '<button class="cr-overflow-item" data-action="resend-report" data-rid="' + a.id + '">Send report</button>';
+          if (a.lab_report_url) menuItems += '<button class="cr-overflow-item" onclick="window.open(\'' + esc(a.lab_report_url) + '\')">View lab report</button>';
+          var aIurl = fixInvoiceUrl(a.invoice_url || '');
+          if (!aIurl && a.id) aIurl = window.location.origin + '/invoice-receipt.html?id=' + a.id;
+          if (aIurl) menuItems += '<button class="cr-overflow-item" onclick="window.open(\'' + esc(aIurl) + '\')">View invoice</button>';
+        } else {
+          menuItems += '<button class="cr-overflow-item" data-action="edit" data-rid="' + a.id + '">Edit</button>';
+          menuItems += '<button class="cr-overflow-item" data-action="reschedule" data-rid="' + a.id + '" data-rbid="' + esc(a.booking_id||'') + '">Reschedule</button>';
+          menuItems += '<button class="cr-overflow-item cr-overflow-danger" data-action="cancel" data-rid="' + a.id + '" data-rname="' + esc(a.cust_name||'') + '" data-rbid="' + esc(a.booking_id||'') + '">Cancel</button>';
+        }
+
+        html += '<div class="cr-addon-card" style="border-left:3px solid ' + addonBorder + ';">';
+        html += '<div class="cr-addon-left"><div class="cr-addon-name">' + addonName + '</div>';
+        html += '<div class="cr-addon-meta">' + amt + (amt && statusText ? ' \u00b7 ' : '') + statusText + '</div></div>';
+        html += '<div class="cr-addon-right">';
+        html += '<span class="tp-list-badge ' + statusClass + '">' + statusLabel + '</span>';
+        html += '<div class="cr-addon-overflow"><button class="cr-overflow-btn" onclick="crToggleAddonMenu(this)">\u2022\u2022\u2022</button>';
+        html += '<div class="cr-overflow-menu" style="display:none;">' + menuItems + '</div>';
+        html += '</div></div></div>';
       });
       var groupTotal = (parseFloat(r.final_total)||0) + addonTotal;
       html += '<div class="tp-group-total">Appointment Total: $' + groupTotal.toFixed(2) + '</div>';
@@ -998,6 +1052,15 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    // Add-on overflow buttons carry data-rid on the button itself
+    if (btn.hasAttribute('data-rid')) {
+      var addonRid = btn.getAttribute('data-rid');
+      if (action === 'edit') { openCrEditModal(addonRid); return; }
+      if (action === 'reschedule') { openAdminRescheduleModal(btn.getAttribute('data-rbid'), 'record'); return; }
+      if (action === 'cancel') { cancelScheduledRecord(addonRid, btn.getAttribute('data-rname')||'', btn.getAttribute('data-rbid')||''); return; }
+      if (action === 'resend-report') { resendCrReport(addonRid, btn); return; }
+    }
+
     // Job card buttons — read data from parent [data-rid]
     var actionsDiv = btn.closest('[data-rid]');
     if (!actionsDiv) return;
@@ -1055,6 +1118,18 @@ document.addEventListener('DOMContentLoaded', function() {
 // ══════════════════════════════════════════════════════════════
 // Expose on window
 // ══════════════════════════════════════════════════════════════
+// Fix 5: Toggle add-on overflow menu
+function crToggleAddonMenu(btn) {
+  var menu = btn.nextElementSibling;
+  if (!menu) return;
+  // Close all other open menus first
+  document.querySelectorAll('.cr-overflow-menu').forEach(function(m) {
+    if (m !== menu) m.style.display = 'none';
+  });
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+window.crToggleAddonMenu = crToggleAddonMenu;
+
 window.refreshClientRecords = refreshClientRecords;
 window.renderClientRecords = renderClientRecords;
 window.renderScheduledSection = renderScheduledSection;

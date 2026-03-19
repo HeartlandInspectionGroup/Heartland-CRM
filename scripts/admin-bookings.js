@@ -265,6 +265,9 @@ function bkCalSelectDay(dk) { bkCalSelectedDate = (bkCalSelectedDate === dk) ? n
 function renderBookings(){
   var q = (document.getElementById('bkFilterSearch') ? document.getElementById('bkFilterSearch').value.toLowerCase() : '');
   var list = (window._hbShared.bookings || []).filter(function(b){
+    // Only show bookings that need action — pending or reschedule requested
+    var s = b.status || 'pending';
+    if (s !== 'pending' && !b.reschedule_requested) return false;
     if (!q) return true;
     return (b.client_name||'').toLowerCase().indexOf(q) !== -1 ||
            (b.property_address||'').toLowerCase().indexOf(q) !== -1 ||
